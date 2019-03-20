@@ -474,7 +474,26 @@ docker inspect <task or container>                   # Inspect task or container
 docker container ls -q                                      # List container IDs
 docker stack rm <appname>                             # Tear down an application
 docker swarm leave --force      # Take down a single node swarm from the manager
-=============
+
+==================================================================================Kubeernetes and Docker Swarm=======================================================================================================================
+
+Kubernetes is based on years of Google’s experience of running workloads at a huge scale in production. "Kubernetes is an open-source system for automating deployment, scaling, and management of containerized applications."
+
+It's for container deployment operations, scaling up and down, and automation across the clusters of hosts. This production-ready, enterprise-grade, self-healing (auto-scaling, auto-replication, auto-restart, auto-placement) 
+platform is modular, and so it can be utilized for any architecture deployment.
+
+Kubernetes										Docker Swarm
+=========										============
+Developed by Google									Developed by Docker Swarm
+Has a vast Open source community 							Has a smaller community compared to Kubernetes
+More extensive and customizable								Less extensive and less customizable
+Requires heavy setup									Easy to set up and fits well into Docker ecosystem
+Has high fault tolerance								Has low fault tolerance
+Provides strong guarantees to cluster states, at the expense of speed			Facilitates for quick container deployment and scaling even in very large clusters
+Enables load balancing when container pods are defined as services.			Features automated internal load balancing through any node in the cluster.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 In part 3, you took an app you wrote in part 2, and defined how it should run in production by turning it into a service, scaling it up 5x in the process.
 Here in part 4, you deploy this application onto a cluster, running it on multiple machines. Multi-container, multi-machine applications are made possible by joining multiple machines into a “Dockerized” cluster called a swarm.
 
