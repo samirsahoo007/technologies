@@ -18,6 +18,13 @@ docker ps										# Check the container(running image)
 docker exec -it f151f4ab7085 /bin/bash							# Invoke the shell of container	
 
 
+
+CLEAN UP ALL exited CONTAINERS:
+==============================
+docker container stop $(docker container ls -a | grep Exited | grep -i '/bin/bash' | awk '{print $1}')
+docker container rm $(docker container ls -a | grep Exited | grep '/bin/bash' | awk '{print $1}')
+
+
 COMMONLY USED COMMANDS WITH OUTPUT:
 ==================================
 $ docker login docker.apple.com
