@@ -2,13 +2,13 @@ COMMONLY USED COMMANDS:
 ======================
 docker login docker.apple.com
 docker pull docker.apple.com/neutronbot/reactor-x:version-3.2 (FIRST TIME ONLY)
-docker images										# Get image id
-docker run -v /Users/samirsahoo/Projects/:/opt/data -it <image_id> /bin/bash	        # Mounts HOST directory(/Users/samirsahoo/Projects/:/opt/data) to IMAGE(/opt/data) directory and starts CONTAINER 															      # and falls to bash shell of the contailer
-											# docker run -it <image_id> /bin/bash: Run this command if you do not want to mount anything
-											# Run the following command before running nosetests
+docker images											  # Get image id
+docker run -v /Users/samirsahoo/Projects/:/opt/data -v /tmp/:/tmp -it 535022205989 /bin/bash      # Mounts HOST directory(/Users/samirsahoo/Projects/:/opt/data) to IMAGE(/opt/data) directory and starts CONTAINER 																# and falls to bash shell of the contailer
+												  # docker run -it <image_id> /bin/bash: Run this command if you do not want to mount anything
+												  # Run the following command before running nosetests
 
-											# echo "export PYTHONPATH=$PATHONPATH:/opt/data/batchx-tests:/opt/data/microscope-tests" >> ~/.bash_profile
-											# source ~/.bash_profile
+												  # echo "export PYTHONPATH=$PATHONPATH:/opt/data/batchx-tests:/opt/data/microscope-tests" >> ~/.bash_profile
+												  # source ~/.bash_profile
 nosetests -sv end_to_end_tests/substrate_plus_layers/acceptance/water_and_island/test_water_and_island_feature_sampling_real_data.py:TestWaterIslandFeatureSampling.test_200_create_project
 
 OR
