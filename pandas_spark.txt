@@ -1,0 +1,1174 @@
+df - A pandas DataFrame object s - A pandas Series object (https://s3.amazonaws.com/dq-blog-files/pandas-cheat-sheet.pdf)
+
+IMPORTS
+=======
+import pandas as pd
+import numpy as np
+
+IMPORTING DATA
+==============
+pd.read_csv(filename) 			- From a CSV file 
+pd.read_table(filename) 		- From a delimited text file (like TSV)
+pd.read_excel(filename) 		- From an Excel file
+pd.read_sql(query, connection_object) 	- Reads from a SQL table/database 
+pd.read_json(json_string) 		- Reads from a JSON formatted string, URL or file. 
+pd.read_html(url) 			- Parses an html URL, string or file and extracts tables to a list of dataframes 
+pd.read_clipboard() 			- Takes the contents of your clipboard and passes it to read_table() 
+pd.DataFrame(dict) 			- From a dict, keys for columns names, values for data as lists
+
+EXPORTING DATA
+==============
+df.to_csv(filename) 				- Writes to a CSV file 
+df.to_excel(filename) 				- Writes to an Excel file 
+df.to_sql(table_name, connection_object) 	- Writes to a SQL table 
+df.to_json(filename) 				- Writes to a file in JSON format
+df.to_html(filename) 				- Saves as an HTML table 
+df.to_clipboard() 				- Writes to the clipboard
+
+Read and Write to SQL Query or Database Table
+=============================================
+read_sql()is a convenience wrapper around read_sql_table() and read_sql_query()
+ >>> pd.read_csv(' le.csv', header=None, nrows=5) >>> df.to_csv('myDataFrame.csv')
+>>> pd.read_excel(' le.xlsx')
+>>> pd.to_excel('dir/myDataFrame.xlsx', sheet_name='Sheet1')
+
+Read multiple sheets from the same  le
+>>> xlsx = pd.ExcelFile(' le.xls')
+>>> df = pd.read_excel(xlsx, 'Sheet1')
+>>> from sqlalchemy import create_engine			- SQLAlchemy is an open-source SQL toolkit and object-relational mapper (ORM) for the Python 
+>>> engine = create_engine('sqlite:///:memory:'			- SQLAlchemy is a library that facilitates the communication between Python programs and databases. 
+								- Most of the times, this library is used as an Object Relational Mapper (ORM) tool that translates 
+								- Python classes to tables on relational databases and automatically converts function calls to SQL statements.)
+								- It's mostly used to define a relationship between an object/class and the database table where it's data should be saved.
+								Does Django use SQLAlchemy?
+								In some cases, Django and SQLAlchemy can be used together. The main use case I got to see numerous times in the real world is 
+								when Django is used for all regular CRUD operations, while SQLAlchemy is used for the more complex queries, usually read-only queries
+
+>>> pd.read_sql("SELECT * FROM my_table;", engine)
+>>> pd.read_sql_table('my_table', engine)
+>>> pd.read_sql_query("SELECT * FROM my_table;", engine)
+
+CREATE TEST OBJECTS(Useful for testing)
+=======================================
+pd.DataFrame(np.random.rand(20,5)) 				- 5 columns and 20 rows of random floats
+pd.Series(my_list) 						- Creates a series from an iterable my_list
+df.index = pd.date_range('1900/1/30', periods=df.shape[0]) 	- Adds a date index
+
+VIEWING/INSPECTING DATA
+=======================
+df.head(n) 				- First n rows of the DataFrame 
+df.tail(n) 				- Last n rows of the DataFrame 
+df.shape() 				- Number of rows and columns 
+df.info() 				- Index, Datatype and Memory information
+df.describe() 				- Summary statistics for numerical columns
+s.value_counts(dropna=False) 		- Views unique values and counts 
+df.apply(pd.Series.value_counts) 	- Unique values and counts for all columns
+
+SELECTION
+=========
+df[col] 			- Returns column with label col as Series df[[col1, col2]] - Returns Columns as a new DataFrame
+s.iloc[0] 			- Selection by position 
+s.loc[0] 			- Selection by index 
+df.iloc[0,:] 			- First row
+df.iloc[0,0] 			- First element of first column
+
+DATA CLEANING
+=============
+df.columns = ['a','b','c'] 			- Renames columns pd.isnull() - Checks for null Values, Returns Boolean Array
+pd.notnull() 					- Opposite of s.isnull() df.dropna() - Drops all rows that contain null values
+df.dropna(axis=1)				- Drops all columns that contain null values 
+df.dropna(axis=1,thresh=n) 			- Drops all rows have less than n non null values 
+df.fillna(x) 					- Replaces all null values with x 
+s.fillna(s.mean()) 				- Replaces all null values with the mean (mean can be replaced with almost any function from the statistics section) 
+s.astype(float) 				- Converts the datatype of the series to float
+s.replace(1,'one') 				- Replaces all values equal to 1 with 'one' 
+s.replace([1,3],['one','three']) 		- Replaces all 1 with 'one' and 3 with 'three' 
+df.rename(columns=lambda x: x + 1) 		- Mass renaming of columns
+df.rename(columns={'old_name': 'new_ name'}) 	- Selective renaming
+df.set_index('column_one') 			- Changes the index 
+df.rename(index=lambda x: x + 1) 		- Mass renaming of index
+
+FILTER, SORT, & GROUPBY
+=======================
+df[df[col] > 0.5] 						- Rows where the col column is greater than 0.5
+df[(df[col] > 0.5) & (df[col] < 0.7)] 				- Rows where 0.7 > col > 0.5
+df.sort_values(col1) 						- Sorts values by col1 in ascending order
+df.sort_values(col2,ascending=False) 				- Sorts values by col2 in descending order
+df.sort_values([col1,col2], ascending=[True,False]) 		- Sorts values by
+df.groupby(col) 						- Returns a groupby object for values from one column 
+df.groupby([col1,col2]) 					- Returns a groupby object values from multiple columns 
+df.groupby(col1)[col2].mean() 					- Returns the mean of the values in col2, grouped by the values in col1 (mean can be replaced with almost any function from the statistics section)
+df.pivot_table(index=col1,values= [col2,col3],aggfunc=mean) 	- Creates a pivot table that groups by col1 and calculates the mean of col2 and col3
+df.groupby(col1).agg(np.mean) 					- Finds the average across all columns for every unique column 1 group
+df.apply(np.mean) 						- Applies a function across each column
+df.apply(np.max, axis=1) 					- Applies a function across each row
+
+APPLYING FUNCTIONS
+==================
+>>> f = lambda x: x*2
+>>> df.apply(f)
+>>> df.applymap(f)
+
+JOIN/COMBINE
+============
+df1.append(df2) 			- Adds the rows in df1 to the end of df2 (columns should be identical)
+pd.concat([df1, df2],axis=1) 		- Adds the columns in df1 to the end of df2 (rows should be identical)
+df1.join(df2,on=col1,how='inner') 	- SQL-style joins the columns in df1 with the columns on df2 where the rows for col have identical values. how can be one of 'left', 'right', 'outer', 'inner'
+
+>>> s3 = pd.Series([7, -2, 3], index=['a', 'c', 'd'])
+>>> s + s3
+a 10.0 b NaN c 5.0 d 7.0
+
+STATISTICS(These can all be applied to a series as well.)
+==========
+df.describe() 				- Summary statistics for numerical columns
+df.mean() 				- Returns the mean of all columns 
+df.corr() 				- Returns the correlation between columns in a DataFrame
+df.count() 				- Returns the number of non-null values in each DataFrame column 
+df.max() 				- Returns the highest value in each column
+df.min() 				- Returns the lowest value in each column 
+df.median() 				- Returns the median of each column 
+df.std() 				- Returns the standard deviation of each column
+
+PLOTTING (matplotlib musst be installed for plotting)
+========
+df.plot.hist()				- Histogram for each column
+df.plot.scatter(x='w',y='h')		- Scatter chart using pairs of points
+
+========================================================== pyspark =================================================================
+Initializing Spark:
+>>> from pyspark import SparkContext
+>>> sc = SparkContext(master = 'local[2]')
+
+Inspect SparkContext:
+====================
+>>> sc.version					Retrieve SparkContext version
+>>> sc.pythonVer				Retrieve Python version
+>>> sc.master					Master URL to connect to
+>>> str(sc.sparkHome)				Path where Spark is installed on worker nodes Retrieve name of the Spark User running SparkContext
+>>> str(sc.sparkUser())				
+>>> sc.appName					Return application name
+>>> sc.applicationId				Retrieve application ID
+>>> sc.defaultParallelism			Return default level of parallelism
+>>> sc.defaultMinPartitions			Default minimum number of partitions for RDDs
+
+Configuration:
+=============
+>>> from pyspark import SparkConf, SparkContext
+>>> conf = (SparkConf()
+	     .setMaster("local")
+	     .setAppName("My app")
+	     .set("spark.executor.memory", "1g"))
+>>> sc = SparkContext(conf = conf)
+
+Using the Shell:
+==============
+In the PySpark shell, a special interpreter-aware SparkContext is already created in the variable called sc.
+$ ./bin/spark-shell --master local[2]
+$ ./bin/pyspark --master local[4] --py- les code.py
+Set which master the context connects to with the --master argument, and add Python .zip, .egg or .py  les to the runtime path by passing a comma-separated list to --py- les.
+
+Loading Data:
+============
+Parallelized Collections
+>>> rdd = sc.parallelize([('a',7),('a',2),('b',2)])
+>>> rdd2 = sc.parallelize([('a',2),('d',1),('b',1)])
+>>> rdd3 = sc.parallelize(range(100))
+>>> rdd4 = sc.parallelize([("a",["x","y","z"]),("b",["p", "r"])])
+
+External Data:
+Read either one text  file from HDFS, a local  file system or or any Hadoop-supported  file system URI with textFile(), or read in a directory of text  files with wholeTextFiles().
+
+>>> textFile = sc.textFile("/my/directory/*.txt")
+>>> textFile2 = sc.wholeTextFiles("/my/directory/")
+
+Retrieving RDD Information:
+==========================
+Basic Information:
+>>> rdd.getNumPartitions()						List the number of partitions Count RDD instances
+>>> rdd.count()								Count RDD instances by key Count RDD instances by value
+ 3
+>>> rdd.countByKey()							Return (key,value) pairs as a dictionary
+defaultdict(<type 'int'>,{'a':2,'b':1}) 
+
+>>> rdd.countByValue()
+defaultdict(<type 'int'>,{('b',2):1,('a',2):1,('a',7):1}) 
+
+>>> rdd.collectAsMap()
+ {'a': 2,'b': 2}
+>>> rdd3.sum()								Sum of RDD elements
+ 4950
+>>> sc.parallelize([]).isEmpty()					Check whether RDD is empty
+True
+
+Summary:
+=======
+>>> rdd3.max()			# 99 # Maximum value of RDD elements 
+>>> rdd3.min()			#0 #Minimum value of RDD elements 
+>>> rdd3.mean()			#49.5 #Mean value of RDD elements 
+>>> rdd3.stdev()		# 28.866070047722118 #Standard deviation of RDD elements 
+>>> rdd3.variance()		# 833.25 #Compute variance of RDD elements 
+>>> rdd3.histogram(3)		#([0,33,66,99],[33,33,34]) #Compute histogram by bins
+>>> rdd3.stats()		#Summary statistics (count, mean, stdev, max & min)
+
+Applying Functions:
+==================
+rdd.map(lambda x: x+(x[1],x[0])).collect()						# Apply a function to each RDD element 
+>>> conf = (SparkConf()
+[('a',7,7,'a'),('a',2,2,'a'),('b',2,2,'b')] 
+
+>>> rdd5 = rdd. atMap(lambda x: x+(x[1],x[0]))
+>>> rdd5.collect()
+  ['a',7,7,'a','a',2,2,'a','b',2,2,'b']
+
+>>> rdd4.flatMapValues(lambda x: x).collect()						# Apply a function to each RDD element and  flatten the result
+[('a','x'),('a','y'),('a','z'),('b','p'),('b','r')]					# Apply a flatMap function to each (key,value) pair of rdd4 without changing the keys
+
+Selecting Data:
+==============
+Getting
+>>> rdd.collect()
+  [('a', 7), ('a', 2), ('b', 2)]
+>>> rdd.take(2)
+  [('a', 7), ('a', 2)]
+>>> rdd.first()
+  ('a', 7)
+ 
+>>> rdd.top(2)
+  [('b', 2), ('a', 7)]
+
+Sampling:
+>>> rdd3.sample(False, 0.15, 81).collect() 						# Return sampled subset of rdd3
+[3,4,27,31,40,41,42,43,60,76,79,80,86,97]
+
+Filtering:
+>>> rdd.filter(lambda x: "a" in x).collect()
+	[('a',7),('a',2)]
+>>> rdd5.distinct().collect()
+   	['a',2,'b',7]
+>>> rdd.keys().collect()
+	['a', 'a', 'b']
+
+Iterating:
+=========
+Apply a function to all RDD elements
+>>> def g(x): print(x)
+>>> rdd.foreach(g)
+ ('a', 7)
+ ('b', 2)
+ ('a', 2)
+
+Reshaping Data:
+==============
+Reducing:
+>>> rdd.reduceByKey(lambda x,y : x+y).collect()						# Merge the rdd values for each key
+  [('a',9),('b',2)]
+>>> rdd.reduce(lambda a, b: a + b)							# Merge the rdd values
+  ('a',7,'a',2,'b',2)
+
+Grouping by:
+>>> rdd3.groupBy(lambda x: x % 2)							# Return RDD of grouped values
+        .mapValues(list)
+        .collect()
+>>> rdd.groupByKey()									# Group rdd by key
+       .mapValues(list)
+       .collect()
+[('a',[7,2]),('b',[2])]
+
+Aggregating:
+>>> seqOp = (lambda x,y: (x[0]+y,x[1]+1)) 						# Aggregate RDD elements of each partition and then the results Aggregate values of each RDD key
+>>> combOp = (lambda x,y:(x[0]+y[0],x[1]+y[1])) 
+>>> rdd3.aggregate((0,0),seqOp,combOp)
+	(4950,100)
+>>> rdd.aggregateByKey((0,0),seqop,combop).collect()					# Aggregate the elements of each partition, and then the results Merge the values for each key
+  	[('a',(9,2)), ('b',(2,1))]
+>>> rdd3.fold(0,add)
+	4950
+>>> rdd.foldByKey(0, add).collect()
+  	[('a',9),('b',2)]
+>>> rdd3.keyBy(lambda x: x+x).collect()							# Create tuples of RDD elements by applying a function
+
+Mathematical Operations:
+=======================
+>> rdd.subtract(rdd2).collect()								# Return each rdd value not contained in rdd2
+  	[('b',2),('a',7)]
+>>> rdd2.subtractByKey(rdd).collect()							# Return each (key,value) pair of rdd2 with no matching key in rdd
+	[('d', 1)]
+>>> rdd.cartesian(rdd2).collect()							# Return the Cartesian product of rdd and rdd2
+
+Sort:
+====
+>>> rdd2.sortBy(lambda x: x[1]).collect()						# Sort RDD by given function
+  	[('d',1),('b',1),('a',2)]
+>>> rdd2.sortByKey().collect()								# Sort (key, value) RDD by key
+	[('a',2),('b',1),('d',1)]
+
+Repartitioning:
+==============
+>>> rdd.repartition(4)									# New RDD with 4 partitions
+>>> rdd.coalesce(1)									# Decrease the number of partitions in the RDD to 1
+
+Saving:
+======
+>>> rdd.saveAsTextFile("rdd.txt")
+>>> rdd.saveAsHadoopFile("hdfs://namenodehost/parent/child",'org.apache.hadoop.mapred.TextOutputFormat')
+
+>>> sc.stop()										=> Stopping SparkContext => 
+$ ./bin/spark-submit examples/src/main/python/pi.py					=> Execution
+
+========================================================== pandas elaborated with examples =========================================
+https://www.geeksforgeeks.org/python-pandas-dataframe/
+
+Python | Pandas DataFrame
+Pandas DataFrame is two-dimensional size-mutable, potentially heterogeneous tabular data structure with labeled axes (rows and columns).
+Arithmetic operations align on both row and column labels. Can be thought of as a dict-like container for Series objects.
+
+Example 1: Creating a DataFrame using List.
+
+import pandas as pd		# import pandas library as pd
+data = ['Geeks','For','Geeks']	# creating list
+df = pd.DataFrame(data)		# creating dataframe using DataFrame object
+
+print(df)
+Output:
+
+       0
+0  Geeks
+1    For
+2  Geeks
+ 
+
+Example 2: Creating a DataFrame using Arrays
+
+import pandas as pd
+data = {'A':['Geeks', 'For', 'Geeks'],'B':['Welcome',2,'Geeks']}
+df = pd.DataFrame(data, index = ['One','Two','Three'])
+ 
+print (df)
+Output:
+
+           A        B
+One    Geeks  Welcome
+Two      For        2
+Three  Geeks    Geeks
+
+Python | Pandas Series
+Pandas Series is a one-dimensional labeled array capable of holding data of any type (integer, string, float, python objects, etc.). The axis labels are collectively called index.
+Labels need not be unique but must be a hashable type. The object supports both integer- and label-based indexing and provides a host of methods for performing operations involving the index.
+
+Example 1: Create a basic Series
+
+import pandas as pd
+ser = pd.Series()			# create empty series
+print(ser)
+ 
+ser = pd.Series([1, 2, 3, 4, 5])	# create series form a list
+print(ser)
+Output:
+
+Series([], dtype: float64)
+
+0   1
+1   2
+2   3
+3   4
+4   5
+dtype: int64
+
+Example 2: Create a Series using Dictionary
+
+import pandas as pd
+ 
+dict = {'Geeks' : 10,
+        'for' : 20,
+        'geeks' : 30}
+ 
+ser = pd.Series(dict)
+ 
+print(ser)
+Output:
+
+Geeks    10
+for      20
+geeks    30
+dtype: int64
+
+Python | Pandas Working With Text Data
+Series and Indexes are equipped with a set of string processing methods that make it easy to operate on each element of the array. Perhaps most importantly, these methods exclude missing/NA values automatically. These are accessed via the str attribute and generally have names matching the equivalent (scalar) built-in string methods.
+
+Example 1: Use of Str.lower() method
+
+import pandas as pd 
+   
+data = pd.read_csv("employees.csv") 			# making data frame from csv file 
+data["First Name"]= data["First Name"].str.lower() 	# converting and overwriting values in column 
+data 							# display 
+ 
+Example 2 : Use of str.find() method
+
+import pandas as pd 
+   
+data = pd.read_csv("https://cdncontribute.geeksforgeeks.org/wp-content/uploads/nba.csv") 					# reading csv file from url
+data.dropna(inplace = True) 													# dropping null value columns to avoid errors
+sub ='a'															# substring to be searched 
+   
+# creating and passsing series to new column 
+data["Indexes"]= data["Name"].str.find(sub) 
+   
+# display 
+data 
+
+Python | Pandas Working with Dates and Times
+Pandas has proven very successful as a tool for working with time series data, especially in the financial data analysis space. Using the NumPy datetime64 and timedelta64 dtypes, we have consolidated a large number of features from other Python libraries like scikits.timeseries as well as created a tremendous amount of new functionality for manipulating time series data.
+
+Example #1: Create a dates dataframe
+
+import pandas as pd
+ 
+# Create dates dataframe with frequency  
+data = pd.date_range('1/1/2011', periods = 10, freq ='H')
+ 
+data
+Output:
+DatetimeIndex(['2011-01-01 00:00:00', '2011-01-01 01:00:00',
+               '2011-01-01 02:00:00', '2011-01-01 03:00:00',
+               '2011-01-01 04:00:00', '2011-01-01 05:00:00',
+               '2011-01-01 06:00:00', '2011-01-01 07:00:00',
+               '2011-01-01 08:00:00', '2011-01-01 09:00:00'],
+              dtype='datetime64[ns]', freq='H')
+
+
+Example #2: Create range of dates and show basic features
+
+# Create date and time with dataframe
+data = pd.date_range('1/1/2011', periods = 10, freq ='H')
+ 
+x = datetime.now()
+x.month, x.year
+Output:
+
+(9, 2018)
+ 
+Example #3: Break data and time into seperate features
+
+# Create date and time with dataframe
+rng = pd.DataFrame()
+rng['date'] = pd.date_range('1/1/2011', periods = 72, freq ='H')
+ 
+# Print the dates in dd-mm-yy format
+rng[:5]
+ 
+# Create features for year, month, day, hour, and minute
+rng['year'] = rng['date'].dt.year
+rng['month'] = rng['date'].dt.month
+rng['day'] = rng['date'].dt.day
+rng['hour'] = rng['date'].dt.hour
+rng['minute'] = rng['date'].dt.minute
+ 
+# Print the dates divided into features
+rng.head(3)
+Output:
+
+Python | Pandas Merging, Joining, and Concatenating
+Pandas provide various facilities for easily combining together Series, DataFrame, and Panel objects with various kinds of set logic for the indexes and relational algebra functionality in the case of join / merge-type operations.
+
+Merge, Join and Concatenate DataFrames using Panda
+
+Example #1 : DataFrames Concatenation
+
+concat() function does all of the heavy lifting of performing concatenation operations along an axis while performing optional set logic (union or intersection) of the indexes (if any) on the other axes.
+
+# Python program to concatenate
+# dataframes using Panda
+ 
+# Creating first dataframe
+df1 = pd.DataFrame({'A': ['A0', 'A1', 'A2', 'A3'],
+                    'B': ['B0', 'B1', 'B2', 'B3'],
+                    'C': ['C0', 'C1', 'C2', 'C3'],
+                    'D': ['D0', 'D1', 'D2', 'D3']},
+                    index = [0, 1, 2, 3])
+ 
+# Creating second dataframe
+df2 = pd.DataFrame({'A': ['A4', 'A5', 'A6', 'A7'],
+                    'B': ['B4', 'B5', 'B6', 'B7'],
+                    'C': ['C4', 'C5', 'C6', 'C7'],
+                    'D': ['D4', 'D5', 'D6', 'D7']},
+                    index = [4, 5, 6, 7])
+ 
+# Creating third dataframe
+df3 = pd.DataFrame({'A': ['A8', 'A9', 'A10', 'A11'],
+                    'B': ['B8', 'B9', 'B10', 'B11'],
+                    'C': ['C8', 'C9', 'C10', 'C11'],
+                    'D': ['D8', 'D9', 'D10', 'D11']},
+                    index = [8, 9, 10, 11])
+ 
+# Concatenating the dataframes
+pd.concat([df1, df2, df3])
+Output:
+Concatenation
+
+ 
+Example #2 : DataFrames Merge
+
+Pandas provides a single function, merge(), as the entry point for all standard database join operations between DataFrame objects.
+
+# Python program to merge
+# dataframes using Panda
+ 
+# Dataframe created
+left = pd.DataFrame({'Key': ['K0', 'K1', 'K2', 'K3'],
+                    'A': ['A0', 'A1', 'A2', 'A3'],
+                    'B': ['B0', 'B1', 'B2', 'B3']})
+ 
+right = pd.DataFrame({'Key': ['K0', 'K1', 'K2', 'K3'],
+                      'C': ['C0', 'C1', 'C2', 'C3'],
+                      'D': ['D0', 'D1', 'D2', 'D3']})
+                       
+# Merging the dataframes                      
+pd.merge(left, right, how ='inner', on ='Key')
+Output:
+Merging
+ 
+Code #3 : DataFrames Join
+
+# Python program to join
+# dataframes using Panda
+ 
+left = pd.DataFrame({'A': ['A0', 'A1', 'A2', 'A3'],
+                    'B': ['B0', 'B1', 'B2', 'B3']},
+                    index = ['K0', 'K1', 'K2', 'K3'])
+ 
+right = pd.DataFrame({'C': ['C0', 'C1', 'C2', 'C3'],
+                      'D': ['D0', 'D1', 'D2', 'D3']},
+                      index = ['K0', 'K1', 'K2', 'K3'])
+                       
+# Joining the dataframes                      
+left.join(right)
+Output:
+
+Joining
+
+Python | Data analysis using Pandas
+
+Pandas is the most popular python library that is used for data analysis. It provides highly optimized performance with back-end source code is purely written in C or Python.
+
+We can analyze data in pandas with:
+
+Series
+DataFrames
+Series:
+
+Series is one dimensional(1-D) array defined in pandas that can be used to store any data type.
+
+Code #1: Creating Series
+
+filter_none
+edit
+play_arrow
+brightness_4
+# Program to create series 
+import pandas as pd  # Import Panda Library 
+  
+# Create series with Data, and Index 
+a = pd.Series(Data, index = Index)   
+Here, Data can be:
+
+A Scalar value which can be integerValue, string
+A Python Dictionary which can be Key, Value pair
+A Ndarray
+Note: Index by default is from 0, 1, 2, …(n-1) where n is length of data.
+ 
+Code #2: When Data contains scalar values
+
+
+
+ 
+
+filter_none
+edit
+play_arrow
+brightness_4
+# Program to Create series with scalar values  
+Data =[1, 3, 4, 5, 6, 2, 9]  # Numeric data 
+  
+# Creating series with default index values 
+s = pd.Series(Data)     
+  
+# predefined index values 
+Index =['a', 'b', 'c', 'd', 'e', 'f', 'g']  
+  
+# Creating series with predefined index values 
+si = pd.Series(Data, Index)  
+Output:
+>>> print si
+a    1
+b    3
+c    4
+d    5
+e    6
+f    2
+g    9
+
+Scalar Data with default Index
+
+
+
+Scalar Data with Index
+
+
+ 
+Code #3: When Data contains Dictionary
+
+filter_none
+edit
+play_arrow
+brightness_4
+# Program to Create Dictionary series 
+dictionary ={'a':1, 'b':2, 'c':3, 'd':4, 'e':5}  
+  
+# Creating series of Dictionary type 
+sd = pd.Series(dictionary)  
+Output:
+
+
+Dictionary type data
+
+
+ 
+
+Code #4:When Data contains Ndarray
+
+filter_none
+edit
+play_arrow
+brightness_4
+# Program to Create ndarray series 
+Data =[[2, 3, 4], [5, 6, 7]]  # Defining 2darray 
+  
+# Creating series of 2darray 
+snd = pd.Series(Data)     
+Output:
+
+
+Data as Ndarray
+
+
+ 
+
+DataFrames:
+
+DataFrames is two-dimensional(2-D) data structure defined in pandas which consists of rows and columns.
+
+Code #1: Creation of DataFrame
+
+filter_none
+edit
+play_arrow
+brightness_4
+# Program to Create DataFrame 
+import pandas as pd   # Import Library 
+  
+a = pd.DataFrame(Data)  # Create DataFrame with Data 
+Here, Data can be:
+
+
+
+ 
+
+One or more dictionaries
+One or more Series
+2D-numpy Ndarray
+ 
+Code #2: When Data is Dictionaries
+
+filter_none
+edit
+play_arrow
+brightness_4
+# Program to Create Data Frame with two dictionaries 
+dict1 ={'a':1, 'b':2, 'c':3, 'd':4}        # Define Dictionary 1 
+dict2 ={'a':5, 'b':6, 'c':7, 'd':8, 'e':9} # Define Dictionary 2 
+Data = {'first':dict1, 'second':dict2}  # Define Data with dict1 and dict2 
+df = pd.DataFrame(Data)  # Create DataFrame 
+Output:
+
+
+DataFrame with two dictionaries
+
+
+ 
+Code #3: When Data is Series
+
+filter_none
+edit
+play_arrow
+brightness_4
+# Program to create Dataframe of three series  
+import pandas as pd 
+  
+s1 = pd.Series([1, 3, 4, 5, 6, 2, 9])           # Define series 1 
+s2 = pd.Series([1.1, 3.5, 4.7, 5.8, 2.9, 9.3]) # Define series 2 
+s3 = pd.Series(['a', 'b', 'c', 'd', 'e'])     # Define series 3 
+  
+  
+Data ={'first':s1, 'second':s2, 'third':s3} # Define Data 
+dfseries = pd.DataFrame(Data)              # Create DataFrame 
+Output:
+
+
+DataFrame with three series
+
+
+ 
+Code #4: When Data is 2D-numpy ndarray
+Note: One constraint has to be maintained while creating DataFrame of 2D arrays – Dimensions of 2D array must be same.
+
+filter_none
+edit
+play_arrow
+brightness_4
+# Program to create DataFrame from 2D array 
+import pandas as pd # Import Library 
+d1 =[[2, 3, 4], [5, 6, 7]] # Define 2d array 1 
+d2 =[[2, 4, 8], [1, 3, 9]] # Define 2d array 2 
+Data ={'first': d1, 'second': d2} # Define Data  
+df2d = pd.DataFrame(Data)    # Create DataFrame 
+Output:
+
+
+DataFrame with 2d ndarray
+https://www.geeksforgeeks.org/python-data-analysis-using-pandas/
+Python | Read csv using pandas.read_csv()
+
+Python is a great language for doing data analysis, primarily because of the fantastic ecosystem of data-centric python packages. Pandas is one of those packages and makes importing and analyzing data much easier.
+
+Import Pandas:
+
+import pandas as pd
+ 
+Code #1 : read_csv is an important pandas function to read csv files and do operations on it.
+
+filter_none
+brightness_4
+# Import pandas 
+import pandas as pd 
+  
+# reading csv file  
+pd.read_csv("filename.csv") 
+Opening a CSV file through this is easy. But there are many others thing one can do through this function only to change the returned object completely. For instance, one can read a csv file not only locally, but from a URL through read_csv or one can choose what columns needed to export so that we don’t have to edit the array later.
+
+Here is the list of parameters it takes with their Default values.
+
+
+
+ 
+
+pd.read_csv(filepath_or_buffer, sep=’, ‘, delimiter=None, header=’infer’, names=None, index_col=None, usecols=None, squeeze=False, prefix=None, mangle_dupe_cols=True, dtype=None, engine=None, converters=None, true_values=None, false_values=None, skipinitialspace=False, skiprows=None, nrows=None, na_values=None, keep_default_na=True, na_filter=True, verbose=False, skip_blank_lines=True, parse_dates=False, infer_datetime_format=False, keep_date_col=False, date_parser=None, dayfirst=False, iterator=False, chunksize=None, compression=’infer’, thousands=None, decimal=b’.’, lineterminator=None, quotechar='”‘, quoting=0, escapechar=None, comment=None, encoding=None, dialect=None, tupleize_cols=None, error_bad_lines=True, warn_bad_lines=True, skipfooter=0, doublequote=True, delim_whitespace=False, low_memory=True, memory_map=False, float_precision=None)
+Not all of them are much important but remembering these actually save time of performing same functions on own. One can see parameters of any function by pressing shift + tab in jupyter notebook. Useful ones are given below with their usage :
+
+PARAMETER	USE
+filepath_or_buffer	URL or Dir location of file
+sep	Stands for seperator, default is ‘, ‘ as in csv(comma seperated values)
+index_col	Makes passed column as index instead of 0, 1, 2, 3…r
+
+header	Makes passed row/s[int/int list] as header
+
+
+use_cols	Only uses the passed col[string list] to make data frame
+squeeze	If true and only one column is passed, returns pandas series
+skiprows	Skips passed rows in new data frame
+Refer the link to data set used from here.
+
+Code #2 :
+
+filter_none
+brightness_4
+# importing Pandas library 
+import pandas as pd 
+  
+pd.read_csv(filepath_or_buffer = "pokemon.csv") 
+  
+# makes the passed rows header 
+pd.read_csv("pokemon.csv", header =[1, 2]) 
+  
+# make the passed column as index instead of 0, 1, 2, 3.... 
+pd.read_csv("pokemon.csv", index_col ='Type') 
+  
+# uses passed cols only for data frame 
+pd.read_csv("pokemon.csv", usecols =["Type"]) 
+  
+# reutruns pandas series if there is only one colunmn 
+pd.read_csv("pokemon.csv", usecols =["Type"], 
+                              squeeze = True) 
+                                
+# skips the passed rows in new series 
+pd.read_csv("pokemon.csv", 
+            skiprows = [1, 2, 3, 4]) 
+
+Python | Merge, Join and Concatenate DataFrames using Panda
+
+A dataframe is a two-dimensional data structure having multiple rows and columns. In a dataframe, the data is aligned in the form of rows and columns only. A dataframe can perform arithmetic as well as conditional operations. It has mutable size.
+
+Below is the implementation using Numpy and Pandas.
+
+Modules needed:
+
+import numpy as np
+import pandas as pd
+ 
+
+Code #1 : DataFrames Concatenation
+concat() function does all of the heavy lifting of performing concatenation operations along an axis while performing optional set logic (union or intersection) of the indexes (if any) on the other axes.
+
+ 
+
+filter_none
+brightness_4
+# Python program to concatenate 
+# dataframes using Panda 
+  
+# Creating first dataframe 
+df1 = pd.DataFrame({'A': ['A0', 'A1', 'A2', 'A3'], 
+                    'B': ['B0', 'B1', 'B2', 'B3'], 
+                    'C': ['C0', 'C1', 'C2', 'C3'], 
+                    'D': ['D0', 'D1', 'D2', 'D3']}, 
+                    index = [0, 1, 2, 3]) 
+  
+# Creating second dataframe 
+df2 = pd.DataFrame({'A': ['A4', 'A5', 'A6', 'A7'], 
+                    'B': ['B4', 'B5', 'B6', 'B7'], 
+                    'C': ['C4', 'C5', 'C6', 'C7'], 
+                    'D': ['D4', 'D5', 'D6', 'D7']}, 
+                    index = [4, 5, 6, 7]) 
+  
+# Creating third dataframe 
+df3 = pd.DataFrame({'A': ['A8', 'A9', 'A10', 'A11'], 
+                    'B': ['B8', 'B9', 'B10', 'B11'], 
+                    'C': ['C8', 'C9', 'C10', 'C11'], 
+                    'D': ['D8', 'D9', 'D10', 'D11']}, 
+                    index = [8, 9, 10, 11]) 
+  
+# Concatenating the dataframes 
+pd.concat([df1, df2, df3]) 
+Output:
+Concatenation
+
+ 
+Code #2 : DataFrames Merge
+Pandas provides a single function, merge(), as the entry point for all standard database join operations between DataFrame objects.
+
+filter_none
+brightness_4
+# Python program to merge 
+# dataframes using Panda 
+  
+# Dataframe created 
+left = pd.DataFrame({'Key': ['K0', 'K1', 'K2', 'K3'], 
+                    'A': ['A0', 'A1', 'A2', 'A3'], 
+                    'B': ['B0', 'B1', 'B2', 'B3']}) 
+  
+right = pd.DataFrame({'Key': ['K0', 'K1', 'K2', 'K3'], 
+                      'C': ['C0', 'C1', 'C2', 'C3'], 
+                      'D': ['D0', 'D1', 'D2', 'D3']}) 
+                        
+# Merging the dataframes                       
+pd.merge(left, right, how ='inner', on ='Key') 
+Output:
+Merging
+ 
+Code #3 : DataFrames Join
+
+filter_none
+brightness_4
+# Python program to join 
+# dataframes using Panda 
+  
+left = pd.DataFrame({'A': ['A0', 'A1', 'A2', 'A3'], 
+                    'B': ['B0', 'B1', 'B2', 'B3']}, 
+                    index = ['K0', 'K1', 'K2', 'K3']) 
+  
+right = pd.DataFrame({'C': ['C0', 'C1', 'C2', 'C3'], 
+                      'D': ['D0', 'D1', 'D2', 'D3']}, 
+                      index = ['K0', 'K1', 'K2', 'K3']) 
+                        
+# Joining the dataframes                       
+left.join(right) 
+Output:
+
+Joining
+
+Python | Delete rows/columns from DataFrame using Pandas.drop()
+
+Python is a great language for doing data analysis, primarily because of the fantastic ecosystem of data-centric Python packages. Pandas is one of those packages and makes importing and analyzing data much easier.
+
+Pandas provide data analysts a way to delete and filter data frame using .drop() method. Rows or columns can be removed using index label or column name using this method.
+
+Syntax:
+DataFrame.drop(labels=None, axis=0, index=None, columns=None, level=None, inplace=False, errors=’raise’)
+
+Parameters:
+
+labels: String or list of strings referring row or column name.
+axis: int or string value, 0 ‘index’ for Rows and 1 ‘columns’ for Columns.
+index or columns: Single label or list. index or columns are an alternative to axis and cannot be used together.
+level: Used to specify level in case data frame is having multiple level index.
+inplace: Makes changes in original Data Frame if True.
+errors: Ignores error if any value from the list doesn’t exists and drops rest of the values when errors = ‘ignore’
+
+
+
+ 
+
+Return type: Dataframe with dropped values
+To download the CSV used in code, click here.
+Example #1: Dropping Rows by index label
+In his code, A list of index labels is passed and the rows corresponding to those labels are dropped using .drop() method.
+
+filter_none
+brightness_4
+# importing pandas module 
+import pandas as pd 
+  
+# making data frame from csv file 
+data = pd.read_csv("nba.csv", index_col ="Name" ) 
+  
+# dropping passed values 
+data.drop(["Avery Bradley", "John Holland", "R.J. Hunter", 
+                            "R.J. Hunter"], inplace = True) 
+  
+# display 
+data 
+Output:
+As shown in the output images, the new output doesn’t have the passed values. Those values were dropped and the changes were made in the original data frame since inplace was True.
+
+Data Frame before Dropping values-
+
+
+Data Frame after Dropping values-
+
+
+ 
+
+Example #2 : Dropping columns with column name
+
+In his code, Passed columns are dropped using column names. axis parameter is kept 1 since 1 refers to columns.
+
+filter_none
+brightness_4
+# importing pandas module 
+import pandas as pd 
+  
+# making data frame from csv file 
+data = pd.read_csv("nba.csv", index_col ="Name" ) 
+  
+# dropping passed columns 
+data.drop(["Team", "Weight"], axis = 1, inplace = True) 
+  
+# display 
+data 
+Output:
+As shown in the output images, the new output doesn’t have the passed columns. Those values were dropped since axis was set equal to 1 and the changes were made in the original data frame since inplace was True.
+
+Data Frame before Dropping Columns-
+
+
+Data Frame after Dropping Columns-
+
+Python | Delete rows/columns from DataFrame using Pandas.drop()
+
+Python is a great language for doing data analysis, primarily because of the fantastic ecosystem of data-centric Python packages. Pandas is one of those packages and makes importing and analyzing data much easier.
+
+Pandas provide data analysts a way to delete and filter data frame using .drop() method. Rows or columns can be removed using index label or column name using this method.
+
+Syntax:
+DataFrame.drop(labels=None, axis=0, index=None, columns=None, level=None, inplace=False, errors=’raise’)
+
+Parameters:
+
+labels: String or list of strings referring row or column name.
+axis: int or string value, 0 ‘index’ for Rows and 1 ‘columns’ for Columns.
+index or columns: Single label or list. index or columns are an alternative to axis and cannot be used together.
+level: Used to specify level in case data frame is having multiple level index.
+inplace: Makes changes in original Data Frame if True.
+errors: Ignores error if any value from the list doesn’t exists and drops rest of the values when errors = ‘ignore’
+
+
+
+ 
+
+Return type: Dataframe with dropped values
+To download the CSV used in code, click here.
+Example #1: Dropping Rows by index label
+In his code, A list of index labels is passed and the rows corresponding to those labels are dropped using .drop() method.
+
+filter_none
+brightness_4
+# importing pandas module 
+import pandas as pd 
+  
+# making data frame from csv file 
+data = pd.read_csv("nba.csv", index_col ="Name" ) 
+  
+# dropping passed values 
+data.drop(["Avery Bradley", "John Holland", "R.J. Hunter", 
+                            "R.J. Hunter"], inplace = True) 
+  
+# display 
+data 
+Output:
+As shown in the output images, the new output doesn’t have the passed values. Those values were dropped and the changes were made in the original data frame since inplace was True.
+
+Data Frame before Dropping values-
+
+
+Data Frame after Dropping values-
+
+
+ 
+
+Example #2 : Dropping columns with column name
+
+In his code, Passed columns are dropped using column names. axis parameter is kept 1 since 1 refers to columns.
+
+filter_none
+brightness_4
+# importing pandas module 
+import pandas as pd 
+  
+# making data frame from csv file 
+data = pd.read_csv("nba.csv", index_col ="Name" ) 
+  
+# dropping passed columns 
+data.drop(["Team", "Weight"], axis = 1, inplace = True) 
+  
+# display 
+data 
+Output:
+As shown in the output images, the new output doesn’t have the passed columns. Those values were dropped since axis was set equal to 1 and the changes were made in the original data frame since inplace was True.
+
+Data Frame before Dropping Columns-
+
+
+Data Frame after Dropping Columns-
+
+Python | Data Comparison and Selection in Pandas
+
+Python is a great language for doing data analysis, primarily because of the fantastic ecosystem of data-centric Python packages. Pandas is one of those packages, and makes importing and analyzing data much easier.
+
+The most important thing in Data Analysis is comparing values and selecting data accordingly. The “==” operator works for multiple values in a Pandas Data frame too. Following two examples will show how to compare and select data from a Pandas Data frame.
+
+To download the CSV file used, Click Here.
+
+Example #1: Comparing Data
+In the following example, a data frame is made from a csv file. In the Gender Column, there are only 3 types of values (“Male”, “Female” or NaN). Every row of Gender column is compared to “Male” and a boolean series is returned after that.
+
+filter_none
+brightness_4
+# importing pandas package 
+import pandas as pd 
+  
+# making data frame from csv file 
+data = pd.read_csv("employees.csv") 
+  
+# storing boolean series in new 
+new = data["Gender"] == "Male"
+  
+# inserting new series in data frame 
+data["New"]= new 
+  
+# display 
+data 
+Output:
+As show in the output image, for Gender= “Male”, the value in New Column is True and for “Female” and NaN values it is False.
+
+
+
+ 
+
+
+ 
+Example #2: Selecting Data
+In the following example, the boolean series is passed to the data and only Rows having Gender=”Male” are returned.
+
+filter_none
+brightness_4
+# importing pandas package 
+import pandas as pd 
+  
+# making data frame from csv file 
+data = pd.read_csv("employees.csv") 
+  
+# storing boolean series in new 
+new = data["Gender"] != "Female"
+  
+# inserting new series in data frame 
+data["New"]= new 
+  
+# display 
+data[new] 
+  
+# OR  
+# data[data["Gender"]=="Male"] 
+# Both are the same 
+Output:
+As shown in the output image, Data frame having Gender=”Male” is returned.
+
+
+
+pandas.pydata			(This is vast; needs to be learned separately)
+=============
+df.expanding()			- Return an Expanding object allowing summary functions to be applied cumulatively.
+df.rolling(n)			- Return a Rolling object allowing summary functions to be applied to windows of length n.
+
+==================================== Django ==============================================================
+
+Why are ORMs useful?
+ORMs provide a high-level abstraction upon a relational database that allows a developer to write Python code instead of SQL to create, read, update and delete data and schemas in their database. Developers can use the programming 
+language they are comfortable with to work with a database instead of writing SQL statements or stored procedures.
+
+For example, without an ORM a developer would write the following SQL statement to retrieve every row in the USERS table where the zip_code column is 94107:
+
+SELECT * FROM USERS WHERE zip_code=94107;
+The equivalent Django ORM query would instead look like the following Python code:
+
+# obtain everyone in the 94107 zip code and assign to users variable
+users = Users.objects.filter(zip_code=94107)
+
+The ability to write Python code instead of SQL can speed up web application development, especially at the beginning of a project. The potential development speed boost comes from not having to switch from Python code into 
+writing declarative paradigm SQL statements. While some software developers may not mind switching back and forth between languages, it's typically easier to knock out a prototype or start a web application using a single programming 
+language.
+
+ORMs also make it theoretically possible to switch an application between various relational databases. For example, a developer could use SQLite for local development and MySQL in production. A production application could be 
+switched from MySQL to PostgreSQL with minimal code modifications.
+
+In practice however, it's best to use the same database for local development as is used in production. Otherwise unexpected errors could hit in production that were not seen in a local development environment. Also, it's rare that a 
+project would switch from one database in production to another one unless there was a pressing reason.
+
+*** Flask uses SQLAlchemy ORM where Django has its own ORM(Django ORM)
+
+Que: What are the downsides of using an ORM?
+
+Ans
+- Impedance mismatch
+- Potential for reduced performance
+- Shifting complexity from the database into the application code
+
+Impedance mismatch:
+The phrase "impedance mismatch" is commonly used in conjunction with ORMs. Impedance mismatch is a catch-all term for the difficulties that occur when moving data between relational tables and application objects. 
+The gist is that the way a developer uses objects is different from how data is stored and joined in relational tables.
+
+Potential for reduced performance:
+One of the concerns that's associated with any higher-level abstraction or framework is potential for reduced performance. With ORMs, the performance hit comes from the translation of application code into a corresponding SQL statement 
+which may not be tuned properly.
+
+ORMs are also often easy to try but difficult to master. For example, a beginner using Django might not know about the select_related() function and how it can 
+improve some queries' foreign key relationship performance. There are 
+dozens of performance tips and tricks for every ORM. It's possible that investing time in learning those quirks may be better spent just learning SQL and how to write stored procedures.
+
+There's a lot of hand-waving "may or may not" and "potential for" in this section. In large projects ORMs are good enough for roughly 80-90% of use cases but in 10-20% of a project's database interactions there can be major performance improvements by having a knowledgeable database administrator write tuned SQL statements to replace the ORM's generated SQL code.
+
+Shifting complexity from the database into the app code:
+The code for working with an application's data has to live somewhere. Before ORMs were common, database stored procedures were used to encapsulate the database logic. With an ORM, the data manipulation code instead lives within the 
+application's Python codebase. The addition of data handling logic in the codebase generally isn't an issue with a sound application design, but it does increase the total amount of Python code instead of splitting code between the 
+application and the database stored procedures.
+
