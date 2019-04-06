@@ -526,128 +526,114 @@ Note: If you are on a Windows system that has Hyper-V installed, such as Windows
 Now, create a couple of VMs using docker-machine, using the VirtualBox driver:
 
 Make sure virtualbox is installed. Install it by "brew install virtualbox"
-docker-machine create --driver virtualbox myvm1
-docker-machine create --driver virtualbox myvm2
-
-LIST THE VMS AND GET THEIR IP ADDRESSES
-
-You now have two VMs created, named myvm1 and myvm2.
-
-Use this command to list the machines and get their IP addresses.
-
-docker-machine ls
-Here is example output from this command.
+$ docker-machine create --driver virtualbox myvm1
+$ docker-machine create --driver virtualbox myvm2
 
 $ docker-machine ls
 NAME    ACTIVE   DRIVER       STATE     URL                         SWARM   DOCKER        ERRORS
 myvm1   -        virtualbox   Running   tcp://192.168.99.100:2376           v17.06.2-ce
 myvm2   -        virtualbox   Running   tcp://192.168.99.101:2376           v17.06.2-ce
-INITIALIZE THE SWARM AND ADD NODES
 
-The first machine acts as the manager, which executes management commands and authenticates workers to join the swarm, and the second is a worker.
+$ docker-machine ssh myvm1											# You can ssh to your vm
+$ docker swarm init --advertise-addr 192.168.99.100								# INITIALIZE THE SWARM
+Swarm initialized: current node (qb4bx0u1y2hvw9k0s833vtdll) is now a manager.					# It can be directly done by #docker-machine ssh myvm1 "docker swarm init --advertise-addr <myvm1 ip>"
+To add a worker to this swarm, run the following command:							# Swarm initialized: current node <node ID> is now a manager.
 
-You can send commands to your VMs using docker-machine ssh. Instruct myvm1 to become a swarm manager with docker swarm init and look for output like this:
+docker swarm join --token SWMTKN-1-682md5kvvb5vk2h0dslux3v5bx8dnfhlbn2yomxx8gkujxhlhp-2npfa46roxy9okimbhsi239j2 192.168.99.100:2377			
 
-$ docker-machine ssh myvm1 "docker swarm init --advertise-addr <myvm1 ip>"
-Swarm initialized: current node <node ID> is now a manager.
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.		# The first machine acts as the manager, which executes management commands 
+														# and authenticates workers to join the swarm, and the second is a worker.
 
-To add a worker to this swarm, run the following command:
+														# docker-machine ssh myvm1 "pwd" => Sending command to docker machine
+$ CTRL+D													# logout of myvm1
+$ docker-machine ssh myvm2											# login to myvm2 to add it as a worker
+$ docker swarm join --token SWMTKN-1-682md5kvvb5vk2h0dslux3v5bx8dnfhlbn2yomxx8gkujxhlhp-2npfa46roxy9okimbhsi239j2 192.168.99.100:2377
 
-  docker swarm join --token <token> <myvm ip>:<port>
+														# This node joined a swarm as a worker.
 
-To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
-Ports 2377 and 2376
-
-Always run docker swarm init and docker swarm join with port 2377 (the swarm management port), or no port at all and let it take the default.
-
-The machine IP addresses returned by docker-machine ls include port 2376, which is the Docker daemon port. Do not use this port or you may experience errors.
-Having trouble using SSH? Try the --native-ssh flag
-
-Docker Machine has the option to let you use your own system’s SSH, if for some reason you’re having trouble sending commands to your Swarm manager. Just specify the --native-ssh flag when invoking the ssh command:
-
-docker-machine --native-ssh ssh myvm1 ...
-As you can see, the response to docker swarm init contains a pre-configured docker swarm join command for you to run on any nodes you want to add. Copy this command, and send it to myvm2 via docker-machine ssh to have myvm2 join your new swarm as a worker:
-
-$ docker-machine ssh myvm2 "docker swarm join \
---token <token> \
-<ip>:2377"
-
-This node joined a swarm as a worker.
 Congratulations, you have created your first swarm!
 
-Run docker node ls on the manager to view the nodes in this swarm:
+$ docker-machine ssh myvm1 "docker node ls"									# View the nodes in this swarm
+ID                            HOSTNAME            STATUS              AVAILABILITY        MANAGER STATUS      ENGINE VERSION
+qb4bx0u1y2hvw9k0s833vtdll *   myvm1               Ready               Active              Leader              18.09.4
+xe4u1yp2egbbvw87fadnmm2cy     myvm2               Ready               Active                                  18.09.4
 
-$ docker-machine ssh myvm1 "docker node ls"
-ID                            HOSTNAME            STATUS              AVAILABILITY        MANAGER STATUS
-brtu9urxwfd5j0zrmkubhpkbd     myvm2               Ready               Active
-rihwohkh3ph38fhillhhb84sk *   myvm1               Ready               Active              Leader
-Leaving a swarm
+Notes:
+Deploy your app on the swarm cluster.
+If you want to start over, you can run "docker swarm leave" from each node to leave swarm
+Just remember that only swarm managers like myvm1 execute Docker commands; workers are just for capacity.
+Always run docker swarm init and docker swarm join with port 2377 (the swarm management port), or no port at all and let it take the default.
+The machine IP addresses returned by docker-machine ls include port 2376, which is the Docker daemon port. Do not use this port or you may experience errors.
 
-If you want to start over, you can run docker swarm leave from each node.
-Deploy your app on the swarm cluster
-The hard part is over. Now you just repeat the process you used in part 3 to deploy on your new swarm. Just remember that only swarm managers like myvm1 execute Docker commands; workers are just for capacity.
+$ docker-machine --native-ssh ssh myvm1										# Having trouble using SSH? Try the --native-ssh flag. Option lets you use your own system’s SSH
 
-Configure a docker-machine shell to the swarm manager
-So far, you’ve been wrapping Docker commands in docker-machine ssh to talk to the VMs. Another option is to run docker-machine env <machine> to get and run a command that configures your current shell to talk to the Docker daemon on the VM. This method works better for the next step because it allows you to use your local docker-compose.yml file to deploy the app “remotely” without having to copy it anywhere.
-
-Type docker-machine env myvm1, then copy-paste and run the command provided as the last line of the output to configure your shell to talk to myvm1, the swarm manager.
-
-The commands to configure your shell differ depending on whether you are Mac, Linux, or Windows, so examples of each are shown on the tabs below.
-
-Mac, Linux
-Windows
-DOCKER MACHINE SHELL ENVIRONMENT ON MAC OR LINUX
-
-Run docker-machine env myvm1 to get the command to configure your shell to talk to myvm1.
-
-$ docker-machine env myvm1
+$ docker-machine env myvm1											# Run docker-machine env myvm1 to get the command to configure your shell to talk to myvm1.
 export DOCKER_TLS_VERIFY="1"
 export DOCKER_HOST="tcp://192.168.99.100:2376"
 export DOCKER_CERT_PATH="/Users/sam/.docker/machine/machines/myvm1"
 export DOCKER_MACHINE_NAME="myvm1"
-# Run this command to configure your shell:
-# eval $(docker-machine env myvm1)
-Run the given command to configure your shell to talk to myvm1.
 
-eval $(docker-machine env myvm1)
-Run docker-machine ls to verify that myvm1 is now the active machine, as indicated by the asterisk next to it.
-
-$ docker-machine ls
+# Run the below command to configure your shell to talk to myvm1.
+$ eval $(docker-machine env myvm1)
+$ docker-machine ls												# Run docker-machine ls to verify that myvm1 is now the active machine, as indicated by the asterisk next to it.
 NAME    ACTIVE   DRIVER       STATE     URL                         SWARM   DOCKER        ERRORS
 myvm1   *        virtualbox   Running   tcp://192.168.99.100:2376           v17.06.2-ce
 myvm2   -        virtualbox   Running   tcp://192.168.99.101:2376           v17.06.2-ce
+
 Deploy the app on the swarm manager
 Now that you have myvm1, you can use its powers as a swarm manager to deploy your app by using the same docker stack deploy command you used in part 3 to myvm1, and your local copy of docker-compose.yml.. This command may take a few seconds to complete and the deployment takes some time to be available. Use the docker service ps <service_name> command on a swarm manager to verify that all services have been redeployed.
-
 You are connected to myvm1 by means of the docker-machine shell configuration, and you still have access to the files on your local host. Make sure you are in the same directory as before, which includes the docker-compose.yml file you created in part 3.
+$ pwd
+/Users/samirsahoo
+$ ls docker-compose.yml 
+docker-compose.yml
+-------------------- docker-compose.yml ------------
+version: "3"
+services:
+  web:
+    # replace username/repo:tag with your name and image details
+    image: username/repo:tag
+    deploy:
+      replicas: 5
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "4000:80"
+    networks:
+      - webnet
+networks:
+  webnet:
+---------------------------------------------------
 
-Just like before, run the following command to deploy the app on myvm1.
-
-docker stack deploy -c docker-compose.yml getstartedlab
+$ docker stack deploy -c docker-compose.yml getstartedlab							# Just like before, run the following command to deploy the app on myvm1.
+							
 And that’s it, the app is deployed on a swarm cluster!
-
 Note: If your image is stored on a private registry instead of Docker Hub, you need to be logged in using docker login <your-registry> and then you need to add the --with-registry-auth flag to the above command. For example:
 
-docker login registry.example.com
+$docker login registry.example.com
+$ docker stack deploy --with-registry-auth -c docker-compose.yml getstartedlab
 
-docker stack deploy --with-registry-auth -c docker-compose.yml getstartedlab
 This passes the login token from your local client to the swarm nodes where the service is deployed, using the encrypted WAL logs. With this information, the nodes are able to log into the registry and pull the image.
 Now you can use the same docker commands you used in part 3. Only this time notice that the services (and associated containers) have been distributed between both myvm1 and myvm2.
 
 $ docker stack ps getstartedlab
-
-ID            NAME                  IMAGE                   NODE   DESIRED STATE
-jq2g3qp8nzwx  getstartedlab_web.1   gordon/get-started:part2  myvm1  Running
-88wgshobzoxl  getstartedlab_web.2   gordon/get-started:part2  myvm2  Running
-vbb1qbkb0o2z  getstartedlab_web.3   gordon/get-started:part2  myvm2  Running
-ghii74p9budx  getstartedlab_web.4   gordon/get-started:part2  myvm1  Running
-0prmarhavs87  getstartedlab_web.5   gordon/get-started:part2  myvm2  Running
+ID                  NAME                  IMAGE               NODE                DESIRED STATE       CURRENT STATE             ERROR               PORTS
+41gg80dlbm0i        getstartedlab_web.1   username/repo:tag   myvm2               Running             Preparing 3 minutes ago                       
+t6o0o4swtdpk        getstartedlab_web.2   username/repo:tag   myvm1               Running             Preparing 3 minutes ago                       
+kf7zfclcgym4        getstartedlab_web.3   username/repo:tag   myvm2               Running             Preparing 3 minutes ago                       
+p066do93mjme        getstartedlab_web.4   username/repo:tag   myvm2               Running             Preparing 3 minutes ago                       
+nk3znf5ugone        getstartedlab_web.5   username/repo:tag   myvm1               Running             Preparing 3 minutes ago
+  
 Connecting to VMs with docker-machine env and docker-machine ssh
 
 To set your shell to talk to a different machine like myvm2, simply re-run docker-machine env in the same or a different shell, then run the given command to point to myvm2. This is always specific to the current shell. If you change to an unconfigured shell or open a new one, you need to re-run the commands. Use docker-machine ls to list machines, see what state they are in, get IP addresses, and find out which one, if any, you are connected to. To learn more, see the Docker Machine getting started topics.
 Alternatively, you can wrap Docker commands in the form of docker-machine ssh <machine> "<command>", which logs directly into the VM but doesn’t give you immediate access to files on your local host.
 On Mac and Linux, you can use docker-machine scp <file> <machine>:~ to copy files across machines, but Windows users need a Linux terminal emulator like Git Bash for this to work.
-This tutorial demos both docker-machine ssh and docker-machine env, since these are available on all platforms via the docker-machine CLI.
+
 Accessing your cluster
 You can access your app from the IP address of either myvm1 or myvm2.
 
@@ -729,9 +715,6 @@ Started machines may have new IP addresses. You may need to re-run the `docker-m
 On to Part 5 >>
 
 Recap and cheat sheet (optional)
-Here’s a terminal recording of what was covered on this page:
-
-
 In part 4 you learned what a swarm is, how nodes in swarms can be managers or workers, created a swarm, and deployed an application on it. You saw that the core Docker commands didn’t change from part 3, they just had to be targeted to run on a swarm master. You also saw the power of Docker’s networking in action, which kept load-balancing requests across containers, even though they were running on different machines. Finally, you learned how to iterate and scale your app on a cluster.
 
 Here are some commands you might like to run to interact with your swarm and your VMs a bit:
