@@ -1,0 +1,1487 @@
+NOTE: 
+	Here is copy of the tutorial with examples. https://github.com/samirsahoo007/pyspark-tutorial.git.
+	It's a fork of https://github.com/mahmoudparsian/pyspark-tutorial.git.
+
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/cartesian/cartesian.txt
+# ./pyspark										# SparkContext available as sc, SQLContext available as sqlCtx.
+>>> a = [('k1','v1'), ('k2', 'v2')]
+>>> a
+[('k1', 'v1'), ('k2', 'v2')]
+>>> b = [('k3','v3'), ('k4', 'v4'), ('k5', 'v5') ]
+>>> b
+[('k3', 'v3'), ('k4', 'v4'), ('k5', 'v5')]
+>>> rdd1= sc.parallelize(a)
+>>> rdd1.collect()
+[('k1', 'v1'), ('k2', 'v2')]
+>>> rdd2= sc.parallelize(b)
+>>> rdd2.collect()
+[('k3', 'v3'), ('k4', 'v4'), ('k5', 'v5')]
+>>> rdd3 = rdd1.cartesian(rdd2)
+>>> rdd3.collect()
+[
+ (('k1', 'v1'), ('k3', 'v3')), 
+ (('k1', 'v1'), ('k4', 'v4')), 
+ (('k1', 'v1'), ('k5', 'v5')), 
+ (('k2', 'v2'), ('k3', 'v3')), 
+ (('k2', 'v2'), ('k4', 'v4')), 
+ (('k2', 'v2'), ('k5', 'v5'))
+]
+>>>
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/dna-basecount/dna-basecount3.md
+DNA Base Counting using PySpark
+===============================
+
+DNA Base Count Definition
+-------------------------
+[DNA Base Counting is defined here.](https://www.safaribooksonline.com/library/view/data-algorithms/9781491906170/ch24.html)
+
+Solution in PySpark
+-------------------
+This solution assumes that each record is a DNA sequence. 
+This solution emits a ````(base, 1)```` for every base in 
+a given sequence and then aggregates all frequencies for 
+unique bases. For this solution we use an external Python
+function defined in ````basemapper.py````
+
+* Define Python Function
+
+````
+$ export SPARK_HOME=/home/mparsian/spark-1.6.1-bin-hadoop2.6
+$ cat $SPARK_HOME/basemapper.py
+#!/usr/bin/python
+
+def mapper(seq):
+	freq = dict()
+	for x in list(seq):
+		if x in freq:
+			freq[x] +=1
+		else:
+			freq[x] = 1
+#
+	kv = [(x, freq[x]) for x in freq]
+	return kv
+#
+#for testing:
+#print mapper("ATCGATCGATAT")	
+````
+* Define Very Basic Sample Input
+ 
+````
+$ cat /home/mparsian/dna_seq.txt
+ATATCCCCGGGAT
+ATCGATCGATAT
+````
+
+* Sample PySpark Run
+
+````
+# ./bin/pyspark
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 1.6.1
+      /_/
+
+SparkContext available as sc, HiveContext available as sqlContext.
+>>> recs = sc.texFile('file:///home/mparsian/dna_seq.txt')
+
+>>> recs.collect()
+[
+ u'ATATCCCCGGGAT', 
+ u'ATCGATCGATAT'
+]
+
+>>> basemapper = "/Users/mparsian/spark-1.6.1-bin-hadoop2.6/basemapper.py"
+>>> import basemapper
+>>> basemapper
+<module 'basemapper' from 'basemapper.py'>
+>>>
+>>> recs = sc.textFile('file:////Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/dna-basecount/dna_seq.txt')
+>>> rdd = recs.flatMap(basemapper.mapper)
+>>> rdd.collect()
+[(u'A', 3), (u'C', 4), (u'T', 3), (u'G', 3), (u'A', 4), (u'C', 2), (u'T', 4), (u'G', 2)]
+
+>>> baseCount = rdd.reduceByKey(lambda x,y : x+y)
+>>> baseCount.collect()
+[(u'A', 7), (u'C', 6), (u'G', 5), (u'T', 7)]
+>>>
+````/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/dna-basecount/dna-basecount2.md
+DNA Base Counting using PySpark Using In-Mapper Combiner
+========================================================
+
+DNA Base Count Definition
+-------------------------
+[DNA Base Counting is defined here.](https://www.safaribooksonline.com/library/view/data-algorithms/9781491906170/ch24.html)
+
+Solution in PySpark
+-------------------
+This solution assumes that each record is a DNA sequence. 
+This solution uses "In-Mapper Combiner" design pattern 
+and aggregates bases for each sequence before full
+aggregation of all frequencies for unique bases.
+
+
+````
+$ cat /home/mparsian/dna_seq.txt
+ATATCCCCGGGAT
+ATCGATCGATAT
+
+
+# ./bin/pyspark
+Python 2.7.10 (default, Aug 22 2015, 20:33:39) 
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 1.6.0
+      /_/
+
+SparkContext available as sc, HiveContext available as sqlContext.
+>>> recs = sc.texFile('file:///home/mparsian/dna_seq.txt')
+
+>>> recs.collect()
+[
+ u'ATATCCCCGGGAT', 
+ u'ATCGATCGATAT'
+]
+
+>>> def mapper(seq):
+...     freq = dict()
+...     for x in list(seq):
+...             if x in freq:
+...                     freq[x] +=1
+...             else:
+...                     freq[x] = 1
+...     #
+...     kv = [(x, freq[x]) for x in freq]
+...     return kv
+... ^D
+
+
+>>> rdd = recs.flatMap(mapper)
+>>> rdd.collect()
+[
+ (u'A', 3), 
+ (u'C', 4), 
+ (u'T', 3), 
+ (u'G', 3), 
+ (u'A', 4), 
+ (u'C', 2), 
+ (u'T', 4), 
+ (u'G', 2)
+]
+>>> baseCount = rdd.reduceByKey(lambda x,y : x+y)
+>>> baseCount.collect()
+[
+ (u'A', 7), 
+ (u'C', 6), 
+ (u'G', 5), 
+ (u'T', 7)
+]
+>>> 
+````
+
+	
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/dna-basecount/dna-basecount.md
+DNA Base Counting using PySpark
+===============================
+
+DNA Base Count Definition
+-------------------------
+[DNA Base Counting is defined here.](https://www.safaribooksonline.com/library/view/data-algorithms/9781491906170/ch24.html)
+
+Solution in PySpark
+-------------------
+This solution assumes that each record is a DNA sequence. 
+This solution emits a ````(base, 1)```` for every base in 
+a given sequence and then aggregates all frequencies for 
+unique bases.
+
+
+````
+$ cat /home/mparsian/dna_seq.txt
+ATATCCCCGGGAT
+ATCGATCGATAT
+
+>>> recs = sc.texFile('file:///home/mparsian/dna_seq.txt')
+>>> recs.collect()
+[
+ u'ATATCCCCGGGAT', 
+ u'ATCGATCGATAT'
+]
+>>> ones = recs.flatMap(lambda x : [(c,1) for c in list(x)])
+>>> ones.collect()
+[
+ (u'A', 1), 
+ (u'T', 1), 
+ (u'A', 1), 
+ (u'T', 1), 
+ (u'C', 1), 
+ (u'C', 1), 
+ (u'C', 1), 
+ (u'C', 1), 
+ (u'G', 1), 
+ (u'G', 1), 
+ (u'G', 1), 
+ (u'A', 1), 
+ (u'T', 1), 
+ (u'A', 1), 
+ (u'T', 1), 
+ (u'C', 1), 
+ (u'G', 1), 
+ (u'A', 1), 
+ (u'T', 1), 
+ (u'C', 1), 
+ (u'G', 1), 
+ (u'A', 1), 
+ (u'T', 1), 
+ (u'A', 1), 
+ (u'T', 1)
+]
+>>> baseCount = rdd.reduceByKey(lambda x,y : x+y)
+>>> baseCount.collect()
+[
+ (u'A', 7), 
+ (u'C', 6), 
+ (u'G', 5), 
+ (u'T', 7)
+]
+>>> 
+````
+
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/dna-basecount/README.md
+DNA Base Counting
+=================
+
+The following examples demostrates the usage of PySpark to count DNA bases.
+In a nutshell, ````DNA Base Counting```` counts the number of A's, T's, C's, G's, 
+and N's (N refers to undefined code).
+
+
+* [DNA Base Counting Without In-Mapper Combiner](./dna-basecount.md)
+
+* [DNA Base Counting With In-Mapper Combiner](./dna-basecount2.md)
+
+* [DNA Base Counting With External Python Function](./dna-basecount3.md)
+
+
+[![Data Algorithms Book](https://github.com/mahmoudparsian/data-algorithms-book/blob/master/misc/data_algorithms_image.jpg)](http://shop.oreilly.com/product/0636920033950.do) 
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/dna-basecount/dna_seq.txt
+ATATCCCCGGGAT
+ATCGATCGATAT
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/dna-basecount/basemapper.py
+#!/usr/bin/python
+
+def mapper(seq):
+	freq = dict()
+	for x in list(seq):
+		if x in freq:
+			freq[x] +=1
+		else:
+			freq[x] = 1
+#
+	kv = [(x, freq[x]) for x in freq]
+	return kv
+#
+#print mapper("ATCGATCGATAT")	
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/basic-average/basic-average.txt
+# ./pyspark
+Python 2.6.9 (unknown, Sep  9 2014, 15:05:12)
+[GCC 4.2.1 Compatible Apple LLVM 6.0 (clang-600.0.39)] on darwin
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 1.2.0
+      /_/
+
+Using Python version 2.6.9 (unknown, Sep  9 2014 15:05:12)
+SparkContext available as sc.
+>>> sc
+<pyspark.context.SparkContext object at 0x10ab3e210>
+>>>
+>>> nums = sc.parallelize([1, 2, 3, 4, 5, 6, 7, 8, 20])
+>>> nums.collect()
+[1, 2, 3, 4, 5, 6, 7, 8, 20]
+>>> sumAndCount = nums.map(lambda x: (x, 1)).fold((0, 0), (lambda x, y: (x[0] + y[0], x[1] + y[1])))
+>>> sumAndCount
+(56, 9)
+>>>
+>>> avg = float(sumAndCount[0]) / float(sumAndCount[1])
+>>> avg
+6.2222222222222223
+>>>
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/add-indices/add-indices.txt
+# ./pyspark
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 1.4.0
+      /_/
+
+Using Python version 2.6.9 (unknown, Sep  9 2014 15:05:12)
+SparkContext available as sc, SQLContext available as sqlContext.
+>>> a = [('g1', 2), ('g2', 4), ('g3', 3), ('g4', 8)]
+>>> a
+[('g1', 2), ('g2', 4), ('g3', 3), ('g4', 8)]
+
+>>> rdd = sc.parallelize(a);
+>>> rdd.collect()
+[('g1', 2), ('g2', 4), ('g3', 3), ('g4', 8)]
+
+>>> sorted = rdd.sortByKey()
+>>> sorted.collect()
+[('g1', 2), ('g2', 4), ('g3', 3), ('g4', 8)]
+
+
+>>> rdd2 = rdd.map(lambda (x,y) : (y,x))
+>>> rdd2.collect()
+[(2, 'g1'), (4, 'g2'), (3, 'g3'), (8, 'g4')]
+
+>>> sorted = rdd2.sortByKey()
+>>> sorted.collect()
+[(2, 'g1'), (3, 'g3'), (4, 'g2'), (8, 'g4')]
+
+
+>>> sorted = rdd2.sortByKey(False)
+>>> sorted.collect()
+[(8, 'g4'), (4, 'g2'), (3, 'g3'), (2, 'g1')]
+
+>>> sorted = rdd2.sortByKey()
+>>> sorted.collect()
+[(2, 'g1'), (3, 'g3'), (4, 'g2'), (8, 'g4')]
+>>>
+>>> list
+[(2, 'g1'), (3, 'g3'), (4, 'g2'), (8, 'g4')]
+
+>>>
+>>> sorted.collect()
+[(2, 'g1'), (3, 'g3'), (4, 'g2'), (8, 'g4')]
+
+>>> indices = sorted.zipWithIndex()
+>>> indices.collect()
+[((2, 'g1'), 0), ((3, 'g3'), 1), ((4, 'g2'), 2), ((8, 'g4'), 3)]
+>>>/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/basic-filter/basic-filter.txt
+# ./pyspark
+Python 2.6.9 (unknown, Sep  9 2014, 15:05:12)
+[GCC 4.2.1 Compatible Apple LLVM 6.0 (clang-600.0.39)] on darwin
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 1.2.0
+      /_/
+
+Using Python version 2.6.9 (unknown, Sep  9 2014 15:05:12)
+SparkContext available as sc.
+>>> sc
+<pyspark.context.SparkContext object at 0x10d926210>
+
+>>>
+>>> nums = sc.parallelize([1, 2, 3, 4, 5, 6, 7])
+>>> nums.collect()
+[1, 2, 3, 4, 5, 6, 7]
+
+>>> filtered1 = nums.filter(lambda x : x % 2 == 1)
+>>> filtered1.collect()
+[1, 3, 5, 7]
+>>>
+>>> filtered2 = nums.filter(lambda x : x % 2 == 0)
+>>> filtered2.collect()
+[2, 4, 6]
+>>>
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/combine-by-key/standard_deviation_by_combineByKey.md
+Mean and Standard Deviation by Spark's combineByKey()
+=====================================================
+
+````
+# ./bin/pyspark
+Python 2.7.10 (default, Oct 23 2015, 19:19:21)
+...
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 1.6.1
+      /_/
+
+Using Python version 2.7.10 (default, Oct 23 2015 19:19:21)
+SparkContext available as sc, HiveContext available as sqlContext.
+>>> data = [
+...         ("A", 2.), ("A", 4.), ("A", 9.),
+...         ("B", 10.), ("B", 20.),
+...         ("Z", 3.), ("Z", 5.), ("Z", 8.), ("Z", 12.)
+...        ]
+>>> data
+[
+ ('A', 2.0), 
+ ('A', 4.0), 
+ ('A', 9.0), 
+ ('B', 10.0), 
+ ('B', 20.0), 
+ ('Z', 3.0),
+ ('Z', 5.0), 
+ ('Z', 8.0), 
+ ('Z', 12.0)
+]
+>>> rdd = sc.parallelize( data )
+>>> rdd.collect()
+[
+ ('A', 2.0), 
+ ('A', 4.0), 
+ ('A', 9.0), 
+ ('B', 10.0), 
+ ('B', 20.0), 
+ ('Z', 3.0), 
+ ('Z', 5.0), 
+ ('Z', 8.0), 
+ ('Z', 12.0)
+]
+>>> rdd.count()
+9
+>>> sumCount = rdd.combineByKey(lambda value: (value, value*value, 1),
+...                             lambda x, value: (x[0] + value, x[1] + value*value, x[2] + 1),
+...                             lambda x, y: (x[0] + y[0], x[1] + y[1], x[2] + y[2])
+...                            )
+
+>>> sumCount.collect()
+[
+ ('A', (15.0, 101.0, 3)), 
+ ('Z', (28.0, 242.0, 4)), 
+ ('B', (30.0, 500.0, 2))
+]
+
+>>> import math
+>>> def  stdDev( sumX, sumSquared, n ):
+...     mean = sumX / n
+...     stdDeviation = math.sqrt ((sumSquared - n*mean*mean) /n)
+...     return (mean, stdDeviation)
+... ^D
+
+>>> meanAndStdDev = sumCount.mapValues(lambda x : stdDev(x[0], x[1], x[2]))
+>>> meanAndStdDev.collect()
+[
+ ('A', (5.0, 2.943920288775949)), 
+ ('Z', (7.0, 3.391164991562634)), 
+ ('B', (15.0, 5.0))
+]
+>>>
+````/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/combine-by-key/combine-by-key.txt
+# export SPARK_HOME=...
+# SPARK_HOME/bin/pyspark
+Python 2.6.9 (unknown, Sep  9 2014, 15:05:12)
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 1.2.0
+      /_/
+
+Using Python version 2.6.9 (unknown, Sep  9 2014 15:05:12)
+SparkContext available as sc.
+>>> sc
+<pyspark.context.SparkContext object at 0x10c501210>
+
+>>> input = [("k1", 1), ("k1", 2), ("k1", 3), ("k1", 4), ("k1", 5), 
+             ("k2", 6), ("k2", 7), ("k2", 8), 
+             ("k3", 10), ("k3", 12)]
+>>> rdd = sc.parallelize(input)
+>>> sumCount = rdd.combineByKey( 
+                                (lambda x: (x, 1)), 
+                                (lambda x, y: (x[0] + y, x[1] + 1)), 
+                                (lambda x, y: (x[0] + y[0], x[1] + y[1])) 
+                               )
+>>> sumCount.collect()
+[('k3', (22, 2)), ('k2', (21, 3)), ('k1', (15, 5))]
+>>> 
+>>> avg = sumCount.mapValues( lambda v : v[0] / v[1])
+>>> avg.collect()
+[('k3', 11), ('k2', 7), ('k1', 3)]
+>>>/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/combine-by-key/README.md
+Spark's combineByKey() Examples and Tutorial
+============================================
+
+* [Mean Calculation by combineByKey()](./spark-combineByKey.md)
+* [Standard Deviation and Mean Calculation by combineByKey()](./standard_deviation_by_combineByKey.md)
+
+
+[![Data Algorithms Book](https://github.com/mahmoudparsian/data-algorithms-book/blob/master/misc/data_algorithms_image.jpg)](http://shop.oreilly.com/product/0636920033950.do) 
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/combine-by-key/spark-combineByKey.md
+Some Notes on Spark's combineByKey()
+====================================
+
+Spark's ````combineByKey()```` is invked like this:
+
+````
+rdd2 = rdd.combineByKey(createCombiner, mergeValue, mergeCombiners) 
+````
+
+To use Spark's combineByKey(), you need to define a 
+data structure ````C```` (called combiner data structure)
+and 3 basic functions:
+
+* createCombiner
+* mergeValue
+* mergeCombiners
+
+Generic function to combine the elements for each key using 
+a custom set of aggregation functions.
+
+
+Turns an ````RDD[(K, V)]```` into a result of type ````RDD[(K, C)]````, 
+for a “combined type” ````C````. Note that ````V````and ````C```` can be 
+different –  for example, one might group an RDD of type ````(Integer, Integer)```` 
+into an RDD of type ````(Integer, List[Integer])````.
+
+Users provide three lambda-based functions:
+
+1. createCombiner, which turns a V into a C (e.g., creates a one-element list)
+````
+  V --> C
+````
+
+2. mergeValue, to merge a V into a C (e.g., adds it to the end of a list) 
+````
+  C, V --> C
+````
+  
+3. mergeCombiners, to combine two C’s into a single one.
+````
+  C, C --> C
+````
+
+In addition, users can control the partitioning of the output RDD.
+
+````
+>>> data = [("a", 1), ("b", 1), ("a", 1)]
+>>> x = sc.parallelize(data)
+>>> def add(a, b): return a + str(b)
+>>> sorted(x.combineByKey(str, add, add).collect())
+[('a', '11'), ('b', '1')]
+````
+
+Example: Average By Key: use combineByKey()
+===========================================
+
+The example below uses data in the form of a list of key-value 
+tuples: (key, value). First, we convert the list into a Spark's
+Resilient Distributed Dataset (RDD) with ````sc.parallelize()````, 
+where sc is an instance of pyspark.SparkContext.
+
+The next step is to use combineByKey to compute the sum and count 
+for each key in data. Here the combined data structure ````C```` 
+is a pair of ````(sum, count)````. The 3 lambda-functions will be 
+explained in detail in the following sections. The result, sumCount, 
+is an RDD where its values are in the form of ````(key, (sum, count))````.
+
+To compute the average-by-key, we use the ````map()```` method to divide 
+the sum by the count for each key.
+
+Finally, we may use the ````collectAsMap()```` method to return the average-by-key 
+as a dictionary.
+
+````
+data = [
+        (A, 2.), (A, 4.), (A, 9.), 
+        (B, 10.), (B, 20.), 
+        (Z, 3.), (Z, 5.), (Z, 8.), (Z, 12.) 
+       ]
+
+rdd = sc.parallelize( data )
+
+sumCount = rdd.combineByKey(lambda value: (value, 1),
+                            lambda x, value: (x[0] + value, x[1] + 1),
+                            lambda x, y: (x[0] + y[0], x[1] + y[1])
+                           )
+
+averageByKey = sumCount.map(lambda (key, (totalSum, count)): (key, totalSum / count))
+
+averageByKey.collectAsMap()
+
+Result:
+
+{
+  A: 5.0, 
+  B: 15.0
+  Z: 7.0
+}
+````
+
+
+The combineByKey Method
+=======================
+In order to aggregate an RDD's elements in parallel, Spark's combineByKey 
+method requires three functions:
+
+1. createCombiner
+2. mergeValue
+3. mergeCombiner
+
+Create a Combiner
+-----------------
+````
+lambda value: (value, 1)
+````
+The first required argument in the combineByKey method is a function to 
+be used as the very first aggregation step for each key. The argument of 
+this function corresponds to the value in a key-value pair. If we want to 
+compute the sum and count using combineByKey, then we can create this 
+"combiner" to be a tuple in the form of (sum, count). Note that (sum, count)
+is the combine data structure ````C```` (in tha API). The very first 
+step in this aggregation is then (value, 1), where value is the first 
+RDD value that combineByKey comes across and 1 initializes the count.
+
+Merge a Value
+-------------
+````
+lambda x, value: (x[0] + value, x[1] + 1)
+````
+The next required function tells combineByKey what to do when a combiner 
+is given a new value. The arguments to this function are a combiner and 
+a new value. The structure of the combiner is defined above as a tuple 
+in the form of (sum, count) so we merge the new value by adding it to the 
+first element of the tuple while incrementing 1 to the second element of 
+the tuple.
+
+Merge two Combiners
+-------------------
+````
+lambda x, y: (x[0] + y[0], x[1] + y[1])
+````
+The final required function tells combineByKey how to merge two combiners. 
+In this example with tuples as combiners in the form of (sum, count), all 
+we need to do is add the first and last elements together.
+
+Compute the Average
+-------------------
+````
+averageByKey = 
+  sumCount.map(lambda (key, (totalSum, count)): (key, totalSum / count))
+````
+
+Ultimately the goal is to compute the average-by-key. The result from 
+combineByKey is an RDD with elements in the form (label, (totalSum, count)), 
+so the average-by-key can easily be obtained by using the map method, 
+mapping (totalSum, count) to totalSum / count.
+We should not use ````sum```` as variable name in the PySpark code because it is a 
+built-in function in Python.
+
+
+Let's break up the data into 2 partitions (just as an example) 
+and see it in action:
+
+````
+data = [
+        ("A", 2.), ("A", 4.), ("A", 9.), 
+        ("B", 10.), ("B", 20.), 
+        ("Z", 3.), ("Z", 5.), ("Z", 8.), ("Z", 12.) 
+       ]
+
+Partition 1: ("A", 2.), ("A", 4.), ("A", 9.), ("B", 10.)
+Partition 2: ("B", 20.), ("Z", 3.), ("Z", 5.), ("Z", 8.), ("Z", 12.) 
+
+
+Partition 1 
+("A", 2.), ("A", 4.), ("A", 9.), ("B", 10.)
+
+A=2. --> createCombiner(2.) ==> accumulator[A] = (2., 1)
+A=4. --> mergeValue(accumulator[A], 4.) ==> accumulator[A] = (2. + 4., 1 + 1) = (6., 2)
+A=9. --> mergeValue(accumulator[A], 9.) ==> accumulator[A] = (6. + 9., 2 + 1) = (15., 3)
+B=10. --> createCombiner(10.) ==> accumulator[B] = (10., 1)
+
+Partition 2
+("B", 20.), ("Z", 3.), ("Z", 5.), ("Z", 8.), ("Z", 12.) 
+
+B=20. --> createCombiner(20.) ==> accumulator[B] = (20., 1)
+Z=3. --> createCombiner(3.) ==> accumulator[Z] = (3., 1)
+Z=5. --> mergeValue(accumulator[Z], 5.) ==> accumulator[Z] = (3. + 5., 1 + 1) = (8., 2)
+Z=8. --> mergeValue(accumulator[Z], 8.) ==> accumulator[Z] = (8. + 8., 2 + 1) = (16., 3)
+Z=12. --> mergeValue(accumulator[Z], 12.) ==> accumulator[Z] = (16. + 12., 3 + 1) = (28., 4)
+
+Merge partitions together
+A ==> (15., 3)
+B ==> mergeCombiner((10., 1), (20., 1)) ==> (10. + 20., 1 + 1) = (30., 2)
+Z ==> (28., 4)
+
+So, you should get back an array something like this:
+
+Array( [A, (15., 3)], [B, (30., 2)], [Z, (28., 4)])
+
+````
+READ IT: /Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/combine-by-key/distributed_computing_with_spark_by_Javier_Santos_Paniego.pdf
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/wordcount/word_count_ver2.py
+from __future__ import print_function
+
+import sys
+
+from pyspark.sql import SparkSession
+#-----------------------------------
+
+
+if __name__ == "__main__":
+
+    # create an instance of a SparkSession as spark
+    spark = SparkSession\
+        .builder\
+        .appName("wordcount")\
+        .getOrCreate()
+
+    # inputPath = "file:///Users/mparsian/spark-2.2.1/zbin/sample.txt"
+    #
+    #   sys.argv[0] is the name of the script.
+    #   sys.argv[1] is the first parameter
+    inputPath = sys.argv[1] # input file
+    print("inputPath: {}".format(inputPath))
+
+
+    # create SparkContext as sc
+    sc = spark.sparkContext
+
+    # create RDD from a text file
+    textfileRDD = sc.textFile(inputPath)
+    print(textfileRDD.collect())
+
+    wordsRDD = textfileRDD.flatMap(lambda line: line.split(" "))
+    print(wordsRDD.collect())
+
+    pairsRDD =  wordsRDD.map(lambda word: (word, 1))
+    print(pairsRDD.collect())
+
+    frequenciesRDD = pairsRDD.reduceByKey(lambda a, b: a + b)
+    print(frequenciesRDD.collect())
+
+    # done!
+    spark.stop()
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/wordcount/run_word_count.sh
+# define Spark's installed directory
+export SPARK_HOME="/Users/mparsian/spark-2.2.1"
+#
+# define your input path
+#INPUT_PATH="$SPARK_HOME/licenses/LICENSE-heapq.txt"
+#
+# define your PySpark program
+PROG="/Users/mparsian/zmp/pyspark_book_project/programs/word_count.py"
+#
+# submit your spark application
+$SPARK_HOME/bin/spark-submit $PROG 
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/wordcount/run_word_count_ver2.sh
+# define Spark's installed directory
+export SPARK_HOME="/Users/mparsian/spark-2.2.1"
+#
+# define your input path
+INPUT_PATH="file:///Users/mparsian/spark-2.2.1/zbin/sample.txt"
+#
+# define your PySpark program
+PROG="/Users/mparsian/zmp/github/pyspark-tutorial/tutorial/wordcount/word_count_ver2.py"
+#
+# submit your spark application
+$SPARK_HOME/bin/spark-submit $PROG $INPUT_PATH
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/wordcount/README.md
+* word_count.py
+
+Word Count solution in PySpark: Note that input file is 
+hard-coded: not a very good practice. The purpose is to 
+show how to read files in Spark.
+
+* word_count_ver2.py
+
+I pass input file as a parameter.
+
+
+````
+best regards,
+Mahmoud Parsian
+````
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/wordcount/wordcount.txt
+1. Prepare Input
+
+# cat data.txt
+crazy crazy fox jumped
+crazy fox jumped
+fox is fast
+fox is smart
+dog is smart
+
+2. Invoke pyspark
+
+# export SPARK_HOME=...
+# SPARK_HOME/bin/pyspark
+Python 2.6.9 (unknown, Sep  9 2014, 15:05:12)
+[GCC 4.2.1 Compatible Apple LLVM 6.0 (clang-600.0.39)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 1.2.0
+      /_/
+
+Using Python version 2.6.9 (unknown, Sep  9 2014 15:05:12)
+SparkContext available as sc.
+>>> sc
+<pyspark.context.SparkContext object at 0x10ae02210>
+>>> lines = sc.textFile("data.txt", 1)
+>>> debuglines = lines.collect();
+>>> debuglines
+[u'crazy crazy fox jumped', 
+ u'crazy fox jumped', 
+ u'fox is fast', 
+ u'fox is smart', 
+ u'dog is smart'
+]
+>>> words = lines.flatMap(lambda x: x.split(' '))
+>>> debugwords = words.collect();
+>>> debugwords
+[
+ u'crazy', 
+ u'crazy', 
+ u'fox', 
+ u'jumped', 
+ u'crazy', 
+ u'fox', 
+ u'jumped', 
+ u'fox', 
+ u'is', 
+ u'fast', 
+ u'fox', 
+ u'is', 
+ u'smart', 
+ u'dog', 
+ u'is', 
+ u'smart'
+]
+>>> ones = words.map(lambda x: (x, 1))
+>>> debugones = ones.collect()
+>>> debugones
+[
+ (u'crazy', 1), 
+ (u'crazy', 1), 
+ (u'fox', 1), 
+ (u'jumped', 1), 
+ (u'crazy', 1), 
+ (u'fox', 1), 
+ (u'jumped', 1), 
+ (u'fox', 1), 
+ (u'is', 1), 
+ (u'fast', 1), 
+ (u'fox', 1), 
+ (u'is', 1), 
+ (u'smart', 1), 
+ (u'dog', 1), 
+ (u'is', 1), 
+ (u'smart', 1)
+]
+>>> counts = ones.reduceByKey(lambda x, y: x + y)
+>>> debugcounts = counts.collect()
+>>> debugcounts
+[
+ (u'crazy', 3), 
+ (u'jumped', 2), 
+ (u'is', 3), 
+ (u'fox', 4), 
+ (u'dog', 1), 
+ (u'fast', 1), 
+ (u'smart', 2)
+]
+>>>
+>>> counts.saveAsTextFile("output")
+
+3. Examine Output
+
+# cat output/part*
+(u'crazy', 3)
+(u'jumped', 2)
+(u'is', 3)
+(u'fox', 4)
+(u'dog', 1)
+(u'fast', 1)
+(u'smart', 2)
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/wordcount/wordcount-shorthand.txt
+# cat data.txt
+crazy crazy fox jumped
+crazy fox jumped
+fox is fast
+fox is smart
+dog is smart
+
+# ./bin/pyspark
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 1.4.0
+      /_/
+
+Using Python version 2.6.9 (unknown, Sep  9 2014 15:05:12)
+SparkContext available as sc, SQLContext available as sqlContext.
+>>>
+>>> lines = sc.textFile('data.txt', 1);
+>>> lines.collect()
+[
+ u'crazy crazy fox jumped', 
+ u'crazy fox jumped', 
+ u'fox is fast', 
+ u'fox is smart', 
+ u'dog is smart'
+]
+
+>>> frequencies = lines.flatMap(lambda x: x.split(' ')).map(lambda x: (x, 1)).reduceByKey(lambda x, y: x + y)
+>>> frequencies.collect()
+[
+ (u'crazy', 3), 
+ (u'jumped', 2), 
+ (u'is', 3), 
+ (u'fox', 4), 
+ (u'dog', 1), 
+ (u'fast', 1), 
+ (u'smart', 2)
+]
+
+>>> frequencies.count()
+7/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/wordcount/word_count.py
+from __future__ import print_function
+
+import sys
+
+from pyspark.sql import SparkSession
+#-----------------------------------
+
+
+if __name__ == "__main__":
+
+    # create an instance of a SparkSession as spark
+    spark = SparkSession\
+        .builder\
+        .appName("wordcount")\
+        .getOrCreate()
+
+    inputPath = "file:///Users/mparsian/spark-2.2.1/zbin/sample.txt"
+
+    # create SparkContext as sc
+    sc = spark.sparkContext
+
+    # create RDD from a text file
+    textfileRDD = sc.textFile(inputPath)
+    print(textfileRDD.collect())
+
+    wordsRDD = textfileRDD.flatMap(lambda line: line.split(" "))
+    print(wordsRDD.collect())
+
+    pairsRDD =  wordsRDD.map(lambda word: (word, 1))
+    print(pairsRDD.collect())
+
+    frequenciesRDD = pairsRDD.reduceByKey(lambda a, b: a + b)
+    print(frequenciesRDD.collect())
+
+    # done!
+    spark.stop()
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/basic-union/basic-union.txt
+# ./pyspark
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 1.4.0
+      /_/
+
+Using Python version 2.6.9 (unknown, Sep  9 2014 15:05:12)
+SparkContext available as sc, SQLContext available as sqlContext.
+
+>>> d1= [('k1', 1), ('k2', 2), ('k3', 5)]
+>>> d1
+[('k1', 1), ('k2', 2), ('k3', 5)]
+
+>>> d2= [('k1', 3), ('k2',4), ('k4', 8)]
+>>> d2
+[('k1', 3), ('k2', 4), ('k4', 8)]
+
+>>> rdd1 = sc.parallelize(d1)
+>>> rdd1.collect()
+[('k1', 1), ('k2', 2), ('k3', 5)]
+
+>>> rdd2 = sc.parallelize(d2)
+>>> rdd2.collect();
+[('k1', 3), ('k2', 4), ('k4', 8)]
+
+>>> rdd3 = rdd1.union(rdd2)
+>>> rdd3.collect()
+[('k1', 1), ('k2', 2), ('k3', 5), ('k1', 3), ('k2', 4), ('k4', 8)]
+
+>>> rdd4 = rdd3.reduceByKey(lambda x,y: x+y)
+>>> rdd4.collect()
+[('k3', 5), ('k2', 6), ('k1', 4), ('k4', 8)]/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/basic-sort/sort-by-key.txt
+# cat data.txt
+crazy crazy fox jumped
+crazy fox jumped
+fox is fast
+fox is smart
+dog is smart
+
+# ./bin/pyspark
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 1.4.0
+      /_/
+
+Using Python version 2.6.9 (unknown, Sep  9 2014 15:05:12)
+SparkContext available as sc, SQLContext available as sqlContext.
+>>>
+>>> lines = sc.textFile('data.txt', 1);
+>>> lines.collect()
+[
+ u'crazy crazy fox jumped', 
+ u'crazy fox jumped', 
+ u'fox is fast', 
+ u'fox is smart', 
+ u'dog is smart'
+]
+
+>>> frequencies = lines.flatMap(lambda x: x.split(' ')).map(lambda x: (x, 1)).reduceByKey(lambda x, y: x + y)
+>>> frequencies.collect()
+[
+ (u'crazy', 3), 
+ (u'jumped', 2), 
+ (u'is', 3), 
+ (u'fox', 4), 
+ (u'dog', 1), 
+ (u'fast', 1), 
+ (u'smart', 2)
+]
+
+>>> frequencies.count()
+7
+
+>>> sorted = frequencies.sortByKey()
+>>> sorted.collect()
+[
+ (u'crazy', 3), 
+ (u'dog', 1), 
+ (u'fast', 1), 
+ (u'fox', 4), 
+ (u'is', 3), 
+ (u'jumped', 2), 
+ (u'smart', 2)
+]
+>>>
+>>> sortedDescending = frequencies.sortByKey(False)
+>>> sortedDescending.collect()
+[
+ (u'smart', 2), 
+ (u'jumped', 2), 
+ (u'is', 3), 
+ (u'fox', 4), 
+ (u'fast', 1), 
+ (u'dog', 1), 
+ (u'crazy', 3)
+]
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/map-partitions/README.md
+Spark's mapPartitions()
+=======================
+
+According to Spark API: ````mapPartitions(func)````	transformation is 
+similar to ````map()````, but runs separately on each partition (block) 
+of the RDD, so ````func```` must be of type ````Iterator<T> => Iterator<U>````
+when running on an RDD of type T.
+
+
+The ````mapPartitions()```` transformation should be used when you want to 
+extract some condensed information (such as finding the minimum and maximum 
+of numbers) from each partition. For example, if you want to find the minimum 
+and maximum of all numbers in your input, then using ````map()```` can be 
+pretty inefficient, since you will be generating tons of intermediate 
+(K,V) pairs, but the bottom line is you just want to find two numbers: the 
+minimum and maximum of all numbers in your input. Another example can be if 
+you want to find top-10 (or bottom-10) for your input, then mapPartitions() 
+can work very well: find the top-10 (or bottom-10) per partition, then find 
+the top-10 (or bottom-10) for all partitions: this way you are limiting 
+emitting too many intermediate (K,V) pairs.
+
+
+Example-1: Sum Each Partition
+=============================
+````
+>>> numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+>>> numbers
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+>>> rdd = sc.parallelize(numbers, 3)
+
+>>> rdd.collect()
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+>>> rdd.getNumPartitions()
+3
+
+>>> def f(iterator):
+...     for x in iterator:
+...             print(x)
+...     print "==="
+...
+>>> rdd.foreachPartition(f)
+1
+2
+3
+===
+7
+8
+9
+10
+===
+4
+5
+6
+===
+
+>>> def adder(iterator):
+...     yield sum(iterator)
+...
+>>> rdd.mapPartitions(adder).collect()
+[6, 15, 34]
+
+````
+
+
+Example-2: Find Minimum and Maximum
+===================================
+Use ````mapPartitions()```` and find the minimum and maximum from each partition.
+
+To make it a cleaner solution, we define a python function to return the minimum and maximum 
+for a given iteration.
+
+````
+$ cat minmax.py
+#!/usr/bin/python
+
+def minmax(iterator):
+	firsttime = 0
+	#min = 0;
+	#max = 0;
+	for x in iterator:
+		if (firsttime == 0):
+			min = x;
+			max = x;
+			firsttime = 1
+		else:
+			if x > max:
+				max = x
+			if x < min:
+				min = x
+		#
+	return (min, max)
+#
+#data = [10, 20, 3, 4, 5, 2, 2, 20, 20, 10]
+#print minmax(data)	
+````
+Then we use the minmax function for the ````mapPartitions()````:
+
+````
+### NOTE: data  can be huge, but for understanding 
+### the mapPartitions() we use a very small data set
+
+>>> data = [10, 20, 3, 4, 5, 2, 2, 20, 20, 10]
+>>> rdd = sc.parallelize(data, 3)
+
+>>> rdd.getNumPartitions()
+3
+
+>>> rdd.collect()
+[10, 20, 3, 4, 5, 2, 2, 20, 20, 10]
+
+>>> def f(iterator):
+...     for x in iterator:
+...             print(x)
+...     print "==="
+... ^D
+
+>>> rdd.foreachPartition(f)
+10
+20
+3
+===
+4
+5
+2
+===
+2
+20
+20
+10
+===
+>>>
+
+>>> minmax = "/Users/mparsian/spark-1.6.1-bin-hadoop2.6/minmax.py"
+>>> import minmax
+
+### NOTE: the minmaxlist is a small list of numbers 
+### two mumbers (min and max) are generated per partition
+>>> minmaxlist = rdd.mapPartitions(minmax.minmax).collect()
+>>> minmaxlist 
+[3, 20, 2, 5, 2, 20]
+
+>>> min(minmaxlist)
+2
+>>> max(minmaxlist)
+20
+````
+
+Questions/Comments
+==================
+* [View Mahmoud Parsian's profile on LinkedIn](http://www.linkedin.com/in/mahmoudparsian)
+* Please send me an email: mahmoud.parsian@yahoo.com
+* [Twitter: @mahmoudparsian](http://twitter.com/mahmoudparsian)
+
+Thank you!
+
+````
+best regards,
+Mahmoud Parsian
+````
+
+[![Data Algorithms Book](https://github.com/mahmoudparsian/data-algorithms-book/blob/master/misc/data_algorithms_image.jpg)](http://shop.oreilly.com/product/0636920033950.do)
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/basic-join/basicjoin.txt
+# cat > R.txt
+k1,v1
+k1,v2
+k2,v3
+k2,v4
+k3,v7
+k3,v8
+k3,v9
+
+# cat > S.txt
+k1,v11
+k1,v22
+k1,v33
+k2,v55
+k4,v77
+k5,v88
+
+>>> R = sc.textFile("R.txt");
+>>> R.collect()
+[u'k1,v1', 
+ u'k1,v2', 
+ u'k2,v3', 
+ u'k2,v4', 
+ u'k3,v7', 
+ u'k3,v8', 
+ u'k3,v9']
+ 
+>>> S = sc.textFile("S.txt");
+>>> S.collect()
+[u'k1,v11', 
+ u'k1,v22', 
+ u'k1,v33', 
+ u'k2,v55', 
+ u'k4,v77', 
+ u'k5,v88'
+]
+
+>>> r1 = R.map(lambda s: s.split(","))
+>>> r1.collect()
+[
+ [u'k1', u'v1'], 
+ [u'k1', u'v2'], 
+ [u'k2', u'v3'], 
+ [u'k2', u'v4'], 
+ [u'k3', u'v7'], 
+ [u'k3', u'v8'], 
+ [u'k3', u'v9']
+]
+>>> r2 = r1.flatMap(lambda s: [(s[0], s[1])])
+>>> r2.collect()
+[
+ (u'k1', u'v1'), 
+ (u'k1', u'v2'), 
+ (u'k2', u'v3'), 
+ (u'k2', u'v4'), 
+ (u'k3', u'v7'), 
+ (u'k3', u'v8'), 
+ (u'k3', u'v9')
+]
+>>>
+>>> s1 = S.map(lambda s: s.split(","))
+>>> s1.collect()
+[
+ [u'k1', u'v11'], 
+ [u'k1', u'v22'], 
+ [u'k1', u'v33'], 
+ [u'k2', u'v55'], 
+ [u'k4', u'v77'], 
+ [u'k5', u'v88']
+]
+>>> s2 = s1.flatMap(lambda s: [(s[0], s[1])])
+>>> s2.collect()
+[
+ (u'k1', u'v11'), 
+ (u'k1', u'v22'), 
+ (u'k1', u'v33'), 
+ (u'k2', u'v55'), 
+ (u'k4', u'v77'), 
+ (u'k5', u'v88')
+]
+>>> RjoinedS = r2.join(s2)
+>>> RjoinedS.collect()
+[
+ (u'k2', (u'v3', u'v55')), 
+ (u'k2', (u'v4', u'v55')), 
+ (u'k1', (u'v1', u'v11')), 
+ (u'k1', (u'v1', u'v22')), 
+ (u'k1', (u'v1', u'v33')), 
+ (u'k1', (u'v2', u'v11')), 
+ (u'k1', (u'v2', u'v22')), 
+ (u'k1', (u'v2', u'v33'))
+]
+
+>>>/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/basic-multiply/basic-multiply.txt
+
+>>> numbers = sc.parallelize([1, 2, 3, 4])
+>>> mult = numbers.fold(1, (lambda x, y: x * y))
+>>> mult
+24
+
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/bigrams/bigrams.txt
+1. Prepare Input
+
+# cat data.txt
+crazy crazy fox jumped over the fence
+crazy fox jumped
+the fence is high for fox
+crazy fox is smart
+fox jumped very high
+
+2. Invoke pyspark
+
+>>> lines = sc.textFile("data.txt")
+>>> lines.collect()
+
+[u'crazy crazy fox jumped over the fence', 
+ u'crazy fox jumped', 
+ u'the fence is high for fox', 
+ u'crazy fox is smart', 
+ u'fox jumped very high'
+]
+>>> bigrams = lines.map(lambda s : s.split(" ")).flatMap(lambda s: [((s[i],s[i+1]),1) for i in range (0, len(s)-1)])
+>>> bigrams.collect()
+[((u'crazy', u'crazy'), 1), 
+ ((u'crazy', u'fox'), 1), 
+ ((u'fox', u'jumped'), 1), 
+ ((u'jumped', u'over'), 1), 
+ ((u'over', u'the'), 1), 
+ ((u'the', u'fence'), 1), 
+ ((u'crazy', u'fox'), 1), 
+ ((u'fox', u'jumped'), 1), 
+ ((u'the', u'fence'), 1), 
+ ((u'fence', u'is'), 1), 
+ ((u'is', u'high'), 1), 
+ ((u'high', u'for'), 1), 
+ ((u'for', u'fox'), 1), 
+ ((u'crazy', u'fox'), 1), 
+ ((u'fox', u'is'), 1), 
+ ((u'is', u'smart'), 1), 
+ ((u'fox', u'jumped'), 1), 
+ ((u'jumped', u'very'), 1), 
+ ((u'very', u'high'), 1)
+]
+>>>
+>>> counts = bigrams.reduceByKey(lambda x, y : x+y)
+>>> counts.collect()
+[
+ ((u'high', u'for'), 1), 
+ ((u'fox', u'is'), 1), 
+ ((u'is', u'smart'), 1), 
+ ((u'is', u'high'), 1), 
+ ((u'fence', u'is'), 1), 
+ ((u'very', u'high'), 1), 
+ ((u'crazy', u'fox'), 3), 
+ ((u'over', u'the'), 1), 
+ ((u'for', u'fox'), 1), 
+ ((u'the', u'fence'), 2), 
+ ((u'crazy', u'crazy'), 1), 
+ ((u'jumped', u'over'), 1), 
+ ((u'jumped', u'very'), 1), 
+ ((u'fox', u'jumped'), 3)
+ ]
+
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/split-function/README.md
+How To Use Split Function
+=========================
+* Example-1: Split ````RDD<String>```` into Tokens
+
+>>> data = ["abc,de", "abc,de,ze", "abc,de,ze,pe"]
+>>> data
+['abc,de', 'abc,de,ze', 'abc,de,ze,pe']
+
+>>> rdd = sc.parallelize(data)
+>>> rdd.collect()
+['abc,de', 'abc,de,ze', 'abc,de,ze,pe']
+>>> rdd.count()
+3
+
+# See the difference between map and flatMap
+>>> rdd2 = rdd.map(lambda x : x.split(","))
+>>> rdd2.collect()
+[['abc', 'de'], ['abc', 'de', 'ze'], ['abc', 'de', 'ze', 'pe']]
+
+>>> rdd3 = rdd.flatMap(lambda x : x.split(","))
+>>> rdd3.collect()
+['abc', 'de', 'abc', 'de', 'ze', 'abc', 'de', 'ze', 'pe']
+
+>>> rdd2.count()
+3
+>>> rdd3.count()
+9
+
+* Example-2: Create Key-Value Pairs
+
+>>> data2 = ["abc,de", "xyz,deeee,ze", "abc,de,ze,pe", "xyz,bababa"]
+>>> data2
+['abc,de', 'xyz,deeee,ze', 'abc,de,ze,pe', 'xyz,bababa']
+
+>>> rdd4 = sc.parallelize(data2)
+>>> rdd4.collect()
+['abc,de', 'xyz,deeee,ze', 'abc,de,ze,pe', 'xyz,bababa']
+
+>>> rdd5 = rdd4.map(lambda x : (x.split(",")[0], x.split(",")[1]))
+>>> rdd5.collect()
+[('abc', 'de'), ('xyz', 'deeee'), ('abc', 'de'), ('xyz', 'bababa')]
+
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/top-N/top-N.txt
+>>>
+>>> nums = [10, 1, 2, 9, 3, 4, 5, 6, 7]
+>>> sc.parallelize(nums).takeOrdered(3)
+[1, 2, 3]
+>>> sc.parallelize(nums).takeOrdered(3, key=lambda x: -x)
+[10, 9, 7]
+>>>
+>>> kv = [(10,"z1"), (1,"z2"), (2,"z3"), (9,"z4"), (3,"z5"), (4,"z6"), (5,"z7"), (6,"z8"), (7,"z9")]
+>>> sc.parallelize(kv).takeOrdered(3)
+[(1, 'z2'), (2, 'z3'), (3, 'z5')]
+>>>
+>>> sc.parallelize(kv).takeOrdered(3, key=lambda x: -x[0])
+[(10, 'z1'), (9, 'z4'), (7, 'z9')]
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/basic-map/basic-map.txt
+
+>>> nums = sc.parallelize([1, 2, 3, 4, 5])
+>>> nums.collect()
+[1, 2, 3, 4, 5]
+>>>
+>>> bytwo = nums.map(lambda x: x + 2)
+>>> bytwo.collect()
+[3, 4, 5, 6, 7]
+>>>
+>>> squared = nums.map(lambda x: x * x)
+>>> squared.collect()
+[1, 4, 9, 16, 25]
+>>>
+/Users/samirsahoo/learnings/hadoop/spark/tutorial_with_examples/pyspark-tutorial/tutorial/basic-sum/basic-sum.txt
+>>> sc
+<pyspark.context.SparkContext object at 0x1058bf210>
+>>> numbers = sc.parallelize([1, 2, 3, 4])
+>>> sum = numbers.fold(0, (lambda x, y: x + y))
+>>> sum
+10
