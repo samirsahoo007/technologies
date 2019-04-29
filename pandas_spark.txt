@@ -56,6 +56,7 @@ df.index = pd.date_range('1900/1/30', periods=df.shape[0]) 	- Adds a date index
 
 VIEWING/INSPECTING DATA
 =======================
+df.show()				- Displaying the data
 df.head(n) 				- First n rows of the DataFrame 
 df.tail(n) 				- Last n rows of the DataFrame 
 df.shape() 				- Number of rows and columns 
@@ -1120,55 +1121,429 @@ pandas.pydata			(This is vast; needs to be learned separately)
 df.expanding()			- Return an Expanding object allowing summary functions to be applied cumulatively.
 df.rolling(n)			- Return a Rolling object allowing summary functions to be applied to windows of length n.
 
-==================================== Django ==============================================================
+==================================== Apache Spark : RDD vs DataFrame vs Dataset ===========================================================
 
-Why are ORMs useful?
-ORMs provide a high-level abstraction upon a relational database that allows a developer to write Python code instead of SQL to create, read, update and delete data and schemas in their database. Developers can use the programming 
-language they are comfortable with to work with a database instead of writing SQL statements or stored procedures.
+With Spark2.0 release, there are 3 types of data abstractions which Spark officially provides now to use : RDD,DataFrame and DataSet
 
-For example, without an ORM a developer would write the following SQL statement to retrieve every row in the USERS table where the zip_code column is 94107:
 
-SELECT * FROM USERS WHERE zip_code=94107;
-The equivalent Django ORM query would instead look like the following Python code:
+Short Combined Intro :
+Evolution of these abstractions happened in this way :
 
-# obtain everyone in the 94107 zip code and assign to users variable
-users = Users.objects.filter(zip_code=94107)
+RDD (Spark1.0) —> Dataframe(Spark1.3) —> Dataset(Spark1.6)					#RDD being the oldest available from 1.0 version to Dataset being the newest available from 1.6 version.
 
-The ability to write Python code instead of SQL can speed up web application development, especially at the beginning of a project. The potential development speed boost comes from not having to switch from Python code into 
-writing declarative paradigm SQL statements. While some software developers may not mind switching back and forth between languages, it's typically easier to knock out a prototype or start a web application using a single programming 
-language.
+Given same data, each of the 3 abstraction will compute and give same results to user. But they differ in performance and the ways they compute.
 
-ORMs also make it theoretically possible to switch an application between various relational databases. For example, a developer could use SQLite for local development and MySQL in production. A production application could be 
-switched from MySQL to PostgreSQL with minimal code modifications.
+RDD lets us decide HOW we want to do which limits the optimisation Spark can do on processing underneath where as dataframe/dataset lets us decide WHAT we want to do and leave everything on Spark to decide how to do computation.
 
-In practice however, it's best to use the same database for local development as is used in production. Otherwise unexpected errors could hit in production that were not seen in a local development environment. Also, it's rare that a 
-project would switch from one database in production to another one unless there was a pressing reason.
+We will understand this in 2 minutes what is meant by HOW & WHAT
 
-*** Flask uses SQLAlchemy ORM where Django has its own ORM(Django ORM)
+Dataframe came as a major performance improvement over RDD but not without some downsides.
 
-Que: What are the downsides of using an ORM?
+This led to development of Dataset which is an effort to unify best of RDD and data frame.
 
-Ans
-- Impedance mismatch
-- Potential for reduced performance
-- Shifting complexity from the database into the application code
+In future, Dataset will eventually replace RDD and Dataframe to become the only API spark users should be using in code.
 
-Impedance mismatch:
-The phrase "impedance mismatch" is commonly used in conjunction with ORMs. Impedance mismatch is a catch-all term for the difficulties that occur when moving data between relational tables and application objects. 
-The gist is that the way a developer uses objects is different from how data is stored and joined in relational tables.
+Lets understand them in detail one by one.
 
-Potential for reduced performance:
-One of the concerns that's associated with any higher-level abstraction or framework is potential for reduced performance. With ORMs, the performance hit comes from the translation of application code into a corresponding SQL statement 
-which may not be tuned properly.
+RDD:
+-Its building block of spark. No matter which abstraction Dataframe or Dataset we use, internally final computation is done on RDDs.
+-RDD is lazily evaluated immutable parallel collection of objects exposed with lambda functions.
+-The best part about RDD is that it is simple. It provides familiar OOPs style APIs with compile time safety. We can load any data from a source,convert them into RDD and store in memory to compute results. RDD can be easily cached 
+if same set of data needs to recomputed.
 
-ORMs are also often easy to try but difficult to master. For example, a beginner using Django might not know about the select_related() function and how it can 
-improve some queries' foreign key relationship performance. There are 
-dozens of performance tips and tricks for every ORM. It's possible that investing time in learning those quirks may be better spent just learning SQL and how to write stored procedures.
+-But the disadvantage is performance limitations. Being in-memory jvm objects, RDDs involve overhead of Garbage Collection and Java(or little better Kryo) Serialisation which are expensive when data grows.
 
-There's a lot of hand-waving "may or may not" and "potential for" in this section. In large projects ORMs are good enough for roughly 80-90% of use cases but in 10-20% of a project's database interactions there can be major performance improvements by having a knowledgeable database administrator write tuned SQL statements to replace the ORM's generated SQL code.
+Dataframe:
+-DataFrame is an abstraction which gives a schema view of data. Which means it gives us a view of data as columns with column name and types info, We can think data in data frame like a table in database.
+-Like RDD, execution in Dataframe too is lazy triggered .
+-offers huge performance improvement over RDDs because of 2 powerful features it has:
+	1. Custom Memory management (aka Project Tungsten)
+		Data is stored in off-heap memory in binary format. This saves a lot of memory space. Also there is no Garbage Collection overhead involved. By knowing the schema of data in advance and storing efficiently in 
+		binary format, expensive java Serialization is also avoided.
 
-Shifting complexity from the database into the app code:
-The code for working with an application's data has to live somewhere. Before ORMs were common, database stored procedures were used to encapsulate the database logic. With an ORM, the data manipulation code instead lives within the 
-application's Python codebase. The addition of data handling logic in the codebase generally isn't an issue with a sound application design, but it does increase the total amount of Python code instead of splitting code between the 
-application and the database stored procedures.
+	2. Optimized Execution Plans (aka Catalyst Optimizer)
+		Query plans are created for execution using Spark catalyst optimiser. After an optimised execution plan is prepared going through some steps, the final execution happens internally on RDDs only but thats completely 
+		hidden from the users.
 
+Dataframe Limitations:-
+Compile-time type safety: As discussed, Dataframe API does not support compile time safety which limits you from manipulating data when the structure is not known. However, you will get a Runtime exception when executing this code.
+Example:
+
+case class Person(name : String , age : Int) 
+val dataframe = sqlContect.read.json("people.json") 
+dataframe.filter("salary > 10000").show 
+=> throws Exception : cannot resolve 'salary' given input age , name
+This is challenging specially when you are working with several transformation and aggregation steps.
+
+Cannot operate on domain Object (lost domain object): Once you have transformed a domain object into dataframe, you cannot regenerate it from it. In the following example, once we have create personDF from personRDD, we won’t be 
+recover the original RDD of Person class (RDD[Person]).
+Example:
+
+case class Person(name : String , age : Int)
+val personRDD = sc.makeRDD(Seq(Person("A",10),Person("B",20)))
+val personDF = sqlContext.createDataframe(personRDD)
+personDF.rdd // returns RDD[Row] , does not returns RDD[Person]
+
+Dataframe example:
+2 ways to define: 1. Expression BuilderStyle 2. SQL Style
+
+As discussed, If we try using some columns not present in schema, we will get problem only at runtime . For example, if we try accessing salary when only name and age are present in the schema will throw AnalysisException
+
+
+Dataset Features:-
+Provides best of both RDD and Dataframe: RDD(functional programming, type safe), DataFrame (relational model, Query optimazation , Tungsten execution, sorting and shuffling)
+Encoders: With the use of Encoders, it is easy to convert any JVM object into a Dataset, allowing users to work with both structured and unstructured data unlike Dataframe.
+Programming Languages supported: Datasets API is currently only available in Scala and Java. Python and R are currently not supported in version 1.6. Python support is slated for version 2.0.
+Type Safety: Datasets API provides compile time safety which was not available in Dataframes. In the example below, we can see how Dataset can operate on domain objects with compile lambda functions.
+-It is an extension to Dataframe API, the latest abstraction which tries to provide best of both RDD and Dataframe.
+
+-comes with OOPs style and developer friendly compile time safety like RDD as well as performance boosting features of Dataframe : Catalyst optimiser and custom memory management.
+-How dataset scores over Dataframe is an additional feature it has: Encoders .
+-Encoders act as interface between JVM objects and off-heap custom memory binary format data.
+
+-Encoders generate byte code to interact with off-heap data and provide on-demand access to individual attributes without having to de-serialize an entire object.
+
+-case class is used to define the structure of data schema in Dataset. Using case class, its very easy to work with dataset. Names of different attributes in case class is directly mapped to attributes in Dataset . It gives feeling 
+like working with RDD but actually underneath it works same as Dataframe.
+
+Dataframe is infact treated as dataset of generic row objects. DataFrame=Dataset[Row] . So we can always convert a data frame at any point of time into a dataset by calling ‘as’ method on Dataframe.
+ e.g. http://df.as[MyClass]
+
+Important point to remember is that both Dataset and DataFrame internally does final execution on RDD objects only but the difference is users do not write code to create the RDD collections and have no control as such over RDDs. RDDs are created in the execution plan as last stage after deciding and going through all the optimizations (see Execution Plan Diagram).
+
+And all these optimisations could have been possible because data is structured and Spark knows about the schema of data in advance. So it can apply all the powerful features like tungsten custom memory off-heap binary storage,catalyst 
+optimiser and encoders to get the performance which was not possible if users would have been directly working on RDD.
+
+Conclusion:
+
+In short, Spark is moving from unstructured computation(RDDs) towards structured computation because of many performance optimisations it allows . Data frame was a step in direction of structured computation but lacked developer friendliness of compile time safety,lambda functions. Finally Dataset is the unification of Dataframe and RDD to bring the best abstraction out of two.
+
+Going forward developers should only be concerned about DataSet while Dataframe and RDD will be discouraged to use. But its always better to be aware of the legacy for better understanding of internals.
+
+Interestingly,most of these new concepts like custom memory management(tungsten),logical/physical plans(catalyst optimizer),encoders(dataset),etc seems to be inspired from its competitor Apache Flink which inherently supports these since inception.There are other new powerful feature enhancements like windowing,sessions,etc coming in Spark which are already in Flink. So its better to keep a close watch on both Spark and Flink in coming days.
+
+==================================== Sparkx.py  ==============================================================
+
+from common_base.base_test import ReactorXTestBase
+import os, sys, json
+
+class SparkX(ReactorXTestBase):
+
+    # Constructor
+    def __init__(self):
+
+        batchx_path = self.get_value('batchx_path')
+
+        SPARK_HOME = os.path.join(batchx_path, 'app/spark-2.1.1-bin-hadoop2.6/')
+        self.assertTrue(
+            os.path.exists(SPARK_HOME),
+            'Make sure that SPARK_HOME[{}] exists and is a valid path.'.format(SPARK_HOME)
+        )
+
+        # Add the PySpark directories to the Python path:
+        sys.path.insert(1, os.path.join(SPARK_HOME, 'python'))
+        sys.path.insert(1, os.path.join(SPARK_HOME, 'python', 'pyspark'))
+        sys.path.insert(1, os.path.join(SPARK_HOME, 'python', 'build'))
+
+        # This is to put a check if the version of py4j changes in future
+        py4j_src_path = os.path.join(SPARK_HOME, 'python', 'lib/py4j-0.10.4-src.zip')
+        self.assertTrue(
+            os.path.exists(py4j_src_path),
+            'Make sure that py4j_src_path[{}] exists and is a valid path.'.format(py4j_src_path)
+        )
+
+        sys.path.insert(1, py4j_src_path)
+        # print SPARK_HOME
+
+        from pyspark.conf import SparkConf
+        from pyspark.sql import SparkSession, SQLContext, Row
+        from pyspark.sql.types import StringType, IntegerType, StructType, StructField
+
+        """Create a single node Spark application."""
+        sc_conf = SparkConf()
+        sc_conf.setAppName("batchx_tests")
+        sc_conf.setMaster('local[2]')
+        sc_conf.set('spark.executor.memory', '2g')
+        sc_conf.set('spark.executor.cores', '4')
+        sc_conf.set('spark.cores.max', '40')
+        sc_conf.set('spark.logConf', True)
+        # print sc_conf.getAll()
+
+        SparkSession._instantiatedContext = None
+        self.spark = SparkSession.builder.config(conf=sc_conf).getOrCreate()
+        self.sparkSession = SparkSession
+
+        sc = None
+        try:
+            sc.stop()
+            sc = self.spark.sparkContext
+        except:
+            sc = self.spark.sparkContext
+
+        sc.setLogLevel("ERROR")
+
+        self.sqlContext = SQLContext(sc)
+        self.row = Row
+        self.sc = sc
+        self.stringtype = StringType
+        self.structtype = StructType
+        self.structfield = StructField
+
+    def convert_data_to_dataframe(self, data, table_name='data_table'):
+        '''
+        Converts a list or any other data type to dataframe
+        :param data:
+        :param table_name:
+        :return:
+        '''
+        schematype = None
+        if type(data) is str:
+            schematype = self.stringtype
+
+        # Update the method is you know the schematype for list or dictionary or else keep it as None.
+        # e.g. if type(data) is list: . . .
+
+        df = self.spark.createDataFrame(data, schematype)
+        df.createOrReplaceTempView(table_name)
+        return df
+
+    def readDBF(self, dbf_file):
+        '''
+        read .dbf file
+        :param dbf_file:
+        :return:
+        '''
+        from dbfread import DBF
+        # print len(DBF(dbf_file))
+        # if i use "load = true" to load the file first, the search is faster, but it takes a lot of memory.
+        return DBF(dbf_file, load=True)
+
+        """for record in DBF(dbf_file, load=True):
+            print record
+            for key, value in record.items():
+                try:
+                    value = str(value)
+                except:
+                    value = value.encode('utf-8')"""
+
+    def convert_shape_file_to_geojson(self, shp_path):
+        '''
+        Convert shape file to geojson
+        :param shp_path:
+        :return:
+        '''
+
+        import io
+        import shapefile
+
+        blocks = self.sc.binaryFiles(shp_path)
+        block_dict = dict(blocks.collect())
+
+        reader = shapefile.Reader(
+            shp=io.BytesIO(block_dict[[i for i in block_dict.keys() if i.endswith(".shp")][0]]),
+            shx=io.BytesIO(block_dict[[i for i in block_dict.keys() if i.endswith(".shx")][0]]),
+            dbf=io.BytesIO(block_dict[[i for i in block_dict.keys() if i.endswith(".dbf")][0]])
+        )
+
+        field_names = [x[0] for x in reader.fields][1:]
+        buffer = []
+        for sr in reader.shapeRecords():
+            atr = dict(zip(field_names, sr.record))
+            geom = sr.shape.__geo_interface__
+            buffer.append(
+                dict(type="Feature",
+                     geometry=geom,
+                     properties=atr
+                     )
+            )
+
+        data = json.dumps({"type": "FeatureCollection", "features": buffer}, indent=2)
+        self.sc.parallelize(data)
+
+        batchx_path = self.get_value('batchx_path')
+        with open(os.path.join(batchx_path, 'urban_area.geojson'), "w") as geojson:
+            geojson.write(str(data))
+
+        '''
+        # As the data is too large currently writing it to a geojson file and reading it later.
+        # I'll find out a better way of implementing this
+        with open(os.path.join(batchx_path, 'urban_area.geojson'), "w") as geojson:
+            geojson.write(data)'''
+
+    def read_suggested_geojson(self, geojson_file='data/outputUrbanRural/suggestedGrid.geojson'):
+        '''
+        read suggested geojson
+        :return:
+        '''
+        batchx_path = self.get_value('batchx_path')
+        file_path = os.path.join(batchx_path, geojson_file)
+        return self.read_json_file_return_rdd(file_path)
+
+    def read_json_file_return_rdd(self, file_path):
+        '''
+        read json return rdd
+        :param file_path:
+        :return:
+        '''
+        data = None
+        with open(file_path, 'r') as fh:
+            data = fh.read()
+        json_data = json.loads(data)
+        all_coordinates = []
+        for feature in json_data['features']:
+            for coordinates in feature['geometry']['coordinates'][0]:
+                all_coordinates.append(coordinates)
+
+        rdd = self.sc.parallelize(all_coordinates)
+        return rdd
+
+    def validate_todo_filter_type_existence(self, todo_type_filter, rel_todo_file_path):
+        '''
+        validate todo filter type exists or not
+        :param todo_type_filter:
+        :param rel_todo_file_path:
+        :return:
+        '''
+        batchx_path = self.get_value('batchx_path')
+        todo_file_path = os.path.join(batchx_path, rel_todo_file_path)
+
+        table_name = self.get_todo_items_rdd_table(todo_file_path)
+
+        data = self.sqlContext.sql(
+            "SELECT todo_id FROM " + table_name + " WHERE item.type == \'" + todo_type_filter + "\'"
+        )
+        '''For testing'''
+        # data.show()
+        # data = self.sqlContext.sql("SELECT todo_id FROM " + table_name + " WHERE item.type == 'MANEUVER_RESTRICTION'")
+
+        todo_ids = data.rdd.map(lambda x: str(x[0])).collect()
+        self.assertTrue(
+            len(todo_ids) == 0,
+            'Failed to apply filter type[{}] for todo_ids [{}]'.format(todo_type_filter, str(todo_ids))
+        )
+
+    def get_todo_items_rdd_table(self, todo_file_path):
+        '''
+        :param todo_file_path:
+        :return:
+        '''
+        df = self.sqlContext.read.json(todo_file_path)
+        # for testing
+        # print df.first().__getitem__('item').__getitem__('type')
+        # df.select('item').show()
+        # df.select('item').select('type').show()
+        # df.printSchema()
+        table_name = "todo_table"
+        df.createOrReplaceTempView(table_name)
+        return table_name
+
+    def convert_rdd_to_dataframe(self, user_rdd, field_name):
+        '''
+        :param user_rdd: rdd
+        :param field_name: feature_id
+        :return:
+        '''
+        schema = self.structtype([self.structfield(field_name, self.stringtype(), True)])
+        user_df = self.sqlContext.createDataFrame(user_rdd.map(lambda x: (x,)), schema)
+        return user_df.distinct()
+
+    def get_dataframe(self, khRepo='data/khRepo/', table_name='khRepo_table'):
+        '''
+        Read data/khRepo and return dataframe
+        :param khRepo:
+        :param table_name:
+        :return:
+        '''
+        batchx_path = self.get_value('batchx_path')
+        dataFrame = self.spark.read.json(os.path.join(batchx_path, khRepo))  # time taken =  10.959002018
+        dataFrame.createOrReplaceTempView(table_name)  # Create a temporary view using the DataFrame
+        return dataFrame
+
+    # Destructor
+    def __del__(self):
+        try:
+            self.sc.stop()
+        except:
+            self.logger.info('Spark context is not set yet.')
+
+================================================================= Calling function ==================================
+        sparkx = SparkX()
+
+        df = sparkx.get_dataframe('data/khRepo/')
+        self.logger.info(
+            "{}: input features count: {}. get downloaded features".format(
+                test_name, df.count()
+            )
+        )
+        df.show()
+
+        df_tool_output_featureproto = sparkx.get_dataframe('data/output/tool_output.featureproto')
+        self.logger.info(
+            "{}: output features count: {}. Reading tool_output.featureproto".format(
+                test_name, df_tool_output_featureproto.count()
+            )
+        )
+
+        df_tool_output_featureproto.show()  # just to print on console
+
+        df_actual_features = df.join(
+            df_tool_output_featureproto,
+            df.feature_id == df_tool_output_featureproto.feature_id
+        ).select(
+            df_tool_output_featureproto.FeatureProto
+        ).where(df.FeatureProto.feature_type[0] == 'ROAD_SEGMENT')
+
+        df_actual_features.show()
+============================================================== Calling function 2 =====================================
+        sparkx = SparkX()
+
+        # Make sure that expected number of buildings feature ids are downloaded in building-footprints.json
+        df_building_footprints = sparkx.get_dataframe('data/buildingFiles/building-footprints/building-footprints.json')
+        actual_building_footprints = df_building_footprints.count()
+
+        # Make sure that expected number of 3DV building feature ids are converted to NDM
+        df_tool_output = sparkx.get_dataframe('data/output/tool_output.featureproto')
+        tool_output_feature_count = df_tool_output.count()
+
+        # Make sure that all the 3DV building footprints are converted to NDM
+        # After conversion to NDM features should have build_id starting with string "NeutronBatchX /  reactorx-apps-"
+        three_dv_to_ndm_features = df_building_footprints.join(
+            df_tool_output
+        ).select(
+            df_tool_output.metadata.source_attribution.sub_path_source[0].process_info.build_id,
+            # Fields below have unique values i.e. the values are not same 3DV buildings and NDM featureProto
+            df_tool_output.FeatureProto.is_active,  # is_active is not in buildin_footprints
+            df_tool_output.FeatureProto.protocol_version,
+            df_building_footprints.FeatureProto.protocol_version,
+            df_tool_output.FeatureProto.version,
+            df_building_footprints.FeatureProto.version,
+            df_tool_output.FeatureProto.representative_point,
+            df_building_footprints.FeatureProto.representative_point
+        ).withColumnRenamed(  # Rename the column as it's too big
+            'metadata.source_attribution.sub_path_source[0].process_info.build_id', 'build_id'
+        ).where(  # Verifying if there is any mismatch in any of the below fields
+            (df_tool_output.FeatureProto.feature_type[0] == 'BUILDING') &
+            (df_tool_output.FeatureProto.feature_id == df_building_footprints.FeatureProto.feature_id) &
+            (df_tool_output.FeatureProto.building.roof_type == df_building_footprints.FeatureProto.building.roof_type) &
+            (
+                    df_tool_output.FeatureProto.building.base_height == df_building_footprints.FeatureProto.building.base_height) &
+            (
+                    df_tool_output.FeatureProto.building.top_height == df_building_footprints.FeatureProto.building.top_height) &
+            (df_tool_output.FeatureProto.iso_country_code == df_building_footprints.FeatureProto.iso_country_code) &
+            (
+                    df_tool_output.FeatureProto.iso_subdivision_code == df_building_footprints.FeatureProto.iso_subdivision_code) &
+            (df_tool_output.FeatureProto.history[0].edit_type == df_building_footprints.FeatureProto.history[
+                0].edit_type) &
+            (df_tool_output.FeatureProto.history[0].source == df_building_footprints.FeatureProto.history[0].source) &
+            (df_tool_output.FeatureProto.history[0].source_id == df_building_footprints.FeatureProto.history[
+                0].source_id) &
+            (df_tool_output.FeatureProto.history[0].timestamp == df_building_footprints.FeatureProto.history[
+                0].timestamp) &
+            (df_tool_output.FeatureProto.history[0].vendor_id == df_building_footprints.FeatureProto.history[
+                0].vendor_id)
+        ).where(
+            "build_id like '%NeutronBatchX /  reactorx-apps-%'"
+        )
+        three_dv_to_ndm_features.show()  # Just for reference. It prints the table
+
+        three_dv_to_ndm_features_count = three_dv_to_ndm_features.count()
