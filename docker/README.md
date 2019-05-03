@@ -13,18 +13,24 @@ root@719059da250d:/#
 Try out a few commands and then exit the container:
 
 root@719059da250d:/# lsb_release -a
+
 No LSB modules are available.
+
 Distributor ID:	Ubuntu
+
 Description:	Ubuntu 14.04.4 LTS
+
 Release:	14.04
+
 Codename:	trusty
+
 root@719059da250d:/# exit
 
 This doesn't look like much, but a lot has happened!
 
 What you are seeing is the bash shell of an isolated container running Ubuntu, on your machine. It's yours to place with - you can install things on it, run software, whatever you want.
 
-Here's a diagram and breakdown of what just happened (the digram is from the 'Understanding the Architecture' Docker Documentation, which is great):
+The above diagram is a breakdown of what just happened (the digram is from the 'Understanding the Architecture' Docker Documentation, which is great):
 
 
     We issue a docker command:
@@ -42,5 +48,7 @@ Here's a diagram and breakdown of what just happened (the digram is from the 'Un
 Try any of these:
 
 docker run -it haskell
+
 docker run -it java
+
 docker run -it python
