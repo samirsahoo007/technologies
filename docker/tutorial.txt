@@ -17,7 +17,16 @@ docker run -d <image_id>								# Run Docker image
 docker ps										# Check the container(running image)
 docker exec -it f151f4ab7085 /bin/bash							# Invoke the shell of container	
 
+HOW TO ATTACH TO AN EXISTING CONTAINER:
+=======================================
+$ docker container ls -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED              STATUS                      PORTS                    NAMES
+0ebce47a9f3a        postgres            "docker-entrypoint.s…"   About a minute ago   Up 55 seconds               0.0.0.0:5432->5432/tcp   online-exam-db
+1209670d1088        ubuntu              "/bin/bash"              3 days ago           Exited (255) 24 hours ago                            hopeful_vaughan
 
+$ docker container start 0ebce47a9f3a
+0ebce47a9f3a
+$ docker exec -it 0ebce47a9f3a /bin/bash
 
 CLEAN UP ALL exited CONTAINERS:
 ==============================
