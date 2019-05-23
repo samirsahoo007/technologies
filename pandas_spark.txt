@@ -1580,14 +1580,6 @@ Question 8. Is It Possible To Run Apache Spark On Apache Mesos?
 Answer :
 Yes, Apache Spark can be run on the hardware clusters managed by Mesos.
 
-Question 9. Explain About The Different Cluster Managers In Apache Spark
-Answer :
-The 3 different clusters managers supported in Apache Spark are:
-YARN
-Apache Mesos -Has rich resource scheduling capabilities and is well suited to run Spark along with other applications. It is advantageous when several users run interactive shells because it scales down the CPU allocation between commands.
-Standalone deployments – Well suited for new deployments which only run and are easy to set up.
-
-
 Question 10. How Can Spark Be Connected To Apache Mesos?
 Answer :
 To connect Spark with Mesos-
@@ -1745,6 +1737,7 @@ Answer :
 Spark is intellectual in the manner in which it operates on data. When you tell Spark to operate on a given dataset, it heeds the instructions and makes a note of it, so that it does not forget - but it does nothing, unless asked for the final result. When a transformation like map () is called on a RDD-the operation is not performed immediately. Transformations in Spark are not evaluated till you perform an action. This helps optimize the overall data processing workflow.
 Question 48. Define A Worker Node.
 Answer :
+Worker node refers to any node that can run the application code in a cluster.
 A node that can run the Spark application code in a cluster can be called as a worker node. A worker node can have more than one worker which is configured by setting the SPARK_ WORKER_INSTANCES property in the spark-env.sh file. Only one worker is started if the SPARK_ WORKER_INSTANCES property is not defined.
 Question 49. What Do You Understand By Schemardd?
 Answer :
@@ -1757,6 +1750,7 @@ Answer :
 No , it is not necessary because Apache Spark runs on top of YARN.
 Question 52. What Do You Understand By Executor Memory In A Spark Application?
 Answer :
+When SparkContext connect to a cluster manager, it acquires an Executor on nodes in the cluster. Executors are Spark processes that run computations and store the data on the worker node. The final tasks by SparkContext are transferred to executors for their execution.
 Every spark application has same fixed heap size and fixed number of cores for a spark executor. The heap size is what referred to as the Spark executor memory which is controlled with the spark.executor.memory property of the –executor-memory flag. Every spark application will have one executor on each worker node. The executor memory is basically a measure on how much memory of the worker node will the application utilize.
 Question 53. What Does The Spark Engine Do?
 Answer :
@@ -1916,11 +1910,6 @@ Q: Is it possible to use Apache Spark for accessing and analyzing data stored in
 A: Yes, it is possible to use Apache Spark for accessing as well as analyzing data stored in Cassandra databases using the Spark Cassandra Connector. It needs to be added to the Spark project during which a Spark executor talks to a local Cassandra node and will query only local data.
 
 Connecting Cassandra with Apache Spark allows making queries faster by means of reducing the usage of network for sending data between Spark executors and Cassandra nodes.
-
-Q: What do you mean by the worker node?
-A: Any node that is capable of running the code in a cluster can be said to be a worker node. The driver program needs to listen for incoming connections and then accept the same from its executors. Additionally, the driver program must be network addressable from the worker nodes.
-
-A worker node is basically a slave node. The master node assigns work which the worker node then performs. Worker nodes process data stored on the node and report the resources to the master node. The master node schedule tasks based on resource availability.
 
 Q: Please explain the sparse vector in Spark.
 A: A sparse vector is used for storing non-zero entries for saving space. It has two parallel arrays:
@@ -2258,57 +2247,24 @@ A node that can run the Spark application code in a cluster can be called as a w
 What do you understand by SchemaRDD?
 
 An RDD that consists of row objects (wrappers around basic string or integer arrays) with schema information about the type of data in each column.
-===========================
-
-
-
-Flat 10% & upto 50% off + 10% Cashback + Free additional Courses. Hurry up 
-×
-Intellipaat
-Resources
-All Courses
-Login
-0
-Browse
- 
-Popular Search: Big Data Hadoop, Tableau, Data Science, DevOps, Python, Salesforce, RPA, Selenium, SAS, and AWS
-Home / Interview Questions / Spark Interview Questions
-
-Top Apache Spark Interview Questions And Answers
-Spark interview questions
-In this top most asked Apache Spark interview questions and answers you will find all you need to clear the Spark job interview. You will learn in these interview questions about what are the Spark key features, what is RDD, what does a Spark engine do, Spark transformations, Spark Driver, Hive on Spark, functions of Spark SQL and so on. Learn Apache Spark from Intellipaat Spark course and fast-track your career.
-Wish to Learn Spark? Click Here
-
-Get Ready to Nail Your Spark Interview
-
-Top Answers to Spark Interview Questions
 
 1. Compare MapReduce and Spark?
-Criteria	MapReduce	Spark
-Processing Speeds	Good	Excellent (up to 100 times faster)
-Data caching	Hard disk	In-memory
-Perform iterative jobs	Average	Excellent
-Independent of Hadoop	No	Yes
-Machine learning applications	Average	Excellent
+Criteria				MapReduce				Spark
+Processing Speeds			Good					Excellent (up to 100 times faster)
+Data caching				Hard disk				In-memory
+Perform iterative jobs			Average					Excellent
+Independent of Hadoop			No					Yes
+Machine learning applications		Average					Excellent
+
 2. What is Apache Spark?
 Spark is a fast, easy-to-use and flexible data processing framework. It has an advanced execution engine supporting cyclic data  flow and in-memory computing. Spark can run on Hadoop, standalone or in the cloud and is capable of accessing diverse data sources including HDFS, HBase, Cassandra and others.
 
-Go through this insightful blog to learn in detail about what is Apache Spark?
-
-Become Spark Certified in 22 hrs.
-GET CERTIFIED
 3. Explain key features of Spark.
 Allows Integration with Hadoop and files included in HDFS.
 Spark has an interactive language shell as it has an independent Scala (the language in which Spark is written) interpreter.
 Spark consists of RDD’s (Resilient Distributed Datasets), which can be cached across computing nodes in a cluster.
 Spark supports multiple analytic tools that are used for interactive query analysis , real-time analysis and graph processing
-Learn more about the Spark key features in this Apache Spark Tutorial .
 
-4. Define RDD?
-RDD is the acronym for Resilient Distribution Datasets – a fault-tolerant collection of operational elements that run parallel. The partitioned data in RDD is immutable and distributed. There are primarily two types of RDD:
-
-Parallelized Collections : The existing RDD’s running parallel with one another.
-Hadoop datasets : perform function on each file record in HDFS or other storage system
 5. What does a Spark Engine do?
 Spark Engine is responsible for scheduling, distributing and monitoring the data application across the cluster.
 
@@ -2320,6 +2276,7 @@ As the name suggests, partition is a smaller and logical division of data  simil
 7. What operations RDD support?
 Transformations.
 Actions
+
 8. What do you understand by Transformations in Spark?
 Transformations are functions applied on RDD, resulting into another RDD. It does not execute until an action occurs. map() and filer() are examples of transformations, where the former applies the function passed to it on each element of RDD and results into another RDD. The filter() creates a new RDD by selecting elements form current RDD that pass function argument.
 
@@ -2353,10 +2310,9 @@ Spark Streaming for processing live data streams.
 GraphX for generating and computing graphs.
 MLlib (Machine Learning Algorithms).
 SparkR to promote R Programming in Spark engine.
+
 15. Define Spark Streaming.
 Spark supports stream processing – an extension to the Spark API , allowing stream processing of live data streams. The data from different sources like Flume, HDFS is streamed and finally processed to file systems, live dashboards and databases. It is similar to batch processing as the input data is divided into streams like batches.
-
-Learn in detail about Top four Spark use cases including Spark streaming.
 
 16. What is GraphX?
 Spark uses GraphX for graph processing to build and transform interactive graphs. The GraphX component enables programmers to reason about structured data at scale.
@@ -2380,6 +2336,7 @@ Spark SQL is capable of:
 Loading data from a variety of structured sources.
 Querying data using SQL statements, both inside a Spark program and from external tools that connect to Spark SQL through standard database connectors (JDBC/ODBC). For instance, using business intelligence tools like Tableau.
 Providing rich integration between SQL and regular Python/Java/Scala code, including the ability to join RDDs and SQL tables, expose custom functions in SQL, and more.
+
 23. What are benefits of Spark over MapReduce?
 Due to the availability of in-memory processing, Spark implements the processing around 10-100x faster than Hadoop MapReduce. MapReduce makes use of persistence storage for any of the data processing tasks.
 Unlike Hadoop, Spark provides in-built libraries to perform multiple tasks form the same core like batch processing, Steaming, Machine learning, Interactive SQL queries. However, Hadoop only supports batch processing.
@@ -2390,8 +2347,6 @@ Read more in this blog about the comparison of Spark and MapReduce.
 24. Is there any benefit of learning MapReduce, then?
 Yes, MapReduce is a paradigm used by many big data tools including Spark as well. It is extremely relevant to use MapReduce when the data grows bigger and bigger. Most tools like Pig and Hive convert their queries into MapReduce phases to optimize them better.
 
-25. What is Spark Executor?
-When SparkContext connect to a cluster manager, it acquires an Executor on nodes in the cluster. Executors are Spark processes that run computations and store the data on the worker node. The final tasks by SparkContext are transferred to executors for their execution.
 
 26. Name types of Cluster Managers in Spark.
 The Spark framework supports three major types of Cluster Managers:
@@ -2399,8 +2354,6 @@ The Spark framework supports three major types of Cluster Managers:
 Standalone : a basic manager to set up a cluster.
 Apache Mesos : generalized/commonly-used cluster manager, also runs Hadoop MapReduce and other applications.
 Yarn : responsible for resource management in Hadoop
-27. What do you understand by worker node?
-Worker node refers to any node that can run the application code in a cluster.
 
 28. What is PageRank?
 A unique feature and algorithm in graph, PageRank is the measure of each vertex in the graph. For instance, an edge from u to v represents endorsement of v’s importance by u. In simple terms, if a user at Instagram is followed massively, it will rank high on that platform.
