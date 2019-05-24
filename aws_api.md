@@ -1,5 +1,7 @@
 https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-examples.html
 https://boto3.amazonaws.com/v1/documentation/api/latest/guide/ec2-examples.html
+https://aws.amazon.com/sdk-for-python/
+https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/index.html   
 
 Amazon S3 Examples
 
@@ -32,5 +34,17 @@ Examples
     Describe Amazon EC2 Regions and Availability Zones
     Working with Security Groups in Amazon EC2
     Using Elastic IP Addresses in Amazon EC2
+
+
+
+AWS SDK for Python (Boto3)
+
+Get started quickly using AWS with boto3, the AWS SDK for Python. Boto3 makes it easy to integrate your Python application, library, or script with AWS services including Amazon S3, Amazon EC2, Amazon DynamoDB, and more.
+
+
+Install:
+
+pip install boto3
+
 
 
