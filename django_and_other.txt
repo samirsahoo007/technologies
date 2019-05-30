@@ -289,22 +289,12 @@ Ans: Yes, you can create singleton object. Here’s how you do it :
 
 Default
 
-1
-2
-
-3
-
-4
-
-5
 class Singleton(object):
-def __new__(cls,*args,**kwargs):
-
-if not hasattr(cls,’_inst’):
-
-cls._inst = super(Singleton,cls).__new__(cls,*args,**kwargs)
-
-return cls._inst
+  def __new__(cls,*args,**kwargs):
+    if not hasattr(cls,’_inst’):
+        cls._inst = super(Singleton,cls).__new__(cls,*args,**kwargs)
+        return cls._inst
+        
  Q24).Mention caching strategies that you know in Django!
 Ans: Few caching strategies that are available in Django are as follows:
 
@@ -312,12 +302,14 @@ File sytem caching
 In-memory caching
 Using Memcached
 Database caching
+
 Q25).What are inheritance type in Django?
 Ans: There are 3 inheritance types in Django
 
 Abstract base classes
 Multi-table Inheritance
 Proxy models
+
 Q26).What do you think are limitation of Django Object relation mapping(ORM) ?
 
 Ans: If the data is complex and consists of multiple joins using the SQL  will be clearer.
