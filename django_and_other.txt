@@ -15,10 +15,12 @@ Fantastic Documentation
 Q3).Mention the architecture of Django architecture?
 Ans: Django architecture consists of
 
-Models: It describes your database schema and your data structure
-Views: It controls what a user sees, the view retrieves data from appropriate models and execute any calculation made to the data and pass it to the template
-Templates: It determines how the user sees it. It describes how the data received from the views should be changed or formatted for display on the page
-Controller: The Django framework and URL parsing
+Models: Models elaborate back-end stuffs like database schema.(relationships)
+Views: Views control what is to be shown to end-user. The view retrieves data from appropriate models and execute any calculation         made to the data and pass it to the template
+Templates: Templates deal with formatting of view.
+Controller: The Django framework and URL parsing. Takes entire control of Models.
+
+An MVC framework can be compared to a Cable TV with remote. A Television set is View(that interacts with end user), cable provider is model(that works in back-end) and Controller is remote that controls which channel to select and display it through view.
 
 Django follows MVT (Model View Template) pattern. It is slightly different from MVC.
 
@@ -281,18 +283,6 @@ result.save()
 
 return direct_to_template(request, ‘base.html’, {‘result’:result.result})
 You could use models to get last ‘n’ entities.
-Python Training in Banglore
-Q21).What makes up Django architecture?
-Ans: Django runs on MVC architecture. Following are the components that make up django architecture:
-
-Models: Models elaborate back-end stuffs like database schema.(relationships)
-Views: Views control what is to be shown to end-user.
-Templates: Templates deal with formatting of view.
-Controller: Takes entire control of Models.A MVC framework can be compared to a Cable TV with remote. A Television set is View(that interacts with end user), cable provider is model(that works in back-end) and Controller is remote that controls which channel to select and display it through view.
-Q22). What does session framework do in django framework ?
-Ans: Session framework in django will store data on server side and interact with end-users. Session is generally used with a middle-ware. It also helps in receiving and sending cookies for authentication of a user.
-
- 
 
 Q23).Can you create singleton object in python?If yes, how do you do it?
 Ans: Yes, you can create singleton object. Here’s how you do it :
