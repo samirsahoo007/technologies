@@ -583,10 +583,6 @@ Ans: Two important parameters in signals are:
 
 Receiver: It specifies the callback function which will be connected to the signal.
 Sender: It specifies a particular sender to receive signal from.
- 
-
-Q53).What command line is used to load data into Django?
-Ans: The command line “Django-admin.py loaddata” is used to load data into Django. The command line will searches the data and loads the contents of the named fixtures into the database.
 
 What kind of calling model does Python use?
 
