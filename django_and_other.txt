@@ -520,27 +520,6 @@ Ans: Django web framework is managed and maintained by an independent and non-pr
 Q38).Is Django stable?
 Ans: Yes, Django is quite stable. Many companies like Disqus, Instagram, Pinterest, and Mozilla have been using Django for many years.
 
-Q39)What are the features available in Django web framework?
-Ans: Features available in Django web framework are:
-
-Admin Interface (CRUD)
-Templating
-Form handling
-Internationalization
-Session, user management, role-based permissions
-Object-relational mapping (ORM)
-Testing Framework
-Fantastic Documentation
-Q40). What are the advantages of using Django for web development?
-Ans:
-
-It facilitates you to divide code modules into logical groups to make it flexible to change.
-It provides auto-generated web admin to make website administration easy.
-It provides pre-packaged API for common user tasks.
-It provides template system to define HTML template for your web page to avoid code duplication.
-It enables you to define what URL is for a given function.
-It enables you to separate business logic from the HTML.
-
 12) What are the disadvantages of Django?
 
 Following is the list of disadvantages of Django:
@@ -557,21 +536,6 @@ _init_.py
 manage.py
 settings.py
 urls.py
-
-Q42) What are the inheritance styles in Django?
-Ans: There are three possible inheritance styles in Django:
-1) Abstract base classes: This style is used when you only want parent’s class to hold information that you don’t want to type out for each child model.
-2) Multi-table Inheritance: This style is used if you are sub-classing an existing model and need each model to have its own database table.
-3) Proxy models: This style is used, if you only want to modify the Python level behavior of the model, without changing the model’s fields.
-
-How can you set up the database in Djanago?
-A: To set up a database in Django, you can use the command edit mysite/setting.py , it is a normal python module with module level representing Django settings.
-By default, Django uses SQLite database. It is easy for Django users because it doesn’t require any other type of installation. In the case of other database you have to the following keys in the DATABASE ‘default’ item to match your database connection settings.
-
-Engines: you can change database by using ‘django.db.backends.sqlite3’ , ‘django.db.backeneds.mysql’, ‘django.db.backends.postgresql_psycopg2’, ‘django.db.backends.oracle’ and so on
-
-Name: The name of your database. In the case if you are using SQLite as your database, in that case database will be a file on your computer, Name should be a full absolute path, including file name of that file.
-Note: You have to add setting likes setting like Password, Host, User, etc. in your database, if you are not choosing SQLite as your database.
 
 Q43).What does the Django templates contain?
 Ans: A template is a simple text file. It can create any text-based format like XML, CSV, HTML, etc. A template contains variables that get replaced with values when the template is evaluated and tags (%tag%) that controls the logic of the template.
