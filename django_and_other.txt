@@ -503,21 +503,6 @@ last_year_msgs = Message.objects.filter(created_on__year=last_year).count()
 Q32). What does Django mean?
 Ans: Django is named after Django Reinhardt, a gypsy jazz guitarist from the 1930s to early 1950s who is known as one of the best guitarists of all time.
 
-Q33). Which architectural pattern does Django Follow?
-Ans: Django follows Model-View Controller (MVC) architectural pattern.
-Some call it Model-View-Template (MVT) architectural pattern
-Actually it's Model-View-Template-Controller
-
-Django MVT based control flow
-Here, a user requests for a resource to the Django, Django works as a controller and check to the available resource in URL.
-
-If URL maps, a view is called that interact with model and template, it renders a template.
-
-Django responds back to the user and sends a template as a response.Explain Django architecture
-
-Q34). Is Django a high level web framework or low level framework?
-Ans: Django is a high level Python’s web framework which was designed for rapid development and clean realistic design.
-
 Q36). How does Django work?
 Ans: Django can be broken into many components:
 Models.py file: This file defines your data model by extending your single line of code into full database tables and add a pre-built administration section to manage content.
