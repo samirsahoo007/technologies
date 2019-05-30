@@ -137,6 +137,8 @@ Ans: The template is a simple text file.  It can create any text-based format li
 Q10). Explain the use of session framework in Django?
 Ans: In Django, the session framework enables you to store and retrieve arbitrary data on a per-site-visitor basis.  It stores data on the server side and abstracts the receiving and sending of cookies.  Session can be implemented through a piece of middleware.
 
+Session : Server
+Cookie  : Client
 The main difference between a session and a cookie is that session data is stored on the server, whereas cookies store data in the visitor's browser.
 
 A cookie is a bit of data stored by the browser and sent to the server with every request.
