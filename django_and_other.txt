@@ -22,6 +22,9 @@ Controller: The Django framework and URL parsing. Takes entire control of Models
 
 An MVC framework can be compared to a Cable TV with remote. A Television set is View(that interacts with end user), cable provider is model(that works in back-end) and Controller is remote that controls which channel to select and display it through view.
 
+When a visitor lands on Django page, first Django(Urls.py) checks the URLs pattern you have created and uses information to retrieve the view. After that view processes the request, querying your database if necessary, and passes the requested information to template.
+After that the template renders the data in a layout you have created and displays the page.
+
 Django follows MVT (Model View Template) pattern. It is slightly different from MVC.
 
 Model: It is the data access layer. It contains everything about the data, i.e., how to access it, how to validate it, its behaviors and the relationships between the data.
