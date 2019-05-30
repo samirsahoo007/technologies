@@ -139,6 +139,9 @@ Ans: In Django, the session framework enables you to store and retrieve arbitrar
 
 The main difference between a session and a cookie is that session data is stored on the server, whereas cookies store data in the visitor's browser.
 
+A cookie is a bit of data stored by the browser and sent to the server with every request.
+A session is a collection of data stored on the server and associated with a given user (usually via a cookie containing an id code)
+
 Q11).Explain how you can use file based sessions?
 Ans: To use file based session you have to set the SESSION_ENGINE settings to “django.contrib.sessions.backends.file”
 
