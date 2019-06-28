@@ -1,0 +1,2001 @@
+============================================================================================ Statistical Data Analysis ============================================================================================
+
+In Linear Regression 
+   ----------------
+these two variables are related through an equation, where exponent (power) of both these variables is 1. Mathematically a linear relationship represents a straight line when plotted as a graph. A non-linear relationship where the exponent of any variable is not equal to 1 creates a curve.
+
+The functions in Seaborn to find the linear regression relationship is regplot. The below example shows its use.
+
+import seaborn as sb
+from matplotlib import pyplot as plt
+df = sb.load_dataset('tips')
+sb.regplot(x = "total_bill", y = "tip", data = df)
+plt.show()
+
+
+Chi-Square 
+----------
+test is a statistical method to determine if two categorical variables have a significant correlation between them. Both those variables should be from same population and they should be categorical like − Yes/No, Male/Female, Red/Green etc. For example, we can build a data set with observations on people's ice-cream buying pattern and try to correlate the gender of a person with the flavour of the ice-cream they prefer. If a correlation is found we can plan for appropriate stock of flavours by knowing the number of gender of people visiting.
+
+We use various functions in numpy library to carry out the chi-square test.
+
+
+from scipy import stats
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(0, 10, 100)
+fig,ax = plt.subplots(1,1)
+
+linestyles = [':', '--', '-.', '-']
+deg_of_freedom = [1, 4, 7, 6]
+for df, ls in zip(deg_of_freedom, linestyles):
+  ax.plot(x, stats.chi2.pdf(x, df), linestyle=ls)
+
+plt.xlim(0, 10)
+plt.ylim(0, 0.4)
+
+plt.xlabel('Value')
+plt.ylabel('Frequency')
+plt.title('Chi-Square Distribution')
+
+plt.legend()
+plt.show()
+
+Correlation 
+-----------
+refers to some statistical relationships involving dependence between two data sets. Simple examples of dependent phenomena include the correlation between the physical appearance of parents and their offspring, and the correlation between the price for a product and its supplied quantity.
+
+We take example of the iris data set available in seaborn python library. In it we try to establish the correlation between the length and the width of the sepals and petals of three species of iris flower. Based on the correlation found, a strong model could be created which easily distinguishes one species from another.
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+df = sns.load_dataset('iris')
+
+ 
+#without regression
+sns.pairplot(df, kind="scatter")
+plt.show()
+
+p-value 
+-------
+is about the strength of a hypothesis. We build hypothesis based on some statistical model and compare the model's validity using p-value. One way to get the p-value is by using T-test.
+
+This is a two-sided test for the null hypothesis that the expected value (mean) of a sample of independent observations ‘a’ is equal to the given population mean, popmean. Let us consider the following example.
+
+from scipy import stats
+rvs = stats.norm.rvs(loc = 5, scale = 10, size = (50,2))
+print stats.ttest_1samp(rvs,5.0)
+The above program will generate the following output.
+
+Ttest_1sampResult(statistic = array([-1.40184894, 2.70158009]),
+pvalue = array([ 0.16726344, 0.00945234]))
+Comparing two samples
+In the following examples, there are two samples, which can come either from the same or from different distribution, and we want to test whether these samples have the same statistical properties.
+
+ttest_ind − Calculates the T-test for the means of two independent samples of scores. This is a two-sided test for the null hypothesis that two independent samples have identical average (expected) values. This test assumes that the populations have identical variances by default.
+
+We can use this test, if we observe two independent samples from the same or different population. Let us consider the following example.
+
+from scipy import stats
+rvs1 = stats.norm.rvs(loc = 5,scale = 10,size = 500)
+rvs2 = stats.norm.rvs(loc = 5,scale = 10,size = 500)
+print stats.ttest_ind(rvs1,rvs2)
+The above program will generate the following output.
+
+Ttest_indResult(statistic = -0.67406312233650278, pvalue = 0.50042727502272966)
+You can test the same with a new array of the same length, but with a varied mean. Use a different value in loc and test the same.
+
+Bernoulli distribution 
+----------------------
+is a special case of the Binomial distribution where a single experiment is conducted so that the number of observation is 1. So, the Bernoulli distribution therefore describes events having exactly two outcomes.
+
+We use various functions in numpy library to mathematically calculate the values for a bernoulli distribution. Histograms are created over which we plot the probability distribution curve.
+
+from scipy.stats import bernoulli
+import seaborn as sb
+
+data_bern = bernoulli.rvs(size=1000,p=0.6)
+ax = sb.distplot(data_bern,
+                  kde=True,
+                  color='crimson',
+                  hist_kws={"linewidth": 25,'alpha':1})
+ax.set(xlabel='Bernouli', ylabel='Frequency')
+
+Poisson distribution 
+--------------------
+is a distribution which shows the likely number of times that an event will occur within a pre-determined period of time. It is used for independent events which occur at a constant rate within a given interval of time. The Poisson distribution is a discrete function, meaning that the event can only be measured as occurring or not as occurring, meaning the variable can only be measured in whole numbers.
+
+We use the seaborn python library which has in-built functions to create such probability distribution graphs. Also the scipy package helps is creating the binomial distribution.
+
+from scipy.stats import poisson
+import seaborn as sb
+
+data_binom = poisson.rvs(mu=4, size=10000)
+ax = sb.distplot(data_binom,
+                  kde=True,
+                  color='green',
+                  hist_kws={"linewidth": 25,'alpha':1})
+ax.set(xlabel='Poisson', ylabel='Frequency')
+
+Binomial distribution model
+---------------------------
+deals with finding the probability of success of an event which has only two possible outcomes in a series of experiments. For example, tossing of a coin always gives a head or a tail. The probability of finding exactly 3 heads in tossing a coin repeatedly for 10 times is estimated during the binomial distribution.
+
+We use the seaborn python library which has in-built functions to create such probability distribution graphs. Also, the scipy package helps is creating the binomial distribution.
+
+from scipy.stats import binom
+import seaborn as sb
+
+binom.rvs(size=10,n=20,p=0.8)
+
+data_binom = binom.rvs(n=20,p=0.8,loc=0,size=1000)
+ax = sb.distplot(data_binom,
+                  kde=True,
+                  color='blue',
+                  hist_kws={"linewidth": 25,'alpha':1})
+ax.set(xlabel='Binomial', ylabel='Frequency')
+
+Normal distribution 
+-------------------
+is a form presenting data by arranging the probability distribution of each value in the data.Most values remain around the mean value making the arrangement symmetric.
+
+We use various functions in numpy library to mathematically calculate the values for a normal distribution. Histograms are created over which we plot the probability distribution curve.
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+mu, sigma = 0.5, 0.1
+s = np.random.normal(mu, sigma, 1000)
+
+# Create the bins and histogram
+count, bins, ignored = plt.hist(s, 20, normed=True)
+
+# Plot the distribution curve
+plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) *
+    np.exp( - (bins - mu)**2 / (2 * sigma**2) ),       linewidth=3, color='y')
+plt.show()
+
+Variance:
+========
+In statistics, variance is a measure of how far a value in a data set lies from the mean value. In other words, it indicates how dispersed the values are. It is measured by using standard deviation. The other method commonly used is skewness.
+
+Both of these are calculated by using functions available in pandas library.
+
+Measuring Standard Deviation
+Standard deviation is square root of variance. variance is the average of squared difference of values in a data set from the mean value. In python we calculate this value by using the function std() from pandas library.
+
+import pandas as pd
+
+#Create a Dictionary of series
+d = {'Name':pd.Series(['Tom','James','Ricky','Vin','Steve','Smith','Jack',
+   'Lee','Chanchal','Gasper','Naviya','Andres']),
+   'Age':pd.Series([25,26,25,23,30,25,23,34,40,30,25,46]),
+   'Rating':pd.Series([4.23,3.24,3.98,2.56,3.20,4.6,3.8,3.78,2.98,4.80,4.10,3.65])}
+
+df = pd.DataFrame(d)
+
+# Calculate the standard deviation
+print df.std()
+
+Its output is as follows −
+
+Age       7.265527
+Rating    0.661628
+dtype: float64
+
+Measuring Skewness
+It used to determine whether the data is symmetric or skewed. If the index is between -1 and 1, then the distribution is symmetric. If the index is no more than -1 then it is skewed to the left and if it is at least 1, then it is skewed to the right
+
+import pandas as pd
+
+#Create a Dictionary of series
+d = {'Name':pd.Series(['Tom','James','Ricky','Vin','Steve','Smith','Jack',
+   'Lee','Chanchal','Gasper','Naviya','Andres']),
+   'Age':pd.Series([25,26,25,23,30,25,23,34,40,30,25,46]),
+   'Rating':pd.Series([4.23,3.24,3.98,2.56,3.20,4.6,3.8,3.78,2.98,4.80,4.10,3.65])}
+
+#Create a DataFrame
+df = pd.DataFrame(d)
+print df.skew()
+Its output is as follows −
+
+Age       1.443490
+Rating   -0.153629
+dtype: float64
+
+So the distribution of age rating is symmetric while the distribution of age is skewed to the right.
+
+Mathematically central tendency means measuring the center or distribution of location of values of a data set. It gives an idea of the average value of the data in the data set and also an indication of how widely the values are spread in the data set. That in turn helps in evaluating the chances of a new input fitting into the existing data set and hence probability of success.
+
+There are three main measures of central tendency which can be calculated using the methods in pandas python library.
+
+Mean - It is the Average value of the data which is a division of sum of the values with the number of values.
+Median - It is the middle value in distribution when the values are arranged in ascending or descending order.
+Mode - It is the most commonly occurring value in a distribution.
+
+Calculating Mean and Median
+---------------------------
+
+import pandas as pd
+
+#Create a Dictionary of series
+d = {'Name':pd.Series(['Tom','James','Ricky','Vin','Steve','Smith','Jack',
+   'Lee','Chanchal','Gasper','Naviya','Andres']),
+   'Age':pd.Series([25,26,25,23,30,29,23,34,40,30,51,46]),
+   'Rating':pd.Series([4.23,3.24,3.98,2.56,3.20,4.6,3.8,3.78,2.98,4.80,4.10,3.65])}
+
+df = pd.DataFrame(d)
+
+print "Mean Values in the Distribution"
+print df.mean()
+print "*******************************"
+print "Median Values in the Distribution"
+print df.median()
+
+Its output is as follows −
+
+Mean Values in the Distribution
+Age       31.833333
+Rating     3.743333
+dtype: float64
+*******************************
+Median Values in the Distribution
+Age       29.50
+Rating     3.79
+dtype: float64
+Calculating Mode
+
+Mode
+----
+may or may not be available in a distribution depending on whether the data is continous or whether there are values which has maximum frquency. We take a simple distribution below to find out the mode. Here we have a value which has maximum frequency in the distribution.
+
+import pandas as pd
+
+#Create a Dictionary of series
+d = {'Name':pd.Series(['Tom','James','Ricky','Vin','Steve','Smith','Jack',
+   'Lee','Chanchal','Gasper','Naviya','Andres']),
+   'Age':pd.Series([25,26,25,23,30,25,23,34,40,30,25,46])}
+#Create a DataFrame
+df = pd.DataFrame(d)
+
+print df.mode()
+
+Its output is as follows −
+
+chartprop2.png
+     Age      Name
+0   25.0    Andres
+1    NaN  Chanchal
+2    NaN    Gasper
+3    NaN      Jack
+4    NaN     James
+5    NaN       Lee
+6    NaN    Naviya
+7    NaN     Ricky
+8    NaN     Smith
+9    NaN     Steve
+10   NaN       Tom
+11   NaN       Vin
+
+============================================================================================ Python Data Processing ============================================================================================
+
+In the areas of Natural Language Processing we come across situation where two or more words have a common root. For example, the three words - agreed, agreeing and agreeable have the same root word agree. A search involving any of these words should treat them as the same word which is the root word. So it becomes essential to link all the words into their root word. The NLTK library has methods to do this linking and give the output showing the root word.
+
+The below program uses the Porter Stemming Algorithm for stemming.
+
+import nltk
+from nltk.stem.porter import PorterStemmer
+porter_stemmer = PorterStemmer()
+
+word_data = "It originated from the idea that there are readers who prefer learning new skills from the comforts of their drawing rooms"
+# First Word tokenization
+nltk_tokens = nltk.word_tokenize(word_data)
+#Next find the roots of the word
+for w in nltk_tokens:
+       print "Actual: %s  Stem: %s"  % (w,porter_stemmer.stem(w))
+
+When we execute the above code, it produces the following result.
+
+Actual: It  Stem: It
+Actual: originated  Stem: origin
+Actual: from  Stem: from
+Actual: the  Stem: the
+Actual: idea  Stem: idea
+Actual: that  Stem: that
+Actual: there  Stem: there
+Actual: are  Stem: are
+Actual: readers  Stem: reader
+Actual: who  Stem: who
+Actual: prefer  Stem: prefer
+Actual: learning  Stem: learn
+Actual: new  Stem: new
+Actual: skills  Stem: skill
+Actual: from  Stem: from
+Actual: the  Stem: the
+Actual: comforts  Stem: comfort
+Actual: of  Stem: of
+Actual: their  Stem: their
+Actual: drawing  Stem: draw
+Actual: rooms  Stem: room
+
+Lemmatization is similar to stemming but it brings context to the words.So it goes a steps further by linking words with similar meaning to one word. For example if a paragraph has words like cars, trains and automobile, then it will link all of them to automobile. In the below program we use the WordNet lexical database for lemmatization.
+
+import nltk
+from nltk.stem import WordNetLemmatizer
+wordnet_lemmatizer = WordNetLemmatizer()
+
+word_data = "It originated from the idea that there are readers who prefer learning new skills from the comforts of their drawing rooms"
+nltk_tokens = nltk.word_tokenize(word_data)
+for w in nltk_tokens:
+       print "Actual: %s  Lemma: %s"  % (w,wordnet_lemmatizer.lemmatize(w))
+
+When we execute the above code, it produces the following result.
+
+Actual: It  Lemma: It
+Actual: originated  Lemma: originated
+Actual: from  Lemma: from
+Actual: the  Lemma: the
+Actual: idea  Lemma: idea
+Actual: that  Lemma: that
+Actual: there  Lemma: there
+Actual: are  Lemma: are
+Actual: readers  Lemma: reader
+Actual: who  Lemma: who
+Actual: prefer  Lemma: prefer
+Actual: learning  Lemma: learning
+Actual: new  Lemma: new
+Actual: skills  Lemma: skill
+Actual: from  Lemma: from
+Actual: the  Lemma: the
+Actual: comforts  Lemma: comfort
+Actual: of  Lemma: of
+Actual: their  Lemma: their
+Actual: drawing  Lemma: drawing
+Actual: rooms  Lemma: room
+
+Word tokenization is the process of splitting a large sample of text into words. This is a requirement in natural language processing tasks where each word needs to be captured and subjected to further analysis like classifying and counting them for a particular sentiment etc. The Natural Language Tool kit(NLTK) is a library used to achieve this. Install NLTK before proceeding with the python program for word tokenization.
+
+conda install -c anaconda nltk
+Next we use the word_tokenize method to split the paragraph into individual words.
+
+import nltk
+
+word_data = "It originated from the idea that there are readers who prefer learning new skills from the comforts of their drawing rooms"
+nltk_tokens = nltk.word_tokenize(word_data)
+print (nltk_tokens)
+
+Output:
+['It', 'originated', 'from', 'the', 'idea', 'that', 'there', 'are', 'readers', 
+'who', 'prefer', 'learning', 'new', 'skills', 'from', 'the',
+'comforts', 'of', 'their', 'drawing', 'rooms']
+
+Tokenizing Sentences
+We can also tokenize the sentences in a paragraph like we tokenized the words. We use the method sent_tokenize to achieve this. Below is an example.
+
+import nltk
+sentence_data = "Sun rises in the east. Sun sets in the west."
+nltk_tokens = nltk.sent_tokenize(sentence_data)
+print (nltk_tokens)
+
+Output:
+['Sun rises in the east.', 'Sun sets in the west.']
+
+The data that is already present in a row and column format or which can be easily converted to rows and columns so that later it can fit nicely into a database is known as structured data. Examples are CSV, TXT, XLS files etc. These files have a delimiter and either fixed or variable width where the missing values are represented as blanks in between the delimiters. But sometimes we get data where the lines are not fixed width, or they are just HTML, image or pdf files. Such data is known as unstructured data. While the HTML file can be handled by processing the HTML tags, a feed from twitter or a plain text document from a news feed can without having a delimiter does not have tags to handle. In such scenario we use different in-built functions from various python libraries to process the file.
+
+Reading Data
+------------
+In the below example we take a text file and read the file segregating each of the lines in it. Next we can divide the output into further lines and words. The original file is a text file containing some paragraphs describing the python language.
+
+filename = 'path\input.txt'  
+
+with open(filename) as fn:  
+
+# Read each line
+   ln = fn.readline()
+
+# Keep count of lines
+   lncnt = 1
+   while ln:
+       print("Line {}: {}".format(lncnt, ln.strip()))
+       ln = fn.readline()
+       lncnt += 1
+
+When we execute the above code, it produces the following result.
+
+Line 1: Python is an interpreted high-level programming language for general-purpose programming. Created by Guido van Rossum and first released in 1991, Python has a design philosophy that emphasizes code readability, notably using significant whitespace. It provides constructs that enable clear programming on both small and large scales.
+Line 2: Python features a dynamic type system and automatic memory management. It supports multiple programming paradigms, including object-oriented, imperative, functional and procedural, and has a large and comprehensive standard library.
+Line 3: Python interpreters are available for many operating systems. CPython, the reference implementation of Python, is open source software and has a community-based development model, as do nearly all of its variant implementations. CPython is managed by the non-profit Python Software Foundation.
+
+Counting Word Frequency
+We can count the frequency of the words in the file using the counter function as follows.
+
+from collections import Counter
+
+with open(r'pathinput2.txt') as f:
+               p = Counter(f.read().split())
+               print(p)
+
+Output:
+Counter({'and': 3, 'Python': 3, 'that': 2, 'a': 2, 'programming': 2, 'code':
+
+beautifulsoup
+-------------
+library known as beautifulsoup. Using this library, we can search for the values of html tags and get specific data like title of the page and the list of headers in the page.
+
+Reading the HTML file
+In the below example we make a request to an url to be loaded into the python environment. Then use the html parser parameter to read the entire html file. Next, we print first few lines of the html page.
+
+import urllib2
+from bs4 import BeautifulSoup
+
+# Fetch the html file
+response = urllib2.urlopen('http://tutorialspoint.com/python/python_overview.htm')
+html_doc = response.read()
+
+# Parse the html file
+soup = BeautifulSoup(html_doc, 'html.parser')
+
+# Format the parsed html file
+strhtm = soup.prettify()
+
+# Print the first few characters
+print (strhtm[:225])
+When we execute the above code, it produces the following result.
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="ie ie8"> <![endif]-->
+<!--[if IE 9]><html class="ie ie9"> <![endif]-->
+<!--[if gt IE 9]><!-->
+<html>
+ <!--<![endif]-->
+ <head>
+  <!-- Basic -->
+  <meta charset="utf-8"/>
+  <title>
+
+Extracting Tag Value
+
+import urllib2
+from bs4 import BeautifulSoup:
+
+response = urllib2.urlopen('http://tutorialspoint.com/python/python_overview.htm')
+html_doc = response.read()
+
+soup = BeautifulSoup(html_doc, 'html.parser')
+
+print (soup.title)
+print(soup.title.string)
+print(soup.a.string)
+print(soup.b.string)
+
+
+Output:
+Python Overview
+None
+Python is Interpreted
+
+Extracting All Tags:
+
+import urllib2
+from bs4 import BeautifulSoup
+
+response = urllib2.urlopen('http://tutorialspoint.com/python/python_overview.htm')
+html_doc = response.read()
+soup = BeautifulSoup(html_doc, 'html.parser')
+
+for x in soup.find_all('b'): print(x.string)
+
+Output:
+Python is Interpreted
+Python is Interactive
+Python is Object-Oriented
+Python is a Beginner's Language
+Easy-to-learn
+Easy-to-read
+Easy-to-maintain
+A broad standard library
+Interactive Mode
+Portable
+Extendable
+Databases
+GUI Programming
+Scalable
+
+Python has several methods are available to perform aggregations on data. It is done using the pandas and numpy libraries. The data must be available or converted to a dataframe to apply the aggregation functions.
+
+Applying Aggregations on DataFrame. Let us create a DataFrame and apply aggregations on it.
+
+import pandas as pd
+import numpy as np
+
+df = pd.DataFrame(np.random.randn(10, 4),
+      index = pd.date_range('1/1/2000', periods=10),
+      columns = ['A', 'B', 'C', 'D'])
+
+print df
+
+r = df.rolling(window=3,min_periods=1)
+print r
+Its output is as follows −
+
+                    A           B           C           D
+2000-01-01   1.088512   -0.650942   -2.547450   -0.566858
+2000-01-02   0.790670   -0.387854   -0.668132    0.267283
+2000-01-03  -0.575523   -0.965025    0.060427   -2.179780
+2000-01-04   1.669653    1.211759   -0.254695    1.429166
+2000-01-05   0.100568   -0.236184    0.491646   -0.466081
+2000-01-06   0.155172    0.992975   -1.205134    0.320958
+2000-01-07   0.309468   -0.724053   -1.412446    0.627919
+2000-01-08   0.099489   -1.028040    0.163206   -1.274331
+2000-01-09   1.639500   -0.068443    0.714008   -0.565969
+2000-01-10   0.326761    1.479841    0.664282   -1.361169
+
+Rolling [window=3,min_periods=1,center=False,axis=0]                
+We can aggregate by passing a function to the entire DataFrame, or select a column via the standard get item method.
+
+Apply Aggregation on a Whole Dataframe
+
+import pandas as pd
+import numpy as np
+
+df = pd.DataFrame(np.random.randn(10, 4),
+      index = pd.date_range('1/1/2000', periods=10),
+      columns = ['A', 'B', 'C', 'D'])
+print df
+
+r = df.rolling(window=3,min_periods=1)
+print r.aggregate(np.sum)
+
+Output:
+2000-01-01   1.088512   -0.650942   -2.547450   -0.566858
+2000-01-02   1.879182   -1.038796   -3.215581   -0.299575
+2000-01-03   1.303660   -2.003821   -3.155154   -2.479355
+2000-01-04   1.884801   -0.141119   -0.862400   -0.483331
+2000-01-05   1.194699    0.010551    0.297378   -1.216695
+2000-01-06   1.925393    1.968551   -0.968183    1.284044
+2000-01-07   0.565208    0.032738   -2.125934    0.482797
+2000-01-08   0.564129   -0.759118   -2.454374   -0.325454
+2000-01-09   2.048458   -1.820537   -0.535232   -1.212381
+2000-01-10   2.065750    0.383357    1.541496   -3.201469
+
+                    A           B           C           D
+2000-01-01   1.088512   -0.650942   -2.547450   -0.566858
+2000-01-02   1.879182   -1.038796   -3.215581   -0.299575
+2000-01-03   1.303660   -2.003821   -3.155154   -2.479355
+2000-01-04   1.884801   -0.141119   -0.862400   -0.483331
+2000-01-05   1.194699    0.010551    0.297378   -1.216695
+2000-01-06   1.925393    1.968551   -0.968183    1.284044
+2000-01-07   0.565208    0.032738   -2.125934    0.482797
+2000-01-08   0.564129   -0.759118   -2.454374   -0.325454
+2000-01-09   2.048458   -1.820537   -0.535232   -1.212381
+2000-01-10   2.065750    0.383357    1.541496   -3.201469
+
+Apply Aggregation on a Single Column of a Dataframe
+
+import pandas as pd
+import numpy as np
+
+df = pd.DataFrame(np.random.randn(10, 4),
+      index = pd.date_range('1/1/2000', periods=10),
+      columns = ['A', 'B', 'C', 'D'])
+print df
+r = df.rolling(window=3,min_periods=1)
+print r['A'].aggregate(np.sum)
+
+Output:
+                 A           B           C           D
+2000-01-01   1.088512   -0.650942   -2.547450   -0.566858
+2000-01-02   1.879182   -1.038796   -3.215581   -0.299575
+2000-01-03   1.303660   -2.003821   -3.155154   -2.479355
+2000-01-04   1.884801   -0.141119   -0.862400   -0.483331
+2000-01-05   1.194699    0.010551    0.297378   -1.216695
+2000-01-06   1.925393    1.968551   -0.968183    1.284044
+2000-01-07   0.565208    0.032738   -2.125934    0.482797
+2000-01-08   0.564129   -0.759118   -2.454374   -0.325454
+2000-01-09   2.048458   -1.820537   -0.535232   -1.212381
+2000-01-10   2.065750    0.383357    1.541496   -3.201469
+2000-01-01   1.088512
+2000-01-02   1.879182
+2000-01-03   1.303660
+2000-01-04   1.884801
+2000-01-05   1.194699
+2000-01-06   1.925393
+2000-01-07   0.565208
+2000-01-08   0.564129
+2000-01-09   2.048458
+2000-01-10   2.065750
+Freq: D, Name: A, dtype: float64
+Apply Aggregation on Multiple Columns of a DataFrame
+
+import pandas as pd
+import numpy as np
+
+df = pd.DataFrame(np.random.randn(10, 4),
+      index = pd.date_range('1/1/2000', periods=10),
+      columns = ['A', 'B', 'C', 'D'])
+print df
+r = df.rolling(window=3,min_periods=1)
+print r[['A','B']].aggregate(np.sum)
+
+Output:
+                 A           B           C           D
+2000-01-01   1.088512   -0.650942   -2.547450   -0.566858
+2000-01-02   1.879182   -1.038796   -3.215581   -0.299575
+2000-01-03   1.303660   -2.003821   -3.155154   -2.479355
+2000-01-04   1.884801   -0.141119   -0.862400   -0.483331
+2000-01-05   1.194699    0.010551    0.297378   -1.216695
+2000-01-06   1.925393    1.968551   -0.968183    1.284044
+2000-01-07   0.565208    0.032738   -2.125934    0.482797
+2000-01-08   0.564129   -0.759118   -2.454374   -0.325454
+2000-01-09   2.048458   -1.820537   -0.535232   -1.212381
+2000-01-10   2.065750    0.383357    1.541496   -3.201469
+                    A           B
+2000-01-01   1.088512   -0.650942
+2000-01-02   1.879182   -1.038796
+2000-01-03   1.303660   -2.003821
+2000-01-04   1.884801   -0.141119
+2000-01-05   1.194699    0.010551
+2000-01-06   1.925393    1.968551
+2000-01-07   0.565208    0.032738
+2000-01-08   0.564129   -0.759118
+2000-01-09   2.048458   -1.820537
+2000-01-10   2.065750    0.383357
+
+Data wrangling involves processing the data in various formats like - merging, grouping, concatenating etc. for the purpose of analysing or getting them ready to be used with another set of data. Python has built-in features to apply these wrangling methods to various data sets to achieve the analytical goal. In this chapter we will look at few examples describing these methods.
+
+Merging Data
+The Pandas library in python provides a single function, merge, as the entry point for all standard database join operations between DataFrame objects −
+
+pd.merge(left, right, how='inner', on=None, left_on=None, right_on=None,
+left_index=False, right_index=False, sort=True)
+Let us now create two different DataFrames and perform the merging operations on it.
+
+# import the pandas library
+import pandas as pd
+left = pd.DataFrame({
+         'id':[1,2,3,4,5],
+         'Name': ['Alex', 'Amy', 'Allen', 'Alice', 'Ayoung'],
+         'subject_id':['sub1','sub2','sub4','sub6','sub5']})
+right = pd.DataFrame(
+         {'id':[1,2,3,4,5],
+         'Name': ['Billy', 'Brian', 'Bran', 'Bryce', 'Betty'],
+         'subject_id':['sub2','sub4','sub3','sub6','sub5']})
+print left
+print right
+Its output is as follows −
+
+    Name  id   subject_id
+0   Alex   1         sub1
+1    Amy   2         sub2
+2  Allen   3         sub4
+3  Alice   4         sub6
+4  Ayoung  5         sub5
+
+    Name  id   subject_id
+0  Billy   1         sub2
+1  Brian   2         sub4
+2  Bran    3         sub3
+3  Bryce   4         sub6
+4  Betty   5         sub5
+Grouping Data
+Grouping data sets is a frequent need in data analysis where we need the result in terms of various groups present in the data set. Panadas has in-built methods which can roll the data into various groups.
+
+In the below example we group the data by year and then get the result for a specific year.
+
+# import the pandas library
+import pandas as pd
+
+ipl_data = {'Team': ['Riders', 'Riders', 'Devils', 'Devils', 'Kings',
+         'kings', 'Kings', 'Kings', 'Riders', 'Royals', 'Royals', 'Riders'],
+         'Rank': [1, 2, 2, 3, 3,4 ,1 ,1,2 , 4,1,2],
+         'Year': [2014,2015,2014,2015,2014,2015,2016,2017,2016,2014,2015,2017],
+         'Points':[876,789,863,673,741,812,756,788,694,701,804,690]}
+df = pd.DataFrame(ipl_data)
+
+grouped = df.groupby('Year')
+print grouped.get_group(2014)
+Its output is as follows −
+
+   Points  Rank     Team    Year
+0     876     1   Riders    2014
+2     863     2   Devils    2014
+4     741     3   Kings     2014
+9     701     4   Royals    2014
+Concatenating Data
+Pandas provides various facilities for easily combining together Series, DataFrame, and Panel objects. In the below example the concat function performs concatenation operations along an axis. Let us create different objects and do concatenation.
+
+import pandas as pd
+one = pd.DataFrame({
+         'Name': ['Alex', 'Amy', 'Allen', 'Alice', 'Ayoung'],
+         'subject_id':['sub1','sub2','sub4','sub6','sub5'],
+         'Marks_scored':[98,90,87,69,78]},
+         index=[1,2,3,4,5])
+two = pd.DataFrame({
+         'Name': ['Billy', 'Brian', 'Bran', 'Bryce', 'Betty'],
+         'subject_id':['sub2','sub4','sub3','sub6','sub5'],
+         'Marks_scored':[89,80,79,97,88]},
+         index=[1,2,3,4,5])
+print pd.concat([one,two])
+Its output is as follows −
+
+    Marks_scored     Name   subject_id
+1             98     Alex         sub1
+2             90      Amy         sub2
+3             87    Allen         sub4
+4             69    Alice         sub6
+5             78   Ayoung         sub5
+1             89    Billy         sub2
+2             80    Brian         sub4
+3             79     Bran         sub3
+4             97    Bryce         sub6
+5             88    Betty         sub5
+
+Relational DB(SQLAlchemy):
+--------------------------
+We can connect to relational databases for analysing data using the pandas library as well as another additional library for implementing database connectivity. This package is named as sqlalchemy which provides full SQL language functionality to be used in python.
+
+Reading Relational Tables
+We will use Sqlite3 as our relational database as it is very light weight and easy to use. Though the SQLAlchemy library can connect to a variety of relational sources including MySql, Oracle and Postgresql and Mssql. We first create a database engine and then connect to the database engine using the to_sql function of the SQLAlchemy library.
+
+In the below example we create the relational table by using the to_sql function from a dataframe already created by reading a csv file. Then we use the read_sql_query function from pandas to execute and capture the results from various SQL queries.
+
+from sqlalchemy import create_engine
+import pandas as pd
+
+data = pd.read_csv('/path/input.csv')
+
+# Create the db engine
+engine = create_engine('sqlite:///:memory:')
+
+# Store the dataframe as a table
+data.to_sql('data_table', engine)
+
+# Query 1 on the relational table
+res1 = pd.read_sql_query('SELECT * FROM data_table', engine)
+print('Result 1')
+print(res1)
+print('')
+
+# Query 2 on the relational table
+res2 = pd.read_sql_query('SELECT dept,sum(salary) FROM data_table group by dept', engine)
+print('Result 2')
+print(res2)
+When we execute the above code, it produces the following result.
+
+Result 1
+   index  id    name  salary  start_date        dept
+0      0   1    Rick  623.30  2012-01-01          IT
+1      1   2     Dan  515.20  2013-09-23  Operations
+2      2   3   Tusar  611.00  2014-11-15          IT
+3      3   4    Ryan  729.00  2014-05-11          HR
+4      4   5    Gary  843.25  2015-03-27     Finance
+5      5   6   Rasmi  578.00  2013-05-21          IT
+6      6   7  Pranab  632.80  2013-07-30  Operations
+7      7   8    Guru  722.50  2014-06-17     Finance
+
+Result 2
+         dept  sum(salary)
+0     Finance      1565.75
+1          HR       729.00
+2          IT      1812.30
+3  Operations      1148.00
+Inserting Data to Relational Tables
+We can also insert data into relational tables using sql.execute function available in pandas. In the below code we previous csv file as input data set, store it in a relational table and then insert another record using sql.execute.
+
+from sqlalchemy import create_engine
+from pandas.io import sql
+
+import pandas as pd
+
+data = pd.read_csv('C:/Users/Rasmi/Documents/pydatasci/input.csv')
+engine = create_engine('sqlite:///:memory:')
+
+# Store the Data in a relational table
+data.to_sql('data_table', engine)
+
+# Insert another row
+sql.execute('INSERT INTO data_table VALUES(?,?,?,?,?,?)', engine, params=[('id',9,'Ruby',711.20,'2015-03-27','IT')])
+
+# Read from the relational table
+res = pd.read_sql_query('SELECT ID,Dept,Name,Salary,start_date FROM data_table', engine)
+print(res)
+When we execute the above code, it produces the following result.
+
+   id        dept    name  salary  start_date
+0   1          IT    Rick  623.30  2012-01-01
+1   2  Operations     Dan  515.20  2013-09-23
+2   3          IT   Tusar  611.00  2014-11-15
+3   4          HR    Ryan  729.00  2014-05-11
+4   5     Finance    Gary  843.25  2015-03-27
+5   6          IT   Rasmi  578.00  2013-05-21
+6   7  Operations  Pranab  632.80  2013-07-30
+7   8     Finance    Guru  722.50  2014-06-17
+8   9          IT    Ruby  711.20  2015-03-27
+Deleting Data from Relational Tables
+We can also delete data into relational tables using sql.execute function available in pandas. The below code deletes a row based on the input condition given.
+
+from sqlalchemy import create_engine
+from pandas.io import sql
+
+import pandas as pd
+
+data = pd.read_csv('C:/Users/Rasmi/Documents/pydatasci/input.csv')
+engine = create_engine('sqlite:///:memory:')
+data.to_sql('data_table', engine)
+
+sql.execute('Delete from data_table where name = (?) ', engine,  params=[('Gary')])
+
+res = pd.read_sql_query('SELECT ID,Dept,Name,Salary,start_date FROM data_table', engine)
+print(res)
+When we execute the above code, it produces the following result.
+
+   id        dept    name  salary  start_date
+0   1          IT    Rick   623.3  2012-01-01
+1   2  Operations     Dan   515.2  2013-09-23
+2   3          IT   Tusar   611.0  2014-11-15
+3   4          HR    Ryan   729.0  2014-05-11
+4   6          IT   Rasmi   578.0  2013-05-21
+5   7  Operations  Pranab   632.8  2013-07-30
+6   8     Finance    Guru   722.5  2014-06-17
+
+NoSQL:
+-----
+As more and more data become available as unstructured or semi-structured, the need of managing them through NoSql database increases. Python can also interact with NoSQL databases in a similar way as is interacts with Relational databases. In this chapter we will use python to interact with MongoDB as a NoSQL database. In case you are new to MongoDB, you can learn it in our tutorial here.
+
+Inserting Data
+To insert data into MongoDB we use the insert() method which is available in the database environment. First we connect to the db using python code shown below and then we provide the document details in form of a series of key-value pairs.
+
+from pymongo import MongoClient
+from pprint import pprint
+
+# Choose the appropriate client
+client = MongoClient()
+
+# Connect to the test db 
+db=client.test
+
+# Use the employee collection
+employee = db.employee
+employee_details = {
+    'Name': 'Raj Kumar',
+    'Address': 'Sears Streer, NZ',
+    'Age': '42'
+}
+
+# Use the insert method
+result = employee.insert_one(employee_details)
+
+# Query for the inserted document.
+Queryresult = employee.find_one({'Age': '42'})
+pprint(Queryresult)
+
+Output:
+{u'Address': u'Sears Streer, NZ',
+ u'Age': u'42',
+ u'Name': u'Raj Kumar',
+ u'_id': ObjectId('5adc5a9f84e7cd3940399f93')}
+
+Updating Data
+
+from pymongo import MongoClient
+from pprint import pprint
+
+# Choose the appropriate client
+client = MongoClient()
+
+# Connect to db
+db=client.test
+employee = db.employee
+
+# Use the condition to choose the record
+# and use the update method
+db.employee.update_one(
+        {"Age":'42'},
+        {
+        "$set": {
+            "Name":"Srinidhi",
+            "Age":'35',
+            "Address":"New Omsk, WC"
+        }
+        }
+    )
+
+Queryresult = employee.find_one({'Age':'35'})
+
+pprint(Queryresult)
+
+Output:
+{u'Address': u'New Omsk, WC',
+ u'Age': u'35',
+ u'Name': u'Srinidhi',
+ u'_id': ObjectId('5adc5a9f84e7cd3940399f93')}
+Deleting Data
+Deleting a record is also straight forward where we use the delete method. Here also we mention the condition which is used to choose the record to be deleted.
+
+# Import the python libraries
+from pymongo import MongoClient
+from pprint import pprint
+
+# Choose the appropriate client
+client = MongoClient()
+
+# Connect to db
+db=client.test
+employee = db.employee
+
+# Use the condition to choose the record
+# and use the delete method
+db.employee.delete_one({"Age":'35'})
+
+Queryresult = employee.find_one({'Age':'35'})
+
+pprint(Queryresult)
+When we execute the above code, it produces the following result.
+
+None
+So we see the particular record does not exist in the db any more.
+
+Data Operations:
+---------------
+Python handles data of various formats mainly through the two libraries, Pandas and Numpy. We have already seen the important features of these two libraries in the previous chapters. In this chapter we will see some basic examples from each of the libraries on how to operate on data.
+
+Data Operations in Numpy
+The most important object defined in NumPy is an N-dimensional array type called ndarray. It describes the collection of items of the same type. Items in the collection can be accessed using a zero-based index. An instance of ndarray class can be constructed by different array creation routines described later in the tutorial. The basic ndarray is created using an array function in NumPy as follows −
+
+numpy.array 
+Following are some examples on Numpy Data handling.
+
+Example 1
+# more than one dimensions 
+import numpy as np 
+a = np.array([[1, 2], [3, 4]]) 
+print a
+The output is as follows −
+
+[[1, 2] 
+ [3, 4]]
+Example 2
+# minimum dimensions 
+import numpy as np 
+a = np.array([1, 2, 3,4,5], ndmin = 2) 
+print a
+The output is as follows −
+
+[[1, 2, 3, 4, 5]]
+Example 3
+# dtype parameter 
+import numpy as np 
+a = np.array([1, 2, 3], dtype = complex) 
+print a
+The output is as follows −
+
+[ 1.+0.j,  2.+0.j,  3.+0.j]
+Data Operations in Pandas
+Pandas handles data through Series,Data Frame, and Panel. We will see some examples from each of these.
+
+Pandas Series
+Series is a one-dimensional labeled array capable of holding data of any type (integer, string, float, python objects, etc.). The axis labels are collectively called index. A pandas Series can be created using the following constructor −
+
+pandas.Series( data, index, dtype, copy)
+Example
+Here we create a series from a Numpy Array.
+
+#import the pandas library and aliasing as pd
+import pandas as pd
+import numpy as np
+data = np.array(['a','b','c','d'])
+s = pd.Series(data)
+print s
+Its output is as follows −
+
+0   a
+1   b
+2   c
+3   d
+dtype: object
+Pandas DataFrame
+A Data frame is a two-dimensional data structure, i.e., data is aligned in a tabular fashion in rows and columns. A pandas DataFrame can be created using the following constructor −
+
+pandas.DataFrame( data, index, columns, dtype, copy)
+Let us now create an indexed DataFrame using arrays.
+
+import pandas as pd
+data = {'Name':['Tom', 'Jack', 'Steve', 'Ricky'],'Age':[28,34,29,42]}
+df = pd.DataFrame(data, index=['rank1','rank2','rank3','rank4'])
+print df
+Its output is as follows −
+
+         Age    Name
+rank1    28      Tom
+rank2    34     Jack
+rank3    29    Steve
+rank4    42    Ricky
+Pandas Panel
+A panel is a 3D container of data. The term Panel data is derived from econometrics and is partially responsible for the name pandas − pan(el)-da(ta)-s.
+
+A Panel can be created using the following constructor −
+
+pandas.Panel(data, items, major_axis, minor_axis, dtype, copy)
+In the below example we create a panel from dict of DataFrame Objects
+
+#creating an empty panel
+import pandas as pd
+import numpy as np
+
+data = {'Item1' : pd.DataFrame(np.random.randn(4, 3)), 
+        'Item2' : pd.DataFrame(np.random.randn(4, 2))}
+p = pd.Panel(data)
+print p
+Its output is as follows −
+
+<class 'pandas.core.panel.Panel'>
+Dimensions: 2 (items) x 4 (major_axis) x 5 (minor_axis)
+Items axis: 0 to 1
+Major_axis axis: 0 to 3
+Minor_axis axis: 0 to 4
+
+Data Cleansing:
+--------------
+Missing data is always a problem in real life scenarios. Areas like machine learning and data mining face severe issues in the accuracy of their model predictions because of poor quality of data caused by missing values. In these areas, missing value treatment is a major point of focus to make their models more accurate and valid.
+
+When and Why Is Data Missed?
+Let us consider an online survey for a product. Many a times, people do not share all the information related to them. Few people share their experience, but not how long they are using the product; few people share how long they are using the product, their experience but not their contact information. Thus, in some or the other way a part of data is always missing, and this is very common in real time.
+
+Let us now see how we can handle missing values (say NA or NaN) using Pandas.
+
+# import the pandas library
+import pandas as pd
+import numpy as np
+
+df = pd.DataFrame(np.random.randn(5, 3), index=['a', 'c', 'e', 'f',
+'h'],columns=['one', 'two', 'three'])
+
+df = df.reindex(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+
+print df
+
+Output:
+         one        two      three
+a   0.077988   0.476149   0.965836
+b        NaN        NaN        NaN
+c  -0.390208  -0.551605  -2.301950
+d        NaN        NaN        NaN
+e  -2.000303  -0.788201   1.510072
+f  -0.930230  -0.670473   1.146615
+g        NaN        NaN        NaN
+h   0.085100   0.532791   0.887415
+Using reindexing, we have created a DataFrame with missing values. In the output, NaN means Not a Number.
+
+Check for Missing Values
+To make detecting missing values easier (and across different array dtypes), Pandas provides the isnull() and notnull() functions, which are also methods on Series and DataFrame objects −
+
+Example
+import pandas as pd
+import numpy as np
+ 
+df = pd.DataFrame(np.random.randn(5, 3), index=['a', 'c', 'e', 'f',
+'h'],columns=['one', 'two', 'three'])
+
+df = df.reindex(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+
+print df['one'].isnull()
+Its output is as follows −
+
+a  False
+b  True
+c  False
+d  True
+e  False
+f  False
+g  True
+h  False
+Name: one, dtype: bool
+
+Cleaning / Filling Missing Data
+Pandas provides various methods for cleaning the missing values. The fillna function can “fill in” NA values with non-null data in a couple of ways, which we have illustrated in the following sections.
+
+Replace NaN with a Scalar Value
+The following program shows how you can replace "NaN" with "0".
+
+import pandas as pd
+import numpy as np
+df = pd.DataFrame(np.random.randn(3, 3), index=['a', 'c', 'e'],columns=['one',
+'two', 'three'])
+df = df.reindex(['a', 'b', 'c'])
+print df
+print ("NaN replaced with '0':")
+print df.fillna(0)
+Its output is as follows −
+
+         one        two     three
+a  -0.576991  -0.741695  0.553172
+b        NaN        NaN       NaN
+c   0.744328  -1.735166  1.749580
+
+NaN replaced with '0':
+         one        two     three
+a  -0.576991  -0.741695  0.553172
+b   0.000000   0.000000  0.000000
+c   0.744328  -1.735166  1.749580
+Here, we are filling with value zero; instead we can also fill with any other value.
+
+Fill NA Forward and Backward
+Using the concepts of filling discussed in the ReIndexing Chapter we will fill the missing values.
+
+Method	Action
+pad/fill	Fill methods Forward
+bfill/backfill	Fill methods Backward
+Example
+import pandas as pd
+import numpy as np
+
+df = pd.DataFrame(np.random.randn(5, 3), index=['a', 'c', 'e', 'f',
+'h'],columns=['one', 'two', 'three'])
+df = df.reindex(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+
+print df.fillna(method='pad')
+
+Output:
+         one        two      three
+a   0.077988   0.476149   0.965836
+b   0.077988   0.476149   0.965836
+c  -0.390208  -0.551605  -2.301950
+d  -0.390208  -0.551605  -2.301950
+e  -2.000303  -0.788201   1.510072
+f  -0.930230  -0.670473   1.146615
+g  -0.930230  -0.670473   1.146615
+h   0.085100   0.532791   0.887415
+
+Drop Missing Values
+If you want to simply exclude the missing values, then use the dropna function along with the axis argument. By default, axis=0, i.e., along row, which means that if any value within a row is NA then the whole row is excluded.
+
+Example
+import pandas as pd
+import numpy as np
+
+df = pd.DataFrame(np.random.randn(5, 3), index=['a', 'c', 'e', 'f',
+'h'],columns=['one', 'two', 'three'])
+
+df = df.reindex(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+print df.dropna()
+
+Output:
+         one        two      three
+a   0.077988   0.476149   0.965836
+c  -0.390208  -0.551605  -2.301950
+e  -2.000303  -0.788201   1.510072
+f  -0.930230  -0.670473   1.146615
+h   0.085100   0.532791   0.887415
+
+Replace Missing (or) Generic Values
+Many times, we have to replace a generic value with some specific value. We can achieve this by applying the replace method.
+
+Replacing NA with a scalar value is equivalent behavior of the fillna() function.
+
+Example
+import pandas as pd
+import numpy as np
+df = pd.DataFrame({'one':[10,20,30,40,50,2000],
+'two':[1000,0,30,40,50,60]})
+print df.replace({1000:10,2000:60})
+
+Output:
+   one  two
+0   10   10
+1   20    0
+2   30   30
+3   40   40
+4   50   50
+5   60   60
+
+Processing CSV data:
+-------------------
+
+Input as CSV File
+
+id,name,salary,start_date,dept
+1,Rick,623.3,2012-01-01,IT
+2,Dan,515.2,2013-09-23,Operations
+3,Tusar,611,2014-11-15,IT
+4,Ryan,729,2014-05-11,HR
+5,Gary,843.25,2015-03-27,Finance
+6,Rasmi,578,2013-05-21,IT
+7,Pranab,632.8,2013-07-30,Operations
+8,Guru,722.5,2014-06-17,Finance
+
+Reading a CSV File
+
+import pandas as pd
+data = pd.read_csv('path/input.csv')
+print (data)
+
+Output:
+   id    name  salary  start_date        dept
+0   1    Rick  623.30  2012-01-01          IT
+1   2     Dan  515.20  2013-09-23  Operations
+2   3   Tusar  611.00  2014-11-15          IT
+3   4    Ryan  729.00  2014-05-11          HR
+4   5    Gary  843.25  2015-03-27     Finance
+5   6   Rasmi  578.00  2013-05-21          IT
+6   7  Pranab  632.80  2013-07-30  Operations
+7   8    Guru  722.50  2014-06-17     Finance
+
+Reading Specific Rows
+
+import pandas as pd
+data = pd.read_csv('path/input.csv')
+
+# Slice the result for first 5 rows
+print (data[0:5]['salary'])
+
+Output:
+0    623.30
+1    515.20
+2    611.00
+3    729.00
+4    843.25
+Name: salary, dtype: float64
+
+Reading Specific Columns
+
+import pandas as pd
+data = pd.read_csv('path/input.csv')
+
+# Use the multi-axes indexing funtion
+print (data.loc[:,['salary','name']])
+
+Output:
+   salary    name
+0  623.30    Rick
+1  515.20     Dan
+2  611.00   Tusar
+3  729.00    Ryan
+4  843.25    Gary
+5  578.00   Rasmi
+6  632.80  Pranab
+7  722.50    Guru
+Reading Specific Columns and Rows
+The read_csv function of the pandas library can also be used to read some specific columns and specific rows. We use the multi-axes indexing method called .loc() for this purpose. We choose to display the salary and name column for some of the rows.
+
+import pandas as pd
+data = pd.read_csv('path/input.csv')
+
+# Use the multi-axes indexing funtion
+print (data.loc[[1,3,5],['salary','name']])
+When we execute the above code, it produces the following result.
+
+   salary   name
+1   515.2    Dan
+3   729.0   Ryan
+5   578.0  Rasmi
+Reading Specific Columns for a Range of Rows
+The read_csv function of the pandas library can also be used to read some specific columns and a range of rows. We use the multi-axes indexing method called .loc() for this purpose. We choose to display the salary and name column for some of the rows.
+
+import pandas as pd
+data = pd.read_csv('path/input.csv')
+
+# Use the multi-axes indexing funtion
+print (data.loc[2:6,['salary','name']])
+When we execute the above code, it produces the following result.
+
+   salary    name
+2  611.00   Tusar
+3  729.00    Ryan
+4  843.25    Gary
+5  578.00   Rasmi
+6  632.80  Pranab
+
+Processing XLS data:
+-------------------
+We Create an excel file with multiple sheets in the windows OS. The Data in the different sheets is as shown below.
+You can create this file using the Excel Program in windows OS. Save the file as input.xlsx.
+
+# Data in Sheet1
+
+id,name,salary,start_date,dept
+1,Rick,623.3,2012-01-01,IT
+2,Dan,515.2,2013-09-23,Operations
+3,Tusar,611,2014-11-15,IT
+4,Ryan,729,2014-05-11,HR
+5,Gary,843.25,2015-03-27,Finance
+6,Rasmi,578,2013-05-21,IT
+7,Pranab,632.8,2013-07-30,Operations
+8,Guru,722.5,2014-06-17,Finance
+
+# Data in Sheet2
+
+id	name	zipcode
+1	Rick	301224
+2	Dan	341255
+3	Tusar	297704
+4	Ryan	216650
+5	Gary	438700
+6	Rasmi	665100
+7	Pranab	341211
+8	Guru	347480
+
+Reading an Excel File
+
+import pandas as pd
+data = pd.read_excel('path/input.xlsx')
+print (data)
+
+Output:
+   id    name  salary  start_date        dept
+0   1    Rick  623.30  2012-01-01          IT
+1   2     Dan  515.20  2013-09-23  Operations
+2   3   Tusar  611.00  2014-11-15          IT
+3   4    Ryan  729.00  2014-05-11          HR
+4   5    Gary  843.25  2015-03-27     Finance
+5   6   Rasmi  578.00  2013-05-21          IT
+6   7  Pranab  632.80  2013-07-30  Operations
+7   8    Guru  722.50  2014-06-17     Finance
+
+Reading Specific Columns and Rows
+
+import pandas as pd
+data = pd.read_excel('path/input.xlsx')
+
+# Use the multi-axes indexing funtion
+print (data.loc[[1,3,5],['salary','name']])
+
+   salary   name
+1   515.2    Dan
+3   729.0   Ryan
+5   578.0  Rasmi
+
+Reading Multiple Excel Sheets
+
+import pandas as pd
+with pd.ExcelFile('C:/Users/Rasmi/Documents/pydatasci/input.xlsx') as xls:
+    df1 = pd.read_excel(xls, 'Sheet1')
+    df2 = pd.read_excel(xls, 'Sheet2')
+
+print("****Result Sheet 1****")
+print (df1[0:5]['salary'])
+print("")
+print("***Result Sheet 2****")
+print (df2[0:5]['zipcode'])
+When we execute the above code, it produces the following result.
+
+****Result Sheet 1****
+0    623.30
+1    515.20
+2    611.00
+3    729.00
+4    843.25
+Name: salary, dtype: float64
+
+***Result Sheet 2****
+0    301224
+1    341255
+2    297704
+3    216650
+4    438700
+Name: zipcode, dtype: int64
+
+Reading JSON:
+------------
+JSON file stores data as text in human-readable format. JSON stands for JavaScript Object Notation. Pandas can read JSON files using the read_json function.
+
+Input Data
+
+{ 
+   "ID":["1","2","3","4","5","6","7","8" ],
+   "Name":["Rick","Dan","Michelle","Ryan","Gary","Nina","Simon","Guru" ]
+   "Salary":["623.3","515.2","611","729","843.25","578","632.8","722.5" ],
+   
+   "StartDate":[ "1/1/2012","9/23/2013","11/15/2014","5/11/2014","3/27/2015","5/21/2013",
+      "7/30/2013","6/17/2014"],
+   "Dept":[ "IT","Operations","IT","HR","Finance","IT","Operations","Finance"]
+}
+
+Read the JSON File
+
+import pandas as pd
+
+data = pd.read_json('path/input.json')
+print (data)
+
+Output:
+         Dept  ID    Name  Salary   StartDate
+0          IT   1    Rick  623.30    1/1/2012
+1  Operations   2     Dan  515.20   9/23/2013
+2          IT   3   Tusar  611.00  11/15/2014
+3          HR   4    Ryan  729.00   5/11/2014
+4     Finance   5    Gary  843.25   3/27/2015
+5          IT   6   Rasmi  578.00   5/21/2013
+6  Operations   7  Pranab  632.80   7/30/2013
+7     Finance   8    Guru  722.50   6/17/2014
+
+Reading Specific Columns and Rows
+
+import pandas as pd
+data = pd.read_json('path/input.xlsx')
+
+# Use the multi-axes indexing funtion
+print (data.loc[[1,3,5],['salary','name']])
+
+Output:
+   salary   name
+1   515.2    Dan
+3   729.0   Ryan
+5   578.0  Rasmi
+
+Reading JSON file as Records
+
+import pandas as pd
+data = pd.read_json('path/input.xlsx')
+
+print(data.to_json(orient='records', lines=True))
+
+Output:
+{"Dept":"IT","ID":1,"Name":"Rick","Salary":623.3,"StartDate":"1\/1\/2012"}
+{"Dept":"Operations","ID":2,"Name":"Dan","Salary":515.2,"StartDate":"9\/23\/2013"}
+{"Dept":"IT","ID":3,"Name":"Tusar","Salary":611.0,"StartDate":"11\/15\/2014"}
+{"Dept":"HR","ID":4,"Name":"Ryan","Salary":729.0,"StartDate":"5\/11\/2014"}
+{"Dept":"Finance","ID":5,"Name":"Gary","Salary":843.25,"StartDate":"3\/27\/2015"}
+{"Dept":"IT","ID":6,"Name":"Rasmi","Salary":578.0,"StartDate":"5\/21\/2013"}
+{"Dept":"Operations","ID":7,"Name":"Pranab","Salary":632.8,"StartDate":"7\/30\/2013"}
+{"Dept":"Finance","ID":8,"Name":"Guru","Salary":722.5,"StartDate":"6\/17\/2014"}
+
+datetime:
+--------
+Often in data science we need analysis which is based on temporal values. Python can handle the various formats of date and time gracefully. The datetime library provides necessary methods and functions to handle the following scenarios.
+
+Date Time Representation
+Date Time Arithmetic
+Date Time Comparison
+We will study them one by one.
+
+Date Time Representation
+A date and its various parts are represented by using different datetime functions. Also, there are format specifiers which play a role in displaying the alphabetical parts of a date like name of the month or week day. The following code shows today's date and various parts of the date.
+
+import datetime
+
+print 'The Date Today is  :', datetime.datetime.today()
+
+date_today = datetime.date.today()
+print date_today
+print 'This Year   :', date_today.year
+print 'This Month    :', date_today.month
+print 'Month Name:',date_today.strftime('%B')
+print 'This Week Day    :', date_today.day
+print 'Week Day Name:',date_today.strftime('%A')
+When we execute the above code, it produces the following result.
+
+The Date Today is  : 2018-04-22 15:38:35.835000
+2018-04-22
+This Year   : 2018
+This Month    : 4
+Month Name: April
+This Week Day    : 22
+Week Day Name: Sunday
+Date Time Arithmetic
+For calculations involving dates we store the various dates into variables and apply the relevant mathematical operator to these variables.
+
+import datetime 
+ 
+#Capture the First Date
+day1 = datetime.date(2018, 2, 12)
+print 'day1:', day1.ctime()
+
+# Capture the Second Date
+day2 = datetime.date(2017, 8, 18)
+print 'day2:', day2.ctime()
+
+# Find the difference between the dates
+print 'Number of Days:', day1-day2
+
+
+date_today  = datetime.date.today() 
+
+# Create a delta of Four Days 
+no_of_days = datetime.timedelta(days=4) 
+
+# Use Delta for Past Date
+before_four_days = date_today - no_of_days 
+print 'Before Four Days:', before_four_days 
+ 
+# Use Delta for future Date
+after_four_days = date_today + no_of_days 
+print 'After Four Days:', after_four_days 
+When we execute the above code, it produces the following result.
+
+day1: Mon Feb 12 00:00:00 2018
+day2: Fri Aug 18 00:00:00 2017
+Number of Days: 178 days, 0:00:00
+Before Four Days: 2018-04-18
+After Four Days: 2018-04-26
+Date Time Comparison
+Date and time are compared using logical operators. But we must be careful in comparing the right parts of the dates with each other. In the below examples we take the future and past dates and compare them using the python if clause along with logical operators.
+
+import datetime
+
+date_today  = datetime.date.today() 
+
+print 'Today is: ', date_today
+# Create a delta of Four Days 
+no_of_days = datetime.timedelta(days=4) 
+
+# Use Delta for Past Date
+before_four_days = date_today - no_of_days 
+print 'Before Four Days:', before_four_days 
+
+after_four_days =  date_today + no_of_days
+
+date1 = datetime.date(2018,4,4)
+
+print 'date1:',date1
+
+if date1 == before_four_days :
+    print 'Same Dates'
+if date_today > date1:
+    print 'Past Date'
+if date1 < after_four_days:
+    print 'Future Date'
+When we execute the above code, it produces the following result.
+
+Today is:  2018-04-22
+Before Four Days: 2018-04-18
+date1: 2018-04-04
+Past Date
+Future Date
+=============
+
+
+Data science is the process of deriving knowledge and insights from a huge and diverse set of data through organizing, processing and analysing the data. It involves many different disciplines like mathematical and statistical modelling, extracting data from it source and applying data visualization techniques. Often it also involves handling big data technologies to gather both structured and unstructured data. Below we will see some example scenarios where Data science is used.
+
+Recommendation systems
+As online shopping becomes more prevalent, the e-commerce platforms are able to capture users shopping preferences as well as the performance of various products in the market. This leads to creation of recommendation systems which create models predicting the shoppers needs and show the products the shopper is most likely to buy.
+
+Financial Risk management
+The financial risk involving loans and credits are better analysed by using the customers past spend habits, past defaults, other financial commitments and many socio-economic indicators. These data is gathered from various sources in different formats. Organising them together and getting insight into customers profile needs the help of Data science. The outcome is minimizing loss for the financial organization by avoiding bad debt.
+
+Improvement in Health Care services
+The health care industry deals with a variety of data which can be classified into technical data, financial data, patient information, drug information and legal rules. All this data need to be analysed in a coordinated manner to produce insights that will save cost both for the health care provider and care receiver while remaining legally compliant.
+
+Computer Vision
+The advancement in recognizing an image by a computer involves processing large sets of image data from multiple objects of same category. For example, Face recognition. These data sets are modelled, and algorithms are created to apply the model to newer images to get a satisfactory result. Processing of these huge data sets and creation of models need various tools used in Data science.
+
+Efficient Management of Energy
+As the demand for energy consumption soars, the energy producing companies need to manage the various phases of the energy production and distribution more efficiently. This involves optimizing the production methods, the storage and distribution mechanisms as well as studying the customers consumption patterns. Linking the data from all these sources and deriving insight seems a daunting task. This is made easier by using the tools of data science.
+
+Key Features of Pandas
+Fast and efficient DataFrame object with default and customized indexing.
+Tools for loading data into in-memory data objects from different file formats.
+Data alignment and integrated handling of missing data.
+Reshaping and pivoting of date sets.
+Label-based slicing, indexing and subsetting of large data sets.
+Columns from a data structure can be deleted or inserted.
+Group by data for aggregation and transformations.
+High performance merging and joining of data.
+Time Series functionality.
+Pandas deals with the following three data structures −
+
+Series
+DataFrame
+
+
+Key Points of Data Frame
+Heterogeneous data
+Size Mutable
+Data Mutable
+
+
+git clone https://github.com/matplotlib/matplotlib
+cd matplotlib
+python3 setup.py build
+sudo python3 setup.py install
+
+Matplotlib:
+----------
+
+Matplotlib is a python library used to create 2D graphs and plots by using python scripts. It has a module named pyplot which makes things easy for plotting by providing feature to control line styles, font properties, formatting axes etc. It supports a very wide variety of graphs and plots namely - histogram, bar charts, power spectra, error charts etc. It is used along with NumPy to provide an environment that is an effective open source alternative for MatLab. It can also be used with graphics toolkits like PyQt and wxPython.
+
+Example
+import numpy as np 
+import matplotlib.pyplot as plt  
+
+# Compute the x and y coordinates for points on a sine curve 
+x = np.arange(0, 3 * np.pi, 0.1) 
+y = np.sin(x) 
+plt.title("sine wave form") 
+
+# Plot the points using matplotlib 
+plt.plot(x, y) 
+plt.show() 
+
+
+SciPy:
+------
+The SciPy library of Python is built to work with NumPy arrays and provides many user-friendly and efficient numerical practices such as routines for numerical integration and optimization. 
+
+SciPy Sub-packages
+SciPy is organized into sub-packages covering different scientific computing domains. These are summarized in the following table −
+
+scipy.constants	Physical and mathematical constants
+scipy.fftpack	Fourier transform
+scipy.integrate	Integration routines
+scipy.interpolate	Interpolation
+scipy.io	Data input and output
+scipy.linalg	Linear algebra routines
+scipy.optimize	Optimization
+scipy.signal	Signal processing
+scipy.sparse	Sparse matrices
+scipy.spatial	Spatial data structures and algorithms
+scipy.special	Any special mathematical functions
+scipy.stats	Statistics
+
+Operations using NumPy
+Using NumPy, a developer can perform the following operations −
+
+Using NumPy(Numerical Python) we can
+- Mathematical and logical operations on arrays.
+- Fourier transforms and routines for shape manipulation.
+- Operations related to linear algebra. NumPy has in-built functions for linear algebra and random number generation.
+
+NumPy – A Replacement for MatLab
+NumPy is often used along with packages like SciPy (Scientific Python) and Mat−plotlib (plotting library). This combination is widely used as a replacement for MatLab, a popular platform for technical computing. However, Python alternative to MatLab is now seen as a more modern and complete programming language.
+
+It is open source, which is an added advantage of NumPy.
+
+ndarray Object
+The most important object defined in NumPy is an N-dimensional array type called ndarray. It describes the collection of items of the same type. Items in the collection can be accessed using a zero-based index. Every item in an ndarray takes the same size of block in the memory. Each element in ndarray is an object of data-type object (called dtype). Any item extracted from ndarray object (by slicing) is represented by a Python object of one of array scalar types.
+
+Pandas is an open-source Python Library used for high-performance data manipulation and data analysis using its powerful data structures. Python with pandas is in use in a variety of academic and commercial domains, including Finance, Economics, Statistics, Advertising, Web Analytics, and more. Using Pandas, we can accomplish five typical steps in the processing and analysis of data, regardless of the origin of data — load, organize, manipulate, model, and analyse the data.
+
+Key Features of Pandas
+- Fast and efficient DataFrame object with default and customized indexing.
+- Tools for loading data into in-memory data objects from different file formats.
+- Data alignment and integrated handling of missing data.
+- Reshaping and pivoting of date sets.
+- Label-based slicing, indexing and subsetting of large data sets.
+- Columns from a data structure can be deleted or inserted.
+- Group by data for aggregation and transformations.
+- High performance merging and joining of data.
+- Time Series functionality.
+
+Pandas deals with the following three data structures −
+
+- Series
+- DataFrame
+These data structures are built on top of Numpy array, making them fast and efficient.
+
+Data Structure	Dimensions		Description
+Series	1	1D			labeled homogeneous array, size-immutable.
+Data Frames	2			General 2D labeled, size-mutable tabular structure with potentially heterogeneously typed columns.
+
+DataFrame is widely used and it is the most important data structures.
+
+Series
+Series is a one-dimensional array like structure with homogeneous data. For example, the following series is a collection of integers 10, 23, 56, …
+
+10	23	56	17	52	61	73	90	26	72
+
+Key Points of Series
+- Homogeneous data
+- Size Immutable
+- Values of Data Mutable
+
+DataFrame
+- DataFrame is a two-dimensional array with heterogeneous data. For example,
+
+Name	Age	Gender	Rating
+Steve	32	Male	3.45
+Lia	28	Female	4.6
+Vin	45	Male	3.9
+Katie	38	Female	2.78
+
+Data Type of Columns
+
+Column	Type
+Name	String
+Age	Integer
+Gender	String
+Rating	Float
+
+Key Points of Data Frame
+- Heterogeneous data
+- Size Mutable
+- Data Mutable
+
+
+Graph:
+-----
+
+CSGraph stands for Compressed Sparse Graph, which focuses on Fast graph algorithms based on sparse matrix representations.
+
+What exactly is a sparse graph?
+A graph is just a collection of nodes, which have links between them. Graphs can represent nearly anything − social network connections, where each node is a person and is connected to acquaintances; images, where each node is a pixel and is connected to neighbouring pixels; points in a high-dimensional distribution, where each node is connected to its nearest neighbours and practically anything else you can imagine.
+
+One very efficient way to represent graph data is in a sparse matrix: let us call it G. The matrix G is of size N x N, and G[i, j] gives the value of the connection between node ‘i' and node ‘j’. A sparse graph contains mostly zeros − that is, most nodes have only a few connections. This property turns out to be true in most cases of interest.
+
+The creation of the sparse graph submodule was motivated by several algorithms used in scikit-learn that included the following −
+
+Isomap − A manifold learning algorithm, which requires finding the shortest paths in a graph.
+Hierarchical clustering − A clustering algorithm based on a minimum spanning tree.
+Spectral Decomposition − A projection algorithm based on sparse graph laplacians.
+
+As a concrete example, imagine that we would like to represent the following undirected graph −
+
+Undirected Graph
+This graph has three nodes, where node 0 and 1 are connected by an edge of weight 2, and nodes 0 and 2 are connected by an edge of weight 1. We can construct the dense, masked and sparse representations as shown in the following example, keeping in mind that an undirected graph is represented by a symmetric matrix.
+
+G_dense = np.array([ [0, 2, 1],
+                     [2, 0, 0],
+                     [1, 0, 0] ])
+                     
+G_masked = np.ma.masked_values(G_dense, 0)
+from scipy.sparse import csr_matrix
+
+G_sparse = csr_matrix(G_dense)
+print G_sparse.data
+
+array([2, 1, 2, 1])
+
+Undirected Graph Using Symmetric Matrix
+This is identical to the previous graph, except nodes 0 and 2 are connected by an edge of zero weight. In this case, the dense representation above leads to ambiguities − how can non-edges be represented, if zero is a meaningful value. In this case, either a masked or a sparse representation must be used to eliminate the ambiguity.
+
+Let us consider the following example.
+
+from scipy.sparse.csgraph import csgraph_from_dense
+G2_data = np.array
+([
+   [np.inf, 2, 0 ],
+   [2, np.inf, np.inf],
+   [0, np.inf, np.inf]
+])
+G2_sparse = csgraph_from_dense(G2_data, null_value=np.inf)
+print G2_sparse.data
+The above program will generate the following output.
+
+array([ 2., 0., 2., 0.])
+
+Geographical data:
+-----------------
+Many open source python libraries now have been created to represent the geographical maps. They are highly customizable and offer a varierty of maps depicting areas in different shapes and colours. One such package is Cartopy. You can download and install this package in your local environment from Cartopy. You can find numerous examples in its gallery.
+
+In the below example we show a portion of the world map showing parts of Asia and Australia. You can adjust the values of the parameters in the method set_extent to locate different areas of world map.
+
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs    
+
+fig = plt.figure(figsize=(15, 10))
+ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
+
+    # make the map global rather than have it zoom in to
+    # the extents of any plotted data
+
+ax.set_extent((60, 150, 55, -25))
+
+ax.stock_img()
+ax.coastlines()
+
+ax.tissot(facecolor='purple', alpha=0.8)
+
+plt.show()
+
+Time Series:
+------------
+
+Time series is a series of data points in which each data point is associated with a timestamp. A simple example is the price of a stock in the stock market at different points of time on a given day. Another example is the amount of rainfall in a region at different months of the year.
+
+In the below example we take the value of stock prices every day for a quarter for a particular stock symbol. We capture these values as a csv file and then organize them to a dataframe using pandas library. We then set the date field as index of the dataframe by recreating the additional Valuedate column as index and deleting the old valuedate column.
+
+Sample Data
+Below is the sample data for the price of the stock on different days of a given quarter. The data is saved in a file named as stock.csv
+
+ValueDate	Price
+01-01-2018,	1042.05
+02-01-2018,	1033.55
+03-01-2018,	1029.7
+04-01-2018,	1021.3
+05-01-2018,	1015.4
+...
+...
+...
+...
+23-03-2018,	1161.3
+26-03-2018,	1167.6
+27-03-2018,	1155.25
+28-03-2018,	1154
+
+Creating Time Series
+
+from datetime import datetime
+import pandas as pd
+import matplotlib.pyplot as plt
+
+data = pd.read_csv('path_to_file/stock.csv')
+df = pd.DataFrame(data, columns = ['ValueDate', 'Price'])
+
+# Set the Date as Index
+df['ValueDate'] = pd.to_datetime(df['ValueDate'])
+df.index = df['ValueDate']
+del df['ValueDate']
+
+
+df.plot(figsize=(15, 6))
+plt.show()
+
+3D Plot:
+-------
+
+Python is also capable of creating 3d charts. It involves adding a subplot to an existing two-dimensional plot and assigning the projection parameter as 3d.
+
+Drawing a 3D Plot
+3dPlot is drawn by mpl_toolkits.mplot3d to add a subplot to an existing 2d plot.
+
+from mpl_toolkits.mplot3d import axes3d
+import matplotlib.pyplot as plt
+
+
+chart = plt.figure()
+chart3d = chart.add_subplot(111, projection='3d')
+
+# Create some test data.
+X, Y, Z = axes3d.get_test_data(0.08)
+
+# Plot a wireframe.
+chart3d.plot_wireframe(X, Y, Z, color='r',rstride=15, cstride=10)
+
+plt.show()
+
+Bubble Chart:
+------------
+
+Bubble charts display data as a cluster of circles. The required data to create bubble chart needs to have the xy coordinates, size of the bubble and the colour of the bubbles. The colours can be supplied by the library itself.
+
+Drawing a Bubble Chart
+Bubble chart can be created using the DataFrame.plot.scatter() methods.
+
+import matplotlib.pyplot as plt
+import numpy as np
+ 
+# create data
+x = np.random.rand(40)
+y = np.random.rand(40)
+z = np.random.rand(40)
+colors = np.random.rand(40) 
+# use the scatter function
+plt.scatter(x, y, s=z*1000,c=colors)
+plt.show()
+
+Scatter Plot:
+------------
+
+Scatterplots show many points plotted in the Cartesian plane. Each point represents the values of two variables. One variable is chosen in the horizontal axis and another in the vertical axis.
+
+Scatter plot can be created using the DataFrame.plot.scatter() methods.
+
+import pandas as pd
+import numpy as np
+df = pd.DataFrame(np.random.rand(50, 4), columns=['a', 'b', 'c', 'd'])
+df.plot.scatter(x='a', y='b')
+
+A heatmap contains values representing various shades of the same colour for each value to be plotted. Usually the darker shades of the chart represent higher values than the lighter shade. For a very different value a completely different colour can also be used.
+
+The below example is a two-dimensional plot of values which are mapped to the indices and columns of the chart.
+
+from pandas import DataFrame
+import matplotlib.pyplot as plt
+
+data=[{2,3,4,1},{6,3,5,2},{6,3,5,4},{3,7,5,4},{2,8,1,5}]
+Index= ['I1', 'I2','I3','I4','I5']
+Cols = ['C1', 'C2', 'C3','C4']
+df = DataFrame(data, index=Index, columns=Cols)
+
+plt.pcolor(df)
+
+Boxplots are a measure of how well distributed the data in a data set is. It divides the data set into three quartiles. This graph represents the minimum, maximum, median, first quartile and third quartile in the data set. It is also useful in comparing the distribution of data across data sets by drawing boxplots for each of them.
+
+Drawing a Box Plot
+Boxplot can be drawn calling Series.box.plot() and DataFrame.box.plot(), or DataFrame.boxplot() to visualize the distribution of values within each column.
+
+For instance, here is a boxplot representing five trials of 10 observations of a uniform random variable on [0,1).
+
+import pandas as pd
+import numpy as np
+df = pd.DataFrame(np.random.rand(10, 5), columns=['A', 'B', 'C', 'D', 'E'])
+df.plot.box(grid='True')
+
+The charts created in python can have further styling by using some appropriate methods from the libraries used for charting. In this lesson we will see the implementation of Annotation, legends and chart background. We will continue to use the code from the last chapter and modify it to add these styles to the chart.
+
+Adding Annotations
+Many times, we need to annotate the chart by highlighting the specific locations of the chart. In the below example we indicate the sharp change in values in the chart by adding annotations at those points.
+
+import numpy as np 
+from matplotlib import pyplot as plt 
+
+x = np.arange(0,10) 
+y = x ^ 2 
+z = x ^ 3
+t = x ^ 4 
+# Labeling the Axes and Title
+plt.title("Graph Drawing") 
+plt.xlabel("Time") 
+plt.ylabel("Distance") 
+plt.plot(x,y)
+
+#Annotate
+plt.annotate(xy=[2,1], s='Second Entry') 
+plt.annotate(xy=[4,6], s='Third Entry')
+
+Python has excellent libraries for data visualization. A combination of Pandas, numpy and matplotlib can help in creating in nearly all types of visualizations charts. In this chapter we will get started with looking at some simple chart and the various properties of the chart.
+
+Creating a Chart
+We use numpy library to create the required numbers to be mapped for creating the chart and the pyplot method in matplotlib to draws the actual chart.
+
+import numpy as np 
+import matplotlib.pyplot as plt 
+
+x = np.arange(0,10) 
+y = x ^ 2 
+#Simple Plot
+plt.plot(x,y)
+Its output is as follows −
+
+chartprop1.png
+Labling the Axes
+We can apply labels to the axes as well as a title for the chart using appropriate methods from the library as shown below.
+
+import numpy as np 
+import matplotlib.pyplot as plt 
+
+x = np.arange(0,10) 
+y = x ^ 2 
+#Labeling the Axes and Title
+plt.title("Graph Drawing") 
+plt.xlabel("Time") 
+plt.ylabel("Distance") 
+#Simple Plot
+plt.plot(x,y)
+Its output is as follows −
+
+chartprop2.png
+Formatting Line type and Colour
+The style as well as colour for the line in the chart can be specified using appropriate methods from the library as shown below.
+
+import numpy as np 
+import matplotlib.pyplot as plt 
+
+x = np.arange(0,10) 
+y = x ^ 2 
+#Labeling the Axes and Title
+plt.title("Graph Drawing") 
+plt.xlabel("Time") 
+plt.ylabel("Distance") 
+
+# Formatting the line colors
+plt.plot(x,y,'r')
+
+# Formatting the line type  
+plt.plot(x,y,'>') 
+Its output is as follows −
+
+chartprop3.png
+Saving the Chart File
+The chart can be saved in different image file formats using appropriate methods from the library as shown below.
+
+import numpy as np 
+import matplotlib.pyplot as plt 
+
+x = np.arange(0,10) 
+y = x ^ 2 
+#Labeling the Axes and Title
+plt.title("Graph Drawing") 
+plt.xlabel("Time") 
+plt.ylabel("Distance") 
+
+# Formatting the line colors
+plt.plot(x,y,'r')
+
+# Formatting the line type  
+plt.plot(x,y,'>') 
+
+# save in pdf formats
+plt.savefig('timevsdist.pdf', format='pdf')
+The above code creates the pdf file in the default path of the python environment.
+
