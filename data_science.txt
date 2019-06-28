@@ -1999,3 +1999,6 @@ plt.plot(x,y,'>')
 plt.savefig('timevsdist.pdf', format='pdf')
 The above code creates the pdf file in the default path of the python environment.
 
+
+Ref: https://www.tutorialspoint.com/python/python_data_science_environment_setup.htm
+
