@@ -1939,7 +1939,6 @@ y = x ^ 2
 plt.plot(x,y)
 Its output is as follows −
 
-chartprop1.png
 Labling the Axes
 We can apply labels to the axes as well as a title for the chart using appropriate methods from the library as shown below.
 
@@ -1956,7 +1955,6 @@ plt.ylabel("Distance")
 plt.plot(x,y)
 Its output is as follows −
 
-chartprop2.png
 Formatting Line type and Colour
 The style as well as colour for the line in the chart can be specified using appropriate methods from the library as shown below.
 
@@ -1977,7 +1975,6 @@ plt.plot(x,y,'r')
 plt.plot(x,y,'>') 
 Its output is as follows −
 
-chartprop3.png
 Saving the Chart File
 The chart can be saved in different image file formats using appropriate methods from the library as shown below.
 
