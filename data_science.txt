@@ -1889,9 +1889,10 @@ df = DataFrame(data, index=Index, columns=Cols)
 
 plt.pcolor(df)
 
+Boxplot:
+-------
 Boxplots are a measure of how well distributed the data in a data set is. It divides the data set into three quartiles. This graph represents the minimum, maximum, median, first quartile and third quartile in the data set. It is also useful in comparing the distribution of data across data sets by drawing boxplots for each of them.
 
-Drawing a Box Plot
 Boxplot can be drawn calling Series.box.plot() and DataFrame.box.plot(), or DataFrame.boxplot() to visualize the distribution of values within each column.
 
 For instance, here is a boxplot representing five trials of 10 observations of a uniform random variable on [0,1).
@@ -1901,9 +1902,10 @@ import numpy as np
 df = pd.DataFrame(np.random.rand(10, 5), columns=['A', 'B', 'C', 'D', 'E'])
 df.plot.box(grid='True')
 
+Charts:
+------
 The charts created in python can have further styling by using some appropriate methods from the libraries used for charting. In this lesson we will see the implementation of Annotation, legends and chart background. We will continue to use the code from the last chapter and modify it to add these styles to the chart.
 
-Adding Annotations
 Many times, we need to annotate the chart by highlighting the specific locations of the chart. In the below example we indicate the sharp change in values in the chart by adding annotations at those points.
 
 import numpy as np 
