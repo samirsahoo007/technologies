@@ -145,41 +145,42 @@ Example
 -------
 
 ng-app Sets the AngularJS section.
+ng-controller Attaches a controller class to the view.
 ng-init Sets a default variable value.
 ng-bind Alternative to {{ }} template.
 ng-bind-template Binds multiple expressions to the view.
-ng-non-bindable States that the data isn't bindable.
-ng-bind-html Binds inner HTML property of an HTML element.
-ng-change Evaluates specified expression when the user changes the input.
-ng-checked Sets the checkbox.
-ng-class Sets the css class dynamically.
-ng-cloak Prevents displaying the content until AngularJS has taken control.
 ng-click Executes a method or expression when element is clicked.
-ng-controller Attaches a controller class to the view.
-ng-disabled Controls the form element's disabled property
-ng-form Sets a form
-ng-href Dynamically bind AngularJS variables to the href attribute.
-ng-include Used to fetch, compile and include an external HTML fragment to your page.
-ng-if Remove or recreates an element in the DOM depending on an expression
-ng-switch Conditionally switch control based on matching expression.
-ng-model Binds an input,select, textarea etc elements with model property.
-ng-readonly Used to set readonly attribute to an element.
 ng-repeat Used to loop through each item in a collection to create a new template.
+ng-model Binds an input,select, textarea etc elements with model property.
 ng-selected Used to set selected option in element.
+ng-checked Sets the checkbox.
+ng-href Dynamically bind AngularJS variables to the href attribute.
+ng-form Sets a form
+ng-disabled Controls the form element's disabled property
 ng-show/ng-hide Show/Hide elements based on an expression.
-ng-src Dynamically bind AngularJS variables to the src attribute.
-ng-submit Bind angular expressions to onsubmit events.
+ng-switch Conditionally switch control based on matching expression.
+ng-readonly Used to set readonly attribute to an element.
+ng-cut Used to specify custom behavior on cut event.
+ng-copy Used to specify custom behavior on copy event.
+ng-paste Used to specify custom behavior on paste event.
+ng-if Remove or recreates an element in the DOM depending on an expression
 ng-value Bind angular expressions to the value of .
 ng-required Bind angular expressions to onsubmit events.
+ng-submit Bind angular expressions to onsubmit events.
+ng-change Evaluates specified expression when the user changes the input.
+ng-list Used to convert string into list based on specified delimiter.
+
+ng-non-bindable States that the data isn't bindable.
+ng-bind-html Binds inner HTML property of an HTML element.
+ng-class Sets the css class dynamically.
+ng-cloak Prevents displaying the content until AngularJS has taken control.
+ng-include Used to fetch, compile and include an external HTML fragment to your page.
+ng-src Dynamically bind AngularJS variables to the src attribute.
 ng-style Sets CSS style on an HTML element.
 ng-pattern Adds the pattern validator to ngModel.
 ng-maxlength Adds the maxlength validator to ngModel.
 ng-minlength Adds the minlength validator to ngModel.
 ng-classeven Works in conjunction with ngRepeat and take effect only on odd (even) rows.
 ng-classodd Works in conjunction with ngRepeat and take effect only on odd (even) rows.
-ng-cut Used to specify custom behavior on cut event.
-ng-copy Used to specify custom behavior on copy event.
-ng-paste Used to specify custom behavior on paste event.
 ng-options Used to dynamically generate a list of elements for the element.
-ng-list Used to convert string into list based on specified delimiter.
 ng-open Used to set the open attribute on the element, if the expression inside ngOpen is truthy.
