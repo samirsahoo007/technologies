@@ -50,14 +50,17 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 project/settings.py
 
 - By default, the configuration uses SQLite. We can also use 'django.db.backends.mysql', or 'django.db.backends.oracle' for mysql and oracle.
+```python
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'mydatabase',
     }
 }
+```
 
 e.g.
+```python
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -68,6 +71,7 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+```
 
 ## :page_with_curl: Creating an app
 - Navigate to the outer project folder  `$ cd <outer_project_folder>`
