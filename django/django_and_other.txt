@@ -1,3 +1,259 @@
+How to Consume REST APIs with Django & Python Requests
+
+You will need an Embedly API key in order to complete this tutorial. Go to http://embed.ly and sign up for an account. Then access their API dashboard in order to locate your key.
+
+1. Setup an Installation of Django
+
+$ virtualenv venv --no-site-packages
+$ source venv/bin/activate
+
+$ pip install Django==1.7.1
+$ pip install requests
+$ pip install djangorestframework
+
+$ django-admin startproject restembed .
+$ cd restembed
+$ django-admin startapp core
+
+With those steps completed you should have a working version of Django installed. The next step is to open the settings.py file and make a few additions.
+
+Open restembed/settings.py. Locate the INSTALLED_APPS value and update it as follows. Then add the TEMPLATE_DIRS value after that.
+
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'restembed.core',
+    'rest_framework',
+)
+
+# Template directory setting
+TEMPLATE_DIRS = (
+    os.path.join(os.path.dirname(__file__), 'templates'),
+)
+
+EMBEDLY_KEY = '<your key>'
+Now we can create and commit the database migrations. Switch back to the command prompt or terminal. Make sure you're in the restembed directory.
+
+# commit the migrations
+$ python manage.py migrate
+Operations to perform:
+  Synchronize unmigrated apps: rest_framework
+  Apply all migrations: admin, contenttypes, auth, sessions
+Synchronizing apps without migrations:
+  Creating tables...
+  Installing custom SQL...
+  Installing indexes...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying sessions.0001_initial... OK
+
+# create a super user
+$ python manage.py createsuperuser
+Username (leave blank to use 'tobias'):    
+Email address:       
+Password: 
+Password (again): 
+Superuser created successfully.
+
+2. Create Model
+At the core of the application is a simple model. It is based on the data set returned from the Embed.ly web service.
+
+Open restembed/core/models.py and update it as follows.
+
+from django.db import models
+
+class SavedEmbeds(models.Model):
+    type = models.CharField(max_length=15)
+    provider_url = models.URLField()
+    provider_name = models.CharField(max_length=100)
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    html = models.TextField()
+    width = models.IntegerField()
+    height = models.IntegerField()
+    thumbnail_url = models.URLField()
+    thumbnail_width = models.IntegerField()
+    thumbnail_height = models.IntegerField()
+    author_url = models.URLField()
+    author_name = models.CharField(max_length=100)
+    version = models.DecimalField(max_digits=4, decimal_places=2)
+
+With the model created, go back to your terminal to create and commit a migration.
+
+# create the migration
+$ python manage.py makemigrations
+Migrations for 'core':
+  0001_initial.py:
+    - Create model SavedEmbeds
+
+# commit the migration
+$ python manage.py migrate
+Operations to perform:
+  Synchronize unmigrated apps: rest_framework
+  Apply all migrations: admin, core, contenttypes, auth, sessions
+Synchronizing apps without migrations:
+  Creating tables...
+  Installing custom SQL...
+  Installing indexes...
+Running migrations:
+  Applying core.0001_initial... OK
+
+3. Create the DRF Serializer
+With the model created we can now create a DRF Serializer. DRF defines serializers as follows:
+
+"Serializers allow complex data such as querysets and model instances to be converted to native Python datatypes that can then be easily rendered into JSON, XML or other content types. Serializers also provide deserialization, allowing parsed data to be converted back into complex types, after first validating the incoming data."
+
+So what is this serializer used for? If you recall, the application will make a GET request to the Embed.ly web service. Embed.ly will return a JSON response. We need to save that response to the database. There are a number of ways we could do this, however, DRF's serializers offer us a mechanism that can perform this action with minimal effort.
+
+In the restembed/core/ directory create a file named serializer.py. Open it and add the following code. This will create a serializer based on the model created in the previous step.
+
+from rest_framework import serializers
+from .models import SavedEmbeds
+
+class EmbedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavedEmbeds
+The above code creates a serializer based on the project's main model.
+
+4. Create the View
+Now we can create the view that will process the incoming requests. Open restembed/core/views.py and add the following code.
+
+from django.shortcuts import render
+from django.conf import settings
+
+import requests
+
+from .forms import SubmitEmbed
+from .serializer import EmbedSerializer
+
+
+def save_embed(request):
+
+    if request.method == "POST":
+        form = SubmitEmbed(request.POST)
+        if form.is_valid():
+            url = form.cleaned_data['url']
+            r = requests.get('http://api.embed.ly/1/oembed?key=' + settings.EMBEDLY_KEY + '&url=' + url)
+            json = r.json()
+            serializer = EmbedSerializer(data=json)
+            if serializer.is_valid():
+                embed = serializer.save()
+                return render(request, 'embeds.html', {'embed': embed})
+    else:
+        form = SubmitEmbed()
+
+    return render(request, 'index.html', {'form': form})
+
+At the start of the view, we checks to see if the request is a POST operation. If it is, we create an object using the URL form, passing in the data from request.POST. We then run the .is_valid() test on it. If the form is valid then we begin the process of fetching the JSON response and saving it to the database.
+
+The first step in this process is to retrieve the submitted URL from the .cleaned_data[‘’] dict. The second step is to use Python Requests. Here we set the value of r to the response of requests.get(‘http://...’). This object has a method .json(), which when run it will show the output of the response in the JSON format. We set the json variable to that value. Now we can pass that variable to the serializer we created in the previous step.
+
+Lastly, we run an if statement to check of the serializer .is_valid(). If it is we proceed to save the record to the database with emeb = serializer.save(). Once that is complete we return a template showing the embed page.
+
+5. Create a Form
+We'll need a simple form to collect the URL for the end user. This form will have one field. That field will allow a user to enter a URL that they want saved to the database.
+
+Open restembed/core/forms.py and add the following code.
+
+from django import forms
+
+class SubmitEmbed(forms.Form):
+    url = forms.URLField()
+
+6. Create the URLs
+We'll need one additional URL configuration for this tutorial. This will allow users to open the root of the domain and see the form that will allow them to submit a URL.
+
+Open restembed/urls.py and add the following line:
+
+from django.conf.urls import patterns, include, url
+from django.contrib import admin
+
+from core.views import save_embed
+
+urlpatterns = patterns('',
+    # Examples:
+    # url(r'^$', 'core.views.home', name='home'),
+    # url(r'^blog/', include('blog.urls')),
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^', save_embed),
+)
+
+7. Create the Templates
+We'll need three templates. Go to the restembed/ directory and create a folder there named templates.
+
+Open the restembed/templates/ folder and create the following three template files.
+
+Create templates/base.html
+
+<html>
+    <body>
+        <div>
+            {% block content %}{% endblock %}
+        </div>
+    </body>
+</html>
+Create templates/index.html
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <form action="/" method="POST">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Save"/>
+    </form>
+
+
+{% endblock %}
+Create templates/embeds.html
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <ul>
+        <li>{{ embed.title }}</li>
+        <li>{{ embed.description }}</li>
+    </ul>
+    <img src="{{ embed.thumbnail_url }}" />
+
+{% endblock %}
+
+8. Setup Admin
+In order to ensure the code is working properly, you can activate the admin console to look at records. To do this, open restembed/core/admin.py and edit it as follows:
+
+from django.contrib import admin
+
+from .models import SavedEmbeds
+
+admin.site.register(SavedEmbeds)
+
+9. Test the Application
+The last step is to test the application. Follow the steps below to start the development server.
+
+# make sure you're in the `restembed` directory
+$ pwd
+/.../restest
+
+# start the development server
+$ python manage.py runserver
+
+
+
+
 https://www.mytectra.com/python-django-training-in-bangalore.html
 
 Q2).Mention what are the features available in Django web framework?
