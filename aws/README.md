@@ -11,11 +11,13 @@ boto3
 
 ## What are they?
 
-	- An EC2(Elastic Computing Cloud) instance is like a remote computer running Windows or Linux and on which 
-	you can install whatever software you want, including a Web server running PHP code and a database server.
+	- An EC2(Elastic Computing Cloud) instance is like a remote computer running Windows or Linux and 
+	on which you can install whatever software you want, including a Web server running PHP code and 
+	a database server.
 
-	- Amazon S3(Simple Storage Service) is just a storage service, typically used to store large binary files.
-	It's an object storage service that offers scalability, data availability, security, and performance.
+	- Amazon S3(Simple Storage Service) is just a storage service, typically used to store large binary 
+	files. It's an object storage service that offers scalability, data availability, security, and 
+	performance.
 
 ## Can s3 be used with ec2 instances?
 
