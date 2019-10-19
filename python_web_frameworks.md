@@ -173,6 +173,26 @@ Whenever that data isn't actively in the hands of the main Python program, that 
 
 This is kind of like my asynchronous chores above. When my attention is fully necessary for prepping food, that's all I'm doing. However, when I can get the stove to do work for me by cooking my food, and the dishwasher to wash my dishes, and the washing machine and dryer to handle my laundry, my attention is freed to work on other things. When I am alerted that one of my long-running tasks is finished and ready to be handled once again, if my attention is free, I can pick up the results of that task and do whatever needs to be done with it next.
 
+## "Hello, world" example web app for Tornado:
+```
+import tornado.ioloop
+import tornado.web
+
+class MainHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.write("Hello, world")
+
+def make_app():
+    return tornado.web.Application([
+        (r"/", MainHandler),
+    ])
+
+if __name__ == "__main__":
+    app = make_app()
+    app.listen(8888)
+    tornado.ioloop.IOLoop.current().start()
+```
+
 # Thoughts about using the right tool for the right job
 
 What we're starting to see as we continue to move through these web frameworks is that they can all effectively handle the same problems. For something like this To-Do List, any framework can do the job. However, some web frameworks are more appropriate for certain jobs than other ones, depending on what "more appropriate" means for you and your needs.
