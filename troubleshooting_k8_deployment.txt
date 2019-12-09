@@ -1,0 +1,90 @@
+Few General Commands:
+
+# kubectl config get-contexts				# Get the list of available clusters and get cluster-info:
+
+# kubectl -n <namespace> --context="<context>" get pods	# To get the Pod list:
+
+if you like to see configuration information about the container(s) and Pod (labels, resource requirements, etc.),as well as status information about the container(s)
+and Pod (state, readiness, restart count, events, etc.).
+# kubectl -n <namespace> --context="<context>" describe pod  <pod-name>
+
+# kubectl -n <namespace> --context="<context>" get pods -o wide			# To get the Pod wide list with K8sWorker node information :
+
+# kubectl -n <namespace> --context="<context>" exec -it <pod-name> bash		# To access/login the Pod :
+
+# kubectl -n <namespace> --context="<context>" logs -c init <pod-name>		# Checking the init logs:
+
+Checking the service logs:
+# kubectl -n <namespace> --context="<context>" logs -c <service-name>  <pod-name>
+
+List all services:
+# kubectl -n <namespace> --context="<context>" get services
+
+Check events for the cluster namespace or a pod
+# kubectl -n <namespace> --context="<context>" get events -o wide
+
+Get replicates:
+# kubectl -n <namespace> --context="<context>" get replicasets
+
+Get ingress info:
+# kubectl -n <namespace> --context="<context>" get ingress
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Kubernetes Cluster Access Setup:
+On Your MAC:
+Install with Homebrew on macOS - https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-with-homebrew-on-macos
+The bash autocompletion will need bash 4.0 or higher. Here's instructions for upgrading bash - https://itnext.io/upgrading-bash-on-macos-7138bd1066ba
+
+Install Kubernetes CLI 'kubectl':
+# brew install kubernetes-cli
+# kubectl version
+
+Setting up Kube config:
+Login to https://xyz.com/main/controltower/keymaker
+
+Click the "Generate" button to get your kubeconfig and auth cert.
+After downloading the generated file, copy it to ~/.kube directory
+# cp ~/Downloads/config_20191004T1009 ~/.kube/config
+# cd .kube/
+# pwd
+/Users/ssahoo/.kube
+# ls -al config
+-rw-r--r--@ 1 ssahoo staff 382170 Oct 4 12:54 config
+Validate Config:
+Run the below commands to see available clusters and get cluster-info:
+# kubectl config get-contexts
+CURRENT   NAME               CLUSTER            AUTHINFO                         NAMESPACE
+*         xxxx-horse        xxxx-dragon        ssahoo@et02-dragon        
+          xxxx-area51        xxxx-area51        ssahoo@hk02-area51        
+          yyyy-horse	     yyyy-horse     ssahoo@yyyy-horse 
+          yyyy-lion     	yyyy-lion     ssahoo@yyyy-lion     
+          yyyy-tiger	   yyyy-tiger   	ssahoo@yyyy-tiger
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Kubernetes Cluster Access issue:
+Error:
+error: You must be logged in to the server (Unauthorized)
+Resolution:
+Your Kubeconfig key is expired, Now we have to again download it from Control Tower:
+Login to https://xyz.com/main/controltower/keymaker
+Click the "Generate" button to get your kubeconfig and auth cert.
+After downloading the generated file, copy it to ~/.kube directory
+# cp ~/Downloads/config_20191004T1009 ~/.kube/config
+# cd .kube/
+# pwd
+/Users/ssahoo/.kube
+# ls -al config
+-rw-r--r--@ 1 ssahoo staff 382179 Dec 4 21:45 config
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Quick health check of pods
+"Kubectl get pods" command output can give you a quick indication of any problem with pods. 
+If you look at the below screenshot, under column "READY",  you see 3/3 for each pod, which indicates all 3 containers in the POD are READY. 
+Here are few signs of  problems:
+Not all containers are ready ex: 2/3. Here's a few possible reasons:
+ an app hiding itself internally
+or an ongoing deployment 
+RESTARTS count is  > 0.  This indicates, for whatever reason, we have a POD restart.
+# kubectl -n core-prod --context="ma11-bistunium" get pods | grep -E 'NAME|gsp63'
+NAME                                            READY   STATUS    RESTARTS   AGE
+xxxx-yy22-mm01-12345677a-343243                 3/3     Running   0          4h12m
+xxxx-yy22-mm01-12345677a-56gdrtr                3/3     Running   0          4h12m
+xxxx-yy22-mm02-987654323g-sdfdsf43               3/3     Running   0          130m
+xxxx-yy22-mm02-987654323g-4545fds                3/3     Running   0          130m
