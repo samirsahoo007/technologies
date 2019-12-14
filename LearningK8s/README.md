@@ -57,7 +57,6 @@ Kubernetes follows a client-server architecture. It’s possible to have a multi
 
 ![alt text](https://github.com/samirsahoo007/technologies/blob/master/LearningK8s/images/kubertes.png)
 
-![alt text](https://github.com/samirsahoo007/technologies/blob/master/LearningK8s/images/kubernetes-architecture.png)
 
 ### Master Components
 
