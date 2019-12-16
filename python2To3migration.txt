@@ -1,0 +1,60 @@
+Python3 for mac-os
+
+Download version Python 3.6.3 from https://www.python.org/downloads/mac-osx/ 5 and install
+
+Once you install python3 check for the python3 path
+
+which python3
+
+/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
+
+which pip3
+
+/Library/Frameworks/Python.framework/Versions/3.6/bin/pip3
+
+Upgrade your pip3 if required. (optional)
+pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pip setuptools
+
+Now you can start installing any packages you need by typing
+pip3 install
+
+5. Pycharm setup:
+
+Click on Preferences—>Project—>Project Interpreter—>select project——>select your python version from dropdow n. (you already should have the python3 path)
+
+To convert a code base from python2 to python3 you can use a tool called 2to3 (default in OSX 10.14.6 and above)
+which 2to3
+
+/Library/Frameworks/Python.framework/Versions/3.6/bin/2to3
+
+The above tool will do basic conversion. any complex packages/dependancies needs to be resolved manually
+
+Python3 for Linux (slaves)
+
+Download version Python 3.6.3 artifacts.apple.com
+curl -LO https://artifacts.apple.com/geoyumrepo-cache/devel7/python3.6-stack-3.6.3-3.2.gf423950.el7.x86_64.rpm
+
+Once you download do rmp install:
+rpm -i python3.6-stack-3.6.3-3.2.gf423950.el7.x86_64.rpm
+
+Python3 gets installed at : /opt/python-3.6/bin/python3
+
+set that path in your .bash_profile:
+
+export PATH=$PATH:/opt/python-3.6/bin
+
+Source your .bash_profile then do
+which python3
+
+/opt/python-3.6/bin/python3
+
+which pip3
+
+/opt/python-3.6/bin/pip3
+
+Install xyz company ssl certificates
+pip3 install -i https://pypi.xyz.com/simple 1 xyz-certifi
+
+Now you can start installing any packages you need by typing
+pip3 install
+
