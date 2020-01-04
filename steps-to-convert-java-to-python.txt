@@ -1,0 +1,12 @@
+Que: How to convert java to python?
+Ans:
+
+The following steps work with pytho2.7
+
+1. Download and install java2python (https://pypi.org/project/java2python/)
+2. Install https://www.antlr3.org/download/Python/antlr_python_runtime-3.1.3.tar.gz(Make sure to install 3.1.3; other version throws error sometimes) from https://www.antlr3.org/download/Python/
+3. Make sure that the java loop statements are having closed braces({...}); otherwise it'll throw error
+
+Command:
+j2py my_input_file.java output_file.py
+
