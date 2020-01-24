@@ -3,7 +3,8 @@ COMMONLY USED COMMANDS:
 docker login docker.apple.com
 docker pull docker.apple.com/neutronbot/reactor-x:version-3.2 (FIRST TIME ONLY)
 docker images											  # Get image id
-docker run -v /Users/samirsahoo/Projects/:/opt/data -v /tmp/:/tmp -it 535022205989 /bin/bash      # Mounts HOST directory(/Users/samirsahoo/Projects/:/opt/data) to IMAGE(/opt/data) directory and starts CONTAINER 																# and falls to bash shell of the contailer
+docker run -v /Users/samirsahoo/Projects/:/opt/data -v /tmp/:/tmp -it 535022205989 /bin/bash      # Where 535022205989 is Image id
+												  Mounts HOST directory(/Users/samirsahoo/Projects/:/opt/data) to IMAGE(/opt/data) directory and starts CONTAINER 																# and falls to bash shell of the contailer
 												  # docker run -it <image_id> /bin/bash: Run this command if you do not want to mount anything
 												  # Run the following command before running nosetests
 
@@ -15,7 +16,7 @@ OR
 
 docker run -d <image_id>								# Run Docker image
 docker ps										# Check the container(running image)
-docker exec -it f151f4ab7085 /bin/bash							# Invoke the shell of container	
+docker exec -it f151f4ab7085 /bin/bash							# Where f151f4ab7085 is container id; Invoke the shell of container	
 
 HOW TO ATTACH TO AN EXISTING CONTAINER:
 =======================================
