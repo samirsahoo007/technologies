@@ -1,3 +1,38 @@
+# How to create a microservice:
+
+1. Create a virtual environment and activate(e.g. source /path/to/my_venv/bin/activate)
+2. 
+	(my_venv) $ pip install flask
+	(my_venv) $ pip freeze > requirements.txt # We are using the freeze command to save all our dependencies to the requirements.txt file. This allows you to easily reinstall your service dependencies for development and production
+
+3. Create the following file
+-------- app.py -----------
+from flask import Flask
+app = Flask(__name__)
+@app.route("/")
+def hello():
+   return "Hello!"
+
+4. $ flask run
+5. Go to http://127.0.0.1:5000/
+
+# How to integrate it with Docker and create an image?
+6. cd my-flask-microservice						# Go into your project directory in this case 
+7. Create the following Dockerfile:
+
+FROM python:2.7-slim							# Use an official Python runtime as a parent image
+WORKDIR /app								# Set the working directory to /app
+ADD . /app								# Copy the current directory contents into the container at /app
+RUN pip install --trusted-host pypi.python.org -r requirements.txt	# Install any needed packages specified in requirements.txt
+EXPOSE 80								# Make port 80 available to the world outside this container
+ENV NAME World								# Define environment variable
+CMD ["python", "app.py"]						# Run app.py when the container launches
+
+8. docker build . -t friendlyhello					# This creates a Docker image, which we’re going to tag using -t so it has a friendly name.
+
+# That's it; if you want to run the image
+9. docker run -v /Users/samir/Projectss:/opt/data -v /tmp:/tmp -it friendlyhello /bin/bash -p 4000:80	# Run it or create an interactive container
+
 # Flask Cheat Sheet
 A cheat-sheet for creating web apps with the Flask framework using the Python language.
 
