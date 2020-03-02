@@ -31,3 +31,10 @@ pip install -i https://pypi.abc.com/simple mymodule
 * Where "abc" could be the organisation name
 
 [About Virtualenv](https://virtualenv.pypa.io/en/stable/)
+
+###### To setup a new virtual enviornment with all the modules installed in one of the existing virtual environment #####
+
+$ pip freeze > /tmp/requirements.txt	# i. Activate the existing virtual environment and ii. fire this "pip freeze..." command and then iii. deactivate
+$ pip install -r /tmp/requirements.txt   # i. Activate the new virtual environment and ii. fire this "pip install ..." command
+
+
