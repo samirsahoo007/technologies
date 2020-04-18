@@ -1,5 +1,4 @@
 # :scroll: Django Cheat Sheet
-A cheat-sheet for creating web apps with the Django framework using the Python language. Most of the summaries and examples are based off [the official documentation](https://docs.djangoproject.com/en/2.0/) for Django v2.0.
 
 ## Sections
 - :snake: [Initializing pipenv](#snake-initializing-pipenv-optional) (optional)
@@ -13,43 +12,32 @@ A cheat-sheet for creating web apps with the Django framework using the Python l
 
 
 ## :snake: Initializing pipenv (optional)
-- Make main folder with `$ mkdir <folder>` and navigate to it with `$ cd <folder>`
-- Initialize pipenv with `$ pipenv install`
-- Enter pipenv shell with `$ pipenv shell`
-- Install django with `$ pipenv install django`
-- Install other package dependencies with `$ pipenv install <package_name>`
+- `pip install virtualenv`
+- `virtualenv -p python2.7 <desired-path>`
+- `source <desired-path>/bin/activate`
+- `pip3 install django==2.0.3`
 
 ## :blue_book: Creating a project
-- Navigate to main folder with `$ cd <folder>`
-- Create project with `$ django-admin startproject <project_name>`
+- `django-admin startproject <project_name>`
 
 The project directory should look like this:
 ```
-project/
+<project_name>/
     manage.py
-    project/
+    <project_name>/
         __init__.py
         settings.py
-        urls.py
-        wsgi.py
+        urls.py							# In this file, we can mention the URLs and corresponding actions to perform the task and display the view.
+        wsgi.py							# It is an entry-point for WSGI-compatible web servers to serve Django project.
 ```
-- Run the development server with `$ python manage.py runserver (or python manage.py runserver 8080)` within the project directory
-- If you want your `SECRET_KEY` to be more secure, you can set it to reference an environment variable
-- In the `settings.py` file within the project directory change the `SECRET_KEY` line to the following:
-```python
-SECRET_KEY = os.environ.get('SECRET_KEY')
-```
-- To quickly generate a random hex for your secret key:
-```python
->>> import secrets
->>> secrets.token_hex()
-```
-- You can set this environment variable in your shell with `export SECRET_KEY=<secret_key>`
+- `$ python manage.py runserver` 				(or python manage.py runserver 8080)
+
+- The admin app (django.contrib.admin) is enabled by default and already added into INSTALLED_APPS section of the settings file => localhost:8000/admin/
 
 ## :page_with_curl: Database setup
 project/settings.py
 
-- By default, the configuration uses SQLite. We can also use 'django.db.backends.mysql', or 'django.db.backends.oracle' for mysql and oracle.
+- By default, the configuration uses SQLite. We can also use 'django.db.backends.mysql', or 'django.db.backends.oracle' for mysql and oracle in settings.py.
 ```python
 DATABASES = {
     'default': {
@@ -73,9 +61,10 @@ DATABASES = {
 }
 ```
 
+- `python manage.py migrate`					# This command will create tables for admin, auth, contenttypes, and sessions.
+
 ## :page_with_curl: Creating an app
-- Navigate to the outer project folder  `$ cd <outer_project_folder>`
-- Create app with  `$ python manage.py startapp <app_name>`
+- `$ python manage.py startapp <app_name>`
 - Inside the `app` folder, create a file called `urls.py`
 
 The project directory should now look like this:
@@ -89,7 +78,7 @@ project/
         urls.py
         wsgi.py
     app/
-        migrations/
+        migrations/						# migrations folder to store migration files and model to write business logic.
             __init__.py
         __init__.py
         admin.py
@@ -99,17 +88,14 @@ project/
         urls.py
         views.py
 ```
+
+## Register / Use Model
 - To include this app in your project, add your app to the project's `settings.py` file by adding its name to the `INSTALLED_APPS` list:
 ```python
 INSTALLED_APPS = [
 	'app',
 	# ...
 ]
-```
-- To migrate changes over:
-```bash
-$ python manage.py migrate
-```
 
 - By default
 INSTALLED_APPS = [
@@ -120,6 +106,38 @@ INSTALLED_APPS = [
     'django.contrib.messages',			# A messaging framework.
     'django.contrib.staticfiles',		# A framework for managing static files.
 ]
+
+```
+- To migrate changes over:
+```bash
+$ python manage.py migrate
+```
+## :ticket: Migrating Model
+
+Each Django's model is mapped to a table in the database. So after creating a model, we need to migrate it. Let's see an example.
+
+Suppose, we have a model class Employee in the models.py file that contains the following code.
+
+```python
+from django.db import models  
+class Employee(models.Model):  
+    first_name = models.CharField(max_length=30)  
+    last_name = models.CharField(max_length=30)  
+    class Meta:  
+        db_table = "employee"  
+```
+```bash
+$ python3 manage.py makemigrations 				# Django first creates a migration file that contains the details of table structure. 
+$ python3 manage.py migrate					# Now, migrate to reflect the changes into the database.
+```
+
+This model will create a table into the database that looks like below.
+CREATE TABLE appname_employee (  
+    "id" INT NOT NULL PRIMARY KEY,  
+    "first_name" varchar(30) NOT NULL,  
+    "last_name" varchar(30) NOT NULL  
+);  
+
 
 ## :tv: Creating a view
 - Within the app directory, open `views.py` and add the following:
@@ -156,6 +174,39 @@ urlpatterns = [
 ```
 - Remember: there are multiple files named `urls.py`
 - The `urls.py` file within app directories are organized by the `urls.py` found in the project folder.
+
+## :art: Django Static Files Handling
+In a web application, apart from business logic and data handling, we also need to handle and manage static resources like CSS, JavaScript, images etc.
+
+It is important to manage these resources so that it does not affect our application performance.
+
+1. Include the django.contrib.staticfiles in INSTALLED_APPS.
+INSTALLED_APPS = [  
+    'django.contrib.admin',  
+    'django.contrib.auth',  
+    'django.contrib.contenttypes',  
+    'django.contrib.sessions',  
+    'django.contrib.messages',  
+    'django.contrib.staticfiles',  
+    'myapp'  
+]  
+
+2. STATIC_URL = '/static/'  					# Define STATIC_URL in settings.py
+3. {% load static %}   						# Load static files in the templates
+4. Store all images, JavaScript, CSS files in a static folder of the application. First create a directory static, store the files inside it.
+
+e.g.
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <title>Index</title>  
+     {% load static %}  
+    <script src="{% static '/js/script.js' %}" type="text/javascript"></script>  
+</head>  
+<body>  
+</body>  
+</html>  
 
 ## :art: Creating a template
 - Within the app directory, HTML, CSS, and JavaScript files are located within the following locations:
@@ -218,6 +269,9 @@ Hello, World!
 </body>
 ```
 
+To be continued: Read https://www.javatpoint.com/django-modelforms
+
+############### Read more aboout models here #################
 ## :ticket: Creating a model
 - Within the app's `models.py` file, an example of a simple model can be added with the following:
 ```python
@@ -405,3 +459,7 @@ We don’t need to do much in our name.html template. The simplest example is:
     <input type="submit" value="OK">
 </form>
 ```
+
+# Create an Admin User
+
+- `python managen.py createsuperuser`
