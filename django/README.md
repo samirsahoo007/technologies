@@ -181,6 +181,8 @@ In a web application, apart from business logic and data handling, we also need 
 It is important to manage these resources so that it does not affect our application performance.
 
 1. Include the django.contrib.staticfiles in INSTALLED_APPS.
+
+```python
 INSTALLED_APPS = [  
     'django.contrib.admin',  
     'django.contrib.auth',  
@@ -190,12 +192,21 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',  
     'myapp'  
 ]  
+```
 
-2. STATIC_URL = '/static/'  					# Define STATIC_URL in settings.py
+2. Define STATIC_URL in settings.py
+
+```python
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+	os.path.join(BASE_DIR, "static")
+]
+```
 3. {% load static %}   						# Load static files in the templates
 4. Store all images, JavaScript, CSS files in a static folder of the application. First create a directory static, store the files inside it.
 
 e.g.
+```python
 <!DOCTYPE html>  
 <html lang="en">  
 <head>  
@@ -207,6 +218,7 @@ e.g.
 <body>  
 </body>  
 </html>  
+```
 
 ## :art: Creating a template
 - Within the app directory, HTML, CSS, and JavaScript files are located within the following locations:
@@ -244,13 +256,6 @@ def index(request):
 		<link rel="stylesheet" href="{% static 'styles.css' %}">
 	</head>
 </html>
-```
-- To make sure to include the following in your `settings,py`:
-```python
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-	os.path.join(BASE_DIR, "static")
-]
 ```
 - To add an `extends`:
 ```html
