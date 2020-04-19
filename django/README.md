@@ -274,7 +274,62 @@ Hello, World!
 </body>
 ```
 
-To be continued: Read https://www.javatpoint.com/django-modelforms
+- In HTML, a form is a collection of elements inside <form>...</form> that allow a visitor to do things like enter text, select options, checkbox, 
+## :man: Django Model Form
+
+It is a class which is used to create an HTML form by using the Model. It is an efficient way to create a form without writing HTML code.
+
+Django automatically does it for us to reduce the application development time. For example, suppose we have a model containing various fields, we don't need to repeat the fields in the form file.
+
+```python
+from django import forms  
+from myapp.models import Employee 
+  
+class EmpForm(forms.ModelForm):  
+    class Meta:  
+        model = Employee 
+        fields = "__all__"  
+```
+- Refer above for views.py and urls.py
+- index.html
+```python
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <title>Index</title>  
+</head>  
+<body>  
+<form method="POST" class="post-form">  
+        {% csrf_token %}  
+        {{ form.as_p }}  
+        <button type="submit" class="save btn btn-default">Save</button>  
+    </form>  
+</body>  
+</html>  
+```
+
+## :man: Django Forms
+
+It is similar to the ModelForm class that creates a form by using the Model, but it does not require the Model. So instantiation in views.py in django forms and model forms as below respectively
+
+from myapp.form import EmployeeForm
+from myapp.models import EmployeeForm
+
+Each field of the form class map to the HTML form <input> element and each one is a class itself, it manages form data and performs validation while submitting the form.
+
+```python
+from django import forms  
+class EmployeeForm(forms.Form):  
+    firstname = forms.CharField(label="Enter first name",max_length=50)  
+    lastname  = forms.CharField(label="Enter last name", max_length = 100)  
+```
+
+- urls.py and index.html is similar as in ModelForms
+
+## :man: Create an Admin User
+
+- `python managen.py createsuperuser`
 
 ############### Read more aboout models here #################
 ## :ticket: Creating a model
@@ -385,86 +440,3 @@ $ python manage.py shell
 >>> indexed_entry = Entry.objects.get(pk=1)
 >>> find_entry = Entry.objects.filter(name='Beatles Blog')
 ```
-
-## :man: Using the Admin page
-- To create a `superuser`:
-```bash
-$ python manage.py createsuperuser
-```
-- To add a model to the Admin page include the following in `admin.py`:
-```python
-from django.contrib import admin
-from .models import Author, Book
-
-admin.site.register(Author)
-admin.site.register(Book)
-```
-## :man: Using the Django forms
-
-In HTML, a form is a collection of elements inside <form>...</form> that allow a visitor to do things like enter text, select options, checkbox, 
-manipulate objects or controls, and so on, and then send that information back to the server.
-
-When the <input type="submit" value="Log in"> element is triggered, the data is returned to /admin/
-GET and POST are the only HTTP methods to use when dealing with forms.
-
-In a similar way that a model class’s fields map to database fields, a form class’s fields map to HTML form <input> elements. (A ModelForm maps a model class’s fields to HTML form <input> elements via a Form; this is what the Django admin is based upon.)
-
-
-# Building a form in Django
-
-- forms.py
-```python
-from django import forms
-
-class NameForm(forms.Form):
-    your_name = forms.CharField(label='Your name', max_length=100)
-```
-- views.py
-
-```python
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
-
-from .forms import NameForm
-
-def get_name(request):
-    # if this is a POST request we need to process the form data
-    if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        form = NameForm(request.POST)
-        # check whether it's valid:
-        if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-            # redirect to a new URL:
-            return HttpResponseRedirect('/thanks/')
-
-    # if a GET (or any other method) we'll create a blank form
-    else:
-        form = NameForm()
-
-    return render(request, 'name.html', {'form': form})
-```
-- The template, name.html
-
-We don’t need to do much in our name.html template. The simplest example is:
-
-```python
-<form action="/your-name/" method="post">
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Submit">
-</form>
-```
-- Equivalent html form
-```python
-<form action="/your-name/" method="post">
-    <label for="your_name">Your name: </label>
-    <input id="your_name" type="text" name="your_name" value="{{ current_name }}">
-    <input type="submit" value="OK">
-</form>
-```
-
-# Create an Admin User
-
-- `python managen.py createsuperuser`
