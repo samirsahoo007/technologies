@@ -327,6 +327,98 @@ class EmployeeForm(forms.Form):
 
 - urls.py and index.html is similar as in ModelForms
 
+- In Django, middleware is a lightweight plugin that processes during request and response execution. See, settings.py file of Django project that contains various middleware, that is used to provides functionalities to the application.
+  The functions can be a security, session, csrf protection, authentication etc. It also allows us to write our own middleware. 
+
+```python
+MIDDLEWARE = [  
+    'django.middleware.security.SecurityMiddleware',  
+    'django.contrib.sessions.middleware.SessionMiddleware',  
+    'django.middleware.common.CommonMiddleware',  
+    'django.middleware.csrf.CsrfViewMiddleware',  
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  
+    'django.contrib.messages.middleware.MessageMiddleware',  
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',  
+]
+```
+## :man: Django Session
+
+A session is a mechanism to store information on the server side during the interaction with the web application.
+
+In Django, by default session stores in the database and also allows file-based and cache based sessions. It is implemented via a piece of middleware and can be enabled by using the following code.
+
+Put django.contrib.sessions.middleware.SessionMiddleware in MIDDLEWARE and django.contrib.sessions in INSTALLED_APPS of settings.py file.
+
+- views.py
+
+```python
+from django.shortcuts import render  
+from django.http import HttpResponse  
+  
+def setsession(request):  
+    request.session['sname'] = 'irfan'  
+    request.session['semail'] = 'irfan.sssit@gmail.com'  
+    return HttpResponse("session is set")  
+def getsession(request):  
+    studentname = request.session['sname']  
+    studentemail = request.session['semail']  
+    return HttpResponse(studentname+" "+studentemail);  
+```
+
+- urls.py
+
+```python
+from django.contrib import admin  
+from django.urls import path  
+from myapp import views  
+urlpatterns = [  
+    path('admin/', admin.site.urls),  
+    path('index/', views.index),  
+    path('ssession',views.setsession),  
+    path('gsession',views.getsession)  
+]  
+```
+
+
+## :man: Django Cookie
+A cookie is a small piece of information which is stored in the client browser. It is used to store user's data in a file permanently (or for the specified time).
+
+Cookie has its expiry date and time and removes automatically when gets expire. Django provides built-in methods to set and fetch cookie.
+
+The set_cookie() method is used to set a cookie and get() method is used to get the cookie.
+
+
+The request.COOKIES['key'] array can also be used to get cookie values.
+
+In views.py, two functions setcookie() and getcookie() are used to set and get cookie respectively
+
+- views.py
+```python
+from django.shortcuts import render  
+from django.http import HttpResponse  
+  
+def setcookie(request):  
+    response = HttpResponse("Cookie Set")  
+    response.set_cookie('java-tutorial', 'javatpoint.com')  
+    return response  
+def getcookie(request):  
+    tutorial  = request.COOKIES['java-tutorial']  
+    return HttpResponse("java tutorials @: "+  tutorial);  
+```
+
+- urls.py
+```python
+from django.contrib import admin  
+from django.urls import path  
+from myapp import views  
+urlpatterns = [  
+    path('admin/', admin.site.urls),  
+    path('index/', views.index),  
+    path('scookie',views.setcookie),  
+    path('gcookie',views.getcookie)  
+]
+```
+
 ## :man: Create an Admin User
 
 - `python managen.py createsuperuser`
