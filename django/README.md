@@ -440,3 +440,6 @@ $ python manage.py shell
 >>> indexed_entry = Entry.objects.get(pk=1)
 >>> find_entry = Entry.objects.filter(name='Beatles Blog')
 ```
+
+Ref: https://www.javatpoint.com/django-database-migrations
+
