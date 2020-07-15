@@ -60,6 +60,8 @@ After setting up the user credentials, we can use the “Test Credentials” sec
 
 							my poast is success!
 
+![alt text](https://github.com/samirsahoo007/technologies/blob/master/jenkins/images/webhook.jpg)
+
 ### Setup GitHub Webhook
 
 After we save, the ghprb will generate an endpoint at https://<your-jenkins>/ghprbhook/ which we can send info to via webhook.  Navigate to the repo in question, and under the “Settings” tab, select “Webhooks”.  Add the endpoint URL to the “Payload URL” field.  We also need to select which events trigger the webhook.  For our purposes, we only need to check “Pull Requests” (because we are building pull requests), and “Issue Comments” (for ghprb status magics).
