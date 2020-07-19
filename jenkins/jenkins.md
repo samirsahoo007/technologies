@@ -15,3 +15,10 @@ You can now have multiple tokens and name them. They can be revoked individually
 
 * Revoke old tokens when no longer needed.
 
+# Difference between jenkins job and pipeline
+
+* Jenkins Job and Jenkins Pipeline are basically the same. In a pipeline you define the steps of your job as groovy code (actually it is CPS https://github.com/jenkinsci/workflow-cps-plugin, but that should in general just be a custom groovy interpreter).
+
+
+
+* The point, that is making pipelines "better", form my perspective, is, that you can add those in so-called Jenkinsfiles alongside your code. So you have your build job versionized alongside your application code.
