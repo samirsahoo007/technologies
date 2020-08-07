@@ -24,11 +24,11 @@ Additional Steps:
 
 If there is any certificate of specific company needs to be installed then
 
-```pip install -i https://pypi.abc.com/simple abc-certificate```
+```pip install abc-certificate -i https://pypi.abc.com/simple```
 
 For installing some module from other than default(https://pypi.python.org/simple) location use -i option
 
-```pip install -i https://pypi.abc.com/simple mymodule```
+```pip install mymodule -i https://pypi.abc.com/simple```
 
 * Where "abc" could be the organisation name
 
