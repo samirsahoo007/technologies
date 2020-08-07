@@ -38,3 +38,8 @@ $ pip freeze > /tmp/requirements.txt	# i. Activate the existing virtual environm
 $ pip install -r /tmp/requirements.txt   # i. Activate the new virtual environment and ii. fire this "pip install ..." command
 
 
+$ pip install psycopg2==2.4.1                     # Install specific version
+
+$ pip install psycopg2==2.4.1 --no-cache-dir      # To avoid installing it from cache
+
+
