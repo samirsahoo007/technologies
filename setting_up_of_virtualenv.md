@@ -36,7 +36,7 @@ OR
 
 * Where "abc" could be the organisation name
 
-# cat requirements.txt 
+$ cat requirements.txt 
 ```--index https://pypi.abc.com/simple
 ordereddict==1.1 
 argparse==1.2.1 
