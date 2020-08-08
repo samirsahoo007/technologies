@@ -85,3 +85,14 @@ License: BSD
 Location: /usr/local/lib/python3.6/site-packages
 Requires: pytz, numpy, python-dateutil
 ```
+
+
+```
+$ pip freeze
+absl-py==0.1.10
+agate==1.6.0
+agate-dbf==0.2.0
+agate-excel==0.2.1
+agate-sql==0.5.2
+appnope==0.1.0
+```
