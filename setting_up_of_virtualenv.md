@@ -73,4 +73,15 @@ $ pip install psycopg2==2.4.1                     # Install specific version
 $ pip install psycopg2==2.4.1 --no-cache-dir      # To avoid installing it from cache
 ```
 
-
+```
+$ pip show pandas
+Name: pandas
+Version: 0.22.0
+Summary: Powerful data structures for data analysis, time series,and statistics
+Home-page: http://pandas.pydata.org
+Author: The PyData Development Team
+Author-email: pydata@googlegroups.com
+License: BSD
+Location: /usr/local/lib/python3.6/site-packages
+Requires: pytz, numpy, python-dateutil
+```
