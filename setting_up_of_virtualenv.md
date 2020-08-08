@@ -46,7 +46,8 @@ matplotlib==1.3.1
 nose==1.3.0 
 numpy==1.8.0 
 pymongo==3.3.0 
-psutil>=2.0```
+psutil>=2.0
+```
 
 # Note:
 If we remove the --index line, the packages will be downloaded from the default index url
@@ -56,8 +57,13 @@ If we remove the --index line, the packages will be downloaded from the default 
 ###### To setup a new virtual enviornment with all the modules installed in one of the existing virtual environment #####
 
 ```
-$ pip freeze > /tmp/requirements.txt	 # i. Activate the existing virtual environment and ii. fire this "pip freeze..." command and then iii. deactivate
-$ pip install -r /tmp/requirements.txt   # i. Activate the new virtual environment and ii. fire this "pip install ..." command
+i. Activate the existing virtual environment
+ii. fire this "pip freeze..." command
+$ pip freeze > /tmp/requirements.txt
+iii. deactivate
+iv. Activate the new virtual environment
+ii. fire this "pip install ..." command
+$ pip install -r /tmp/requirements.txt
 ```
 
 
