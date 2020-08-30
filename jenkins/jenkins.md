@@ -41,3 +41,28 @@ You can now have multiple tokens and name them. They can be revoked individually
 
 
 ![alt text](https://github.com/samirsahoo007/technologies/blob/master/jenkins/images/java_home_setup.png)
+
+
+# Configuring JDK in Jenkins
+
+Below are the steps to be followed in order to configure the JDK in Jenkins :
+
+1. Deploy the Jenkins.war into the tomcat server and start the server.
+
+2. From the home page, click on the link Manage Jenkins and click on Configure System as shown below :
+
+
+![alt text](https://github.com/samirsahoo007/technologies/blob/master/jenkins/images/configuring-jdk-1.png)
+
+
+3. From the next page, click on "Add JDK". The easiest way to configure JDK is to provide a name and path of the java installation directory. (Consider the same path used for JAVA_HOME). In the below screenshot JDK 6 and JDK 7 has been configured,
+
+![alt text](https://github.com/samirsahoo007/technologies/blob/master/jenkins/images/configuring-jdk-2.png)
+
+4. JDK can also be installed by intimating Jenkins to do the task. The check box install automatically needs to be checked in this case. Jenkins will download and installs the specified version of the JDK into the tools directory of the Jenkins home directory.
+
+
+![alt text](https://github.com/samirsahoo007/technologies/blob/master/jenkins/images/configuring-jdk-3.png)
+
+
+
