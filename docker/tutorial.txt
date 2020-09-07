@@ -10,6 +10,10 @@ docker run -v /Users/samirsahoo/Projects/:/opt/data -v /tmp/:/tmp -it 5350222059
 
 												  # echo "export PYTHONPATH=$PATHONPATH:/opt/data/mnnny-tests:/opt/data/xyyyz-tests" >> ~/.bash_profile
 												  # source ~/.bash_profile
+												  # Remove option t if you're running it on jenkins
+												  # e.g. docker run -v /tmp:/tmp -i <IMAGE_ID> /bin/bash
+												  # -t, –tty Allocate a pseudo-TTY
+												  # So you will get "the input device is not a TTY" error message.
 nosetests -sv end_to_end_tests/substrate_plus_layers/acceptance/water_and_island/test_water_and_island_feature_sampling_real_data.py:TestWaterIslandFeatureSampling.test_200_create_project
 
 OR

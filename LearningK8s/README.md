@@ -195,3 +195,94 @@ Kublr provides an intuitive UI that operations teams can use to deploy and manag
 
 ![alt text](https://github.com/samirsahoo007/technologies/blob/master/LearningK8s/images/kublr2.png)
 
+
+
+
+
+# Refresh Configs in Jnlp Nodes(JAVA NETWORK LAUNCH PROTOCOL)
+
+### Install and Check the version
+
+`$ brew install kubernetes-cli
+ $ kubectl version --short
+  Client Version: v1.13.5
+  Server Version: v1.13.4
+`
+
+### Download config
+
+![alt text](https://github.com/samirsahoo007/technologies/blob/master/LearningK8s/images/rancher_kubeconfig_file_button_hu49a299f8b62fd5c71b6f3029b0190fcd_41766_1000x0_resize_box.gif)
+
+Go to the Rancher-Managed Kubernetes Clusters and download a kubeconfig file through the web UI and use it to connect to your Kubernetes environment with kubectl.
+Click on the button for a detailed look at your config file as well as directions to place in ~/.kube/config.
+
+![alt text](https://github.com/samirsahoo007/technologies/blob/master/LearningK8s/images/rancher_kubeconfig_instructions_hu08acb4c74d33e686312cc8d80398586c_587079_1000x0_resize_box_2.png)
+
+### Check the list of clusters; It should list something like below
+
+`
+# kubectl config get-contexts
+CURRENT   NAME               CLUSTER            AUTHINFO                        NAMESPACE
+*         xy02-dfddf        xy02-dfddf         sameer_sahoo@xy02-dfddf         
+          pk95-adsfd        eu95-dragon        sameer_sahoo@eu95-dragon        
+          hh17-bdgdgfg       pk95-adsfd      sameer_sahoo@pk95-adsfd      
+          ss02-rewreww      ss02-rewreww     sameer_sahoo@ss02-rewreww     
+          df11-cczcxcc     df11-cczcxcc       sameer_sahoo@df11-cczcxcc  
+`
+
+### Set the cluster and point to our namespace
+`
+    1. kubectl config use-context ss02-rewreww
+    2. kubectl config set-context ss02-rewreww —namespace=abc-def-ghi-sdfdfs
+`
+
+### Verify whether the context got set or not
+
+`
+    # kubectl config current-context
+      ss02-rewreww
+`
+
+### 1. Make sure  you can list pods to make sure its working
+
+`
+$ kubectl get pods
+  NAME                   READY   STATUS    RESTARTS   AGE
+  nginx-5c7588df-k5wks   1/1     Running   0          9s
+`
+
+### Find the JNLP servers
+`
+$ kubectl get pods | grep general-jnlp
+$ kubectl get pods | grep general-jnlp
+permanent-k8s-general-jnlp-01-567565767gh-hjhjjk                    1/1     Running            0          20d
+permanent-k8s-general-jnlp-02-5867867878j-jljkkk                    1/1     Running            0          97d
+permanent-k8s-general-jnlp-03-2534343444g-bnbnbn                    1/1     Running            0          98d
+`
+
+### Copy the config file from local to all jnlp nodes listed in Step 5
+
+kubectl cp config permanent-k8s-general-jnlp-01-567565767gh-hjhjjk:/root/.kube/
+
+### Login to each jnlp node and make sure we are able to get pods as mentioned in step 4
+
+`
+$ kubectl exec -it permanent-k8s-general-jnlp-01-567565767gh-hjhjjk /bin/bash
+[root@permanent-k8s-general-jnlp-01-567565767gh-hjhjjk /]# kubectl get pods
+        NAME                                                              READY     STATUS             RESTARTS   AGE
+        glade-00ce8c9e-9b80-450c-8ff5-e5ef3f75ed95-435345435g-2898j       1/1       Running            0          4d
+        glade-55103b67-3c4d-4a12-867a-20c966710234-123423432w-xbq56       1/1       Running            0          4d
+        glade-9aab6a29-c19b-4a24-99d4-bbdcae7949cf-435435435f-qsfjd       1/1       Running            0          2d
+        glade-bbe73872-cfa2-4dbf-ad79-70c5dbc0fd68-533454534m-kl5h9       1/1       Running            1          2d
+        glade-bbee4503-1d1d-4dbf-b63a-1156eaf47af
+        # exit
+`
+
+
+
+
+
+
+
+
+
