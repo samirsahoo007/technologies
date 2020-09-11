@@ -20,49 +20,49 @@ Java HotSpot(TM) 64-Bit Server VM (build 25.72-b15, mixed mode)
 ===========
 Download the latest binary Spark from the following URL:
 ````
-http://www.apache.org/dyn/closer.lua/spark/spark-1.6.1/spark-1.6.1-bin-hadoop2.6.tgz
+http://www.apache.org/dyn/closer.lua/spark/spark-1.6.1/spark-2.4.3-bin-hadoop2.7.tgz
 ````
 
-3. Open the Downloaded File
-===========================
-Assuming that I have downloaded my file in /Users/mparsian/spark-1.6.1-bin-hadoop2.6.tgz
+3. Setup SPARK_HOME
+===================
+Go to the official Apache Spark download page(https://www.apache.org/dyn/closer.lua/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz) and download the latest version of Apache Spark available there. 
 
 ````
-cd /Users/mparsian
+# tar -xvf downloaded_directory/spark-2.4.3-bin-hadoop2.7.tgz
 
-tar zvfx  spark-1.6.1-bin-hadoop2.6.tgz
-x spark-1.6.1-bin-hadoop2.6/
-x spark-1.6.1-bin-hadoop2.6/NOTICE
-x spark-1.6.1-bin-hadoop2.6/CHANGES.txt
-...
-...
-...
-x spark-1.6.1-bin-hadoop2.6/lib/spark-examples-1.6.1-hadoop2.6.0.jar
-x spark-1.6.1-bin-hadoop2.6/README.md
+Save the following lines to ~/.bash_profile
+export SPARK_HOME=downloaded_directory/spark-2.4.3-bin-hadoop2.7
+export PATH=$PATH:downloaded_directory/spark-2.4.3-bin-hadoop2.7/bin
+export PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.4-src.zip:$PYTHONPATH
+export PATH=$SPARK_HOME/python:$PATH
+
+# source ~/.bash_profile
+# ./bin/pyspark
+
 ````
 
 4. Start the Spark Cluster
 ==========================
 ````
-cd /Users/mparsian/spark-1.6.1-bin-hadoop2.6/
+cd /Users/samirsahoo/spark-2.4.3-bin-hadoop2.7/
 
 ls -l
 total 2736
--rw-r--r--@  1 mparsian  897801646  1343562 Feb 26 21:02 CHANGES.txt
--rw-r--r--@  1 mparsian  897801646    17352 Feb 26 21:02 LICENSE
--rw-r--r--@  1 mparsian  897801646    23529 Feb 26 21:02 NOTICE
-drwxr-xr-x@  3 mparsian  897801646      102 Feb 26 21:02 R
--rw-r--r--@  1 mparsian  897801646     3359 Feb 26 21:02 README.md
--rw-r--r--@  1 mparsian  897801646      120 Feb 26 21:02 RELEASE
-drwxr-xr-x@ 25 mparsian  897801646      850 Feb 26 21:02 bin
-drwxr-xr-x@  9 mparsian  897801646      306 Feb 26 21:02 conf
-drwxr-xr-x@  3 mparsian  897801646      102 Feb 26 21:02 data
-drwxr-xr-x@  6 mparsian  897801646      204 Feb 26 21:02 ec2
-drwxr-xr-x@  3 mparsian  897801646      102 Feb 26 21:02 examples
-drwxr-xr-x@  8 mparsian  897801646      272 Feb 26 21:02 lib
-drwxr-xr-x@ 37 mparsian  897801646     1258 Feb 26 21:02 licenses
-drwxr-xr-x@  9 mparsian  897801646      306 Feb 26 21:02 python
-drwxr-xr-x@ 24 mparsian  897801646      816 Feb 26 21:02 sbin
+-rw-r--r--@  1 samirsahoo  897801646  1343562 Feb 26 21:02 CHANGES.txt
+-rw-r--r--@  1 samirsahoo  897801646    17352 Feb 26 21:02 LICENSE
+-rw-r--r--@  1 samirsahoo  897801646    23529 Feb 26 21:02 NOTICE
+drwxr-xr-x@  3 samirsahoo  897801646      102 Feb 26 21:02 R
+-rw-r--r--@  1 samirsahoo  897801646     3359 Feb 26 21:02 README.md
+-rw-r--r--@  1 samirsahoo  897801646      120 Feb 26 21:02 RELEASE
+drwxr-xr-x@ 25 samirsahoo  897801646      850 Feb 26 21:02 bin
+drwxr-xr-x@  9 samirsahoo  897801646      306 Feb 26 21:02 conf
+drwxr-xr-x@  3 samirsahoo  897801646      102 Feb 26 21:02 data
+drwxr-xr-x@  6 samirsahoo  897801646      204 Feb 26 21:02 ec2
+drwxr-xr-x@  3 samirsahoo  897801646      102 Feb 26 21:02 examples
+drwxr-xr-x@  8 samirsahoo  897801646      272 Feb 26 21:02 lib
+drwxr-xr-x@ 37 samirsahoo  897801646     1258 Feb 26 21:02 licenses
+drwxr-xr-x@  9 samirsahoo  897801646      306 Feb 26 21:02 python
+drwxr-xr-x@ 24 samirsahoo  897801646      816 Feb 26 21:02 sbin
 
 
 ./sbin/start-all.sh
@@ -91,7 +91,7 @@ http://localhost:8080
 * Python program: ````test.py````
 
 ````
-cat /Users/mparsian/spark-1.6.1-bin-hadoop2.6/test.py
+cat /Users/samirsahoo/spark-2.4.3-bin-hadoop2.7/test.py
 #!/usr/bin/python
 
 import sys
@@ -103,7 +103,7 @@ for line in sys.stdin:
 * Python program: ````test2.py````
 	
 ````	
-cat /Users/mparsian/spark-1.6.1-bin-hadoop2.6/test2.py
+cat /Users/samirsahoo/spark-2.4.3-bin-hadoop2.7/test2.py
 #!/usr/bin/python
 
 def fun2(str):
@@ -114,7 +114,7 @@ def fun2(str):
 8. Start and Run pyspark
 ========================
 ````
-cd /Users/mparsian/spark-1.6.1-bin-hadoop2.6/
+cd /Users/samirsahoo/spark-2.4.3-bin-hadoop2.7/
 ./bin/pyspark
 Python 2.7.10 (default, Oct 23 2015, 19:19:21)
 [GCC 4.2.1 Compatible Apple LLVM 7.0.0 (clang-700.0.59.5)] on darwin
@@ -142,8 +142,8 @@ SparkContext available as sc, HiveContext available as sqlContext.
 ['john', 'paul', 'george', 'ringo']
 
 
->>> test = "/Users/mparsian/spark-1.6.1-bin-hadoop2.6/test.py"
->>> test2 = "/Users/mparsian/spark-1.6.1-bin-hadoop2.6/test2.py"
+>>> test = "/Users/samirsahoo/spark-2.4.3-bin-hadoop2.7/test.py"
+>>> test2 = "/Users/samirsahoo/spark-2.4.3-bin-hadoop2.7/test2.py"
 >>> import test
 >>> import test2
 

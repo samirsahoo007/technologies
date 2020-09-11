@@ -7,7 +7,7 @@ Start PySpark
 First make sure that you have started the Spark cluster. To start Spark, you execute:
 
 ````
-cd $SPRAK_HOME
+cd $SPARK_HOME
 ./sbin/start-all.sh
 ````
 
@@ -118,6 +118,104 @@ SparkContext available as sc, HiveContext available as sqlContext.
 >>> 
 ````
 
+# How can I do this in PySpark?
+
+More concrete example, I want to transform this DF (visualized in JSON)
+
+```
+{
+    "order": "c-331",
+    "travel": [
+        {
+            "place": {
+                "name": "A place",
+                "address": "The address",
+                "latitude": 0.0,
+                "longitude": 0.0
+            },
+            "distance_in_kms": 1.0,
+            "estimated_time": {
+                "seconds": 988,
+                "nanos": 102
+            }
+        }
+    ]
+}
+```
+
+into
+
+```
+{
+    "order": "c-331",
+    "travel": [
+        {
+            "place": {
+                "name": "A place",
+                "address": "The address",
+                "latitude": 0.0,
+                "longitude": 0.0
+            },
+            "distance_in_kms": 1.0,
+            "estimated_time": "988s"
+        }
+    ]
+}
+```
+
+You can do this with the following pyspark functions:
+
+      withColumn lets you create a new column. We will use this to extract "estimated_time"
+
+      concat concatenates string columns
+
+      lit creates a column of a given string
+
+      Please have a look at the following example:
+
+```
+from pyspark.sql import functions as F
+j = '{"order":"c-331","travel":[{"place":{"name":"A place","address":"The address","latitude":0.0,"longitude":0.0},"distance_in_kms":1.0,"estimated_time":{"seconds":988,"nanos":102}}]}'
+df = spark.read.json(sc.parallelize([j]))
+
+#the following command creates a new column called estimated_time2 which contains the values of travel.estimated_time.seconds concatenated with a 's' 
+bla = df.withColumn('estimated_time2', F.concat(df.travel.estimated_time.seconds[0].cast("string"), F.lit("s")))
+
+#unfortunately it is currently not possible to use withColumn to add a new member to a struct. Therefore the following command replaces 'travel.estimated_time' with the before created column estimated_time2
+bla = bla.select("order"
+                , F.array(
+                    F.struct(
+                        bla.travel.distance_in_kms[0].alias("distance_in_kms")
+                        ,bla.travel.place[0].alias("place")
+                        , bla.estimated_time2.alias('estimated_time')
+                        )).alias("travel"))
+
+bla.show(truncate=False)
+bla.printSchema()
+```
+
+And that is the output:
+
+```
++-----+------------------------------------------+ 
+|order|travel                                    | 
++-----+------------------------------------------+ 
+|c-331|[[1.0,[The address,0.0,0.0,A place],988s]]| 
++-----+------------------------------------------+
+
+
+root 
+|-- order: string (nullable = true) 
+|-- travel: array (nullable = false) 
+| |-- element: struct (containsNull = false) 
+| | |-- distance_in_kms: double (nullable = true)
+| | |-- place: struct (nullable = true) 
+| | | |-- address: string (nullable = true) 
+| | | |-- latitude: double (nullable = true) 
+| | | |-- longitude: double (nullable = true) 
+| | | |-- name: string (nullable = true) 
+| | |-- estimated_time: string (nullable = true)
+```
 
 
 Create RDD from a Local File System
