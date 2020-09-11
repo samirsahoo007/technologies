@@ -121,4 +121,10 @@ src/test/java/demo/AppTest.java
 
 ❯ ./gradlew tasks					# See the tasks
 
+<<<<<<< HEAD
 ❯ ./gradlew run						# Run the application
+=======
+#### If build fails with error "index is out of range 0..-1 (index = 0)" then add "--stacktrace --info --refresh-dependencies" to the gradle command:
+
+./gradlew --info --parallel clean build deploy artifactoryPublish  -DenablePublishing=<enable_ublishing_value> -DskipTests=<skip_tests_value> -DpublishToAssetStore=true -DassetStoreToken="<token_value>" --stacktrace --info --refresh-dependencies
+>>>>>>> 576ee77d19ff231352594113d128fe77bb1a94da
