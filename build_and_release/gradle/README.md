@@ -119,6 +119,6 @@ src/test/java/demo/AppTest.java
 
 ❯ ./gradlew build					# Execute the build
 
-❯ ./gradlew tasks					# Run the application
+❯ ./gradlew tasks					# See the tasks
 
-
+❯ ./gradlew run						# Run the application
