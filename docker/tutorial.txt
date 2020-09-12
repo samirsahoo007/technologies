@@ -37,6 +37,11 @@ $ docker container start 0ebce47a9f3a
 0ebce47a9f3a
 $ docker exec -it 0ebce47a9f3a /bin/bash
 
+DOCKER COMPOSE:
+===============
+docker-compose up			docker-compose up -d	=> detached mode
+docker-compose stop
+docker-compose down
 
 COMMONLY USED COMMANDS WITH OUTPUT:
 ==================================
