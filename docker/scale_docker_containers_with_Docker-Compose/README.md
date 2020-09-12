@@ -1,18 +1,21 @@
 # docker-compose scaling web service demo
-A short demo on how to use docker-compose to create a Web Service connected to a load balancer and a Redis Database. Be sure to check out my blog post on the full overview - [brianchristner.io](https://www.brianchristner.io/how-to-scale-a-docker-container-with-docker-compose/)
+A short demo on how to use docker-compose to create a Web Service connected to a load balancer and a Redis Database.
 
-# Install
-The instructions assume that you have already installed [Docker](https://docs.docker.com/installation/) and [Docker Compose](https://docs.docker.com/compose/install/). 
 
-In order to get started be sure to clone this project onto your Docker Host. Create a directory on your host. Please note that the demo webservices will inherit the name from the directory you create. If you create a folder named test. Then the services will all be named test-web, test-redis, test-lb. Also, when you scale your services it will then tack on a number to the end of the service you scale. 
+# Installation Notes
+
+1. Latest "traefik" version has issues. So we're using a stable version: docker.io/library/traefik:v1.7
+
+2. Make sure that ports 80 and 8080 are free otherwise it'll throw error.
+   To free the ports
+	i. Check which process/PID is bound to the port
+	   sudo lsof -i :8080
+	ii. kill -9 <PID>
+
+3. In order to get started be sure to clone this project onto your Docker Host. Create a directory on your host. Please note that the demo webservices will inherit the name from the directory you create. If you create a folder named test. Then the services will all be named test-web, test-redis, test-lb. Also, when you scale your services it will then tack on a number to the end of the service you scale. 
 
     
-    git clone https://github.com/vegasbrianc/docker-compose-demo.git .
-    
-
 # How to get up and running
-Once you've cloned the project to your host we can now start our demo project. Easy! Navigate to the directory in which you cloned the project. Run the following commands from this directory 
-    
 
     docker-compose up -d
 
@@ -22,7 +25,7 @@ The  docker-compose command will pull the images from Docker Hub and then link t
 
 Verify our service is running by either curlng the IP from the command line or view the IP from a web browser. You will notice that the each time you run the command the number of times seen is stored in the Redis Database which increments. The hostname is also reported.
 
-###Curling from the command line
+### Curling from the command line
     
     ```
     curl -H Host:whoami.docker.localhost http://127.0.0.1
@@ -53,7 +56,8 @@ Now comes the fun part of compose which is scaling. Let's scale our web service 
 Now run our curl command again on our web services and we will now see the hostname change. To get a deeper understanding tail the logs of the stack to watch what happens each time you access your web services.
 
     ```
-    docker-compose logs whoami
+    $ docker-compose logs whoami
+
     whoami_5         | Starting up on port 80
     whoami_4         | Starting up on port 80
     whoami_3         | Starting up on port 80
@@ -63,7 +67,20 @@ Now run our curl command again on our web services and we will now see the hostn
 
 Here's the output from my docker-compose logs after I curled the `whoami` application  so it is clear that the round-robin is sent to all 5 web service containers.
 
-    ```
-    reverse-proxy_1  | 172.26.0.1 - - [01/May/2019:19:16:34 +0000] "GET /favicon.ico HTTP/1.1" 200 647 "http://whoami.docker.localhost/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36" 10 "Host-whoami-docker-localhost-1" "http://172.26.0.2:80" 1ms
-    ```
-    
+```
+$ docker-compose logs | tail -1
+WARNING: Some networks were defined but are not used by any service: front-tier
+reverse-proxy_1  | 192.168.48.1 - - [12/Sep/2020:19:28:19 +0000] "GET / HTTP/1.1" 200 375 "-" "curl/7.64.1" 21 "Host-whoami-docker-localhost-0" "http://192.168.48.2:80" 20ms
+```
+
+# How to scale Docker Containers with Docker-Compose
+
+What we are building is a web service with three components that are built, configured, and deployed via docker-compose.
+
+1. HAProxy which provides us with round-robin load balancing
+
+2. Web Application based on Python
+
+3. Redis Database
+
+
