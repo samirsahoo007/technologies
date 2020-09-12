@@ -12,7 +12,7 @@ services:
       - back-tier
 
   reverse-proxy:
-    image: traefik 
+    image: docker.io/library/traefik:v1.7 #traefik
     command: --api --docker --logLevel="DEBUG" --accesslog # Enables the web UI and tells Traefik to listen to docker
     ports:
       - "80:80"     # The HTTP port
