@@ -84,3 +84,15 @@ What we are building is a web service with three components that are built, conf
 3. Redis Database
 
 ![alt text](https://github.com/samirsahoo007/system-design-primer/blob/master/images/LB_Webapp.gif)
+
+
+The HAProxy receives the web requests and routes it to the single web service which prints the hostname of the container that receives the request where a counter is incremented, and this value is then stored in the Redis Database.
+
+Now let's scale our stack out to 5 web instances/containers that are now load balanced and still connected to the Redis DB. Docker-compose easily scales our service from 1 to 5 instances. Once the web services scales out to 5 we need to inform the Database and HAProxy of these changes so they can accept and route traffic accordingly.
+
+
+![alt text](https://github.com/samirsahoo007/system-design-primer/blob/master/images/Scaled_Services.gif)
+
+
+As before the web requests are received by the HAProxy but are now routed round-robin to all 5 of the web service instances. All these instances are also linked to the Redis DB and thus our application prints the hostname and increments the number of visits works flawlessly all while printing the hostname from each container that responds. We can also scale the the web service back to 1 container when we are done.
+
