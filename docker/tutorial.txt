@@ -22,6 +22,9 @@ docker run -d <image_id>								# Run Docker image
 docker ps										# Check the container(running image)
 docker exec -it f151f4ab7085 /bin/bash							# Where f151f4ab7085 is container id; Invoke the shell of container	
 
+docker container rm $(docker container ps -a | grep Exited | awk '{print $1}')		# Delete all stopped containers
+docker image rm $(docker images | grep -i flask-microservice | awk '{print $3}') -f     # Forcibly remove specific docker images
+
 HOW TO ATTACH TO AN EXISTING CONTAINER:
 =======================================
 $ docker container ls -a
