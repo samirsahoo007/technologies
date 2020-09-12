@@ -83,4 +83,4 @@ What we are building is a web service with three components that are built, conf
 
 3. Redis Database
 
-
+![alt text](https://github.com/samirsahoo007/system-design-primer/blob/master/images/LB_Webapp.gif)
