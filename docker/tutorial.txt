@@ -39,11 +39,15 @@ $ docker exec -it 0ebce47a9f3a /bin/bash
 
 DOCKER COMPOSE:
 ===============
-docker-compose up			docker-compose up -d	=> detached mode
+docker-compose up			docker-compose up -d			=> detached mode
 docker-compose stop
 docker-compose down
 
-docker volume prune			# remove all local volumes not used by at least one container
+docker volume prune								# remove all local volumes not used by at least one container
+
+
+docker-compose -f stg/docker-compose.stg.yml up					# file in a separate directory or a different file name
+docker-compose -f docker-compose.yml -f prod/docker-compose.prod.yml up		# values defined in the second compose file override the ones in the first
 
 
 COMMONLY USED COMMANDS WITH OUTPUT:
