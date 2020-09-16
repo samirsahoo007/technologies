@@ -20,6 +20,11 @@ $ source <desired-path>/bin/activate
 $ deactivate
 ```
 
+### Upgrade virtualenv ###
+```
+$ pip3 install virtualenv --upgrade
+```
+
 Additional Steps:
 
 If there is any certificate of specific company needs to be installed then
