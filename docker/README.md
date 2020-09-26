@@ -63,8 +63,11 @@ Then, open these two files. You can then see the command stack of each image. Th
 
 The only scenario when you will not be able to reverse-engineer an image is when the maintainer of the image has used ADD or COPY commands in his Dockerfile. You will see a line like:
 
+```
 ADD file:1ac56373f7983caf22
 or ADD dir:cf6fe659e9d21535844
+```
+
 This is because you cannot get what local files the maintainer used on his machine to include in this image.
 
 
