@@ -260,6 +260,7 @@ JavaRDD<String> rdd = context.textFile(inputPath);
 ...
 ````
 
+Refer: https://datanoon.com/blog/semi_structured_data_spark/
 # Explore DataFrame Schema (Refer: https://medium.com/expedia-group-tech/working-with-json-in-apache-spark-1ecf553c2a8c)
 We use printSchema() to display the schema of the DataFrame.
 rawDF.printSchema()
