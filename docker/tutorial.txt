@@ -27,6 +27,8 @@ docker container stop <CONTAINER_ID>							# Stop a container
 docker container rm $(docker container ps -a | grep Exited | awk '{print $1}')		# Delete all stopped/exited containers
 docker image rm $(docker images | grep -i flask-microservice | awk '{print $3}') -f     # Forcibly remove specific docker images
 
+docker system prune									# remove all the stopped containers, all the networks that are not used, 											 # all dangling images and all build caches
+
 
 HOW TO ATTACH TO AN EXISTING CONTAINER:
 =======================================
