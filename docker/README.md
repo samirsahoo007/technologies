@@ -13,6 +13,8 @@ Docker Swarm is a container orchestration platform, the same as Kubernetes.
 |  GUI | Yes | No |
 |  Installation & Cluster Configuration | Complex | Easy |
 |  Developed by | Google | Docker Swarm |
+|  Community | Large | Small |
+|  Cost | Expensive | Cheaper |
 
 
 
