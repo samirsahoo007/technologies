@@ -1,5 +1,20 @@
+# How do you scale your Docker containers?
 
+Docker containers can be scaled to any level, starting from a few hundreds to even thousands or millions of containers. The only condition is that the containers need the memory and the OS all the time, and there should not be a constraint on these when the Docker is getting scaled.
 
+# Is it possible to use JSON instead of YAML for Docker Compose?
+
+We can use JSON instead of YAML for a Docker Compose file.
+
+docker-compose -f docker-compose.json up
+
+# What is the use of a Dockerfile?
+
+A Dockerfile is a set of specific instructions that we need to pass on to Docker so that the images can be built. We can think of the Dockerfile as a text document which has all the commands that are needed for creating a Docker image. We can create an automated build that lets us execute multiple command lines one after the other.
+
+# What is a Docker Swarm?
+
+We can think of a Docker Swarm as the way of orchestrating the Docker containers. We will be able to implement Dockers in a cluster. We can convert our Docker pools into a single Docker Swarm for easy management and monitoring. Also you can use kubernetes for orchestration.
 
 # docker-compose:
 
