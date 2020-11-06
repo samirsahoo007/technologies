@@ -1,3 +1,21 @@
+# Kubernetes vs Docker: Comparing The Two Container Orchestration Giants!
+
+Docker Swarm is a container orchestration platform, the same as Kubernetes.
+
+| Features  |  Kubernetes |  Docker Swarm |
+|---|---|---|
+|  Auto-Scaling | Yes  |  No |
+| Load Balancing  | Manual |  Automatic |
+| Rolling Updates & Rollbacks  | Does Rolling Update & Automatic Rollbacks	   | Does Rolling Updates but No automatic Rollbacks  |
+|  Data Volumes | Can share storage volumes only with other containers in same Pod  | Can share storage volumes with any other container  |
+|  Logging & Monitoring | In-built tools for logging & monitoring  | 3rd party tools like ELK should be used for logging & monitoring  |
+|  Scalability | Fast | 5x faster than Kubernetes  |
+|  GUI | Yes | No |
+|  Installation & Cluster Configuration | Complex | Easy |
+|  Developed by | Google | Docker Swarm |
+
+
+
 ## Explain Docker Architecture?
 
 Docker Architecture consists of a Docker Engine which is a client-server application with three major components:
