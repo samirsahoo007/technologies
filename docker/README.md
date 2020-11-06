@@ -1,6 +1,11 @@
+
 # How To Commit Changes To A Docker Image / Modifying an Existing Docker Image
 
 To install a custom package or modify an existing docker image we need to
+
+Modify the Dockerfile
+
+OR
 
 1. Deploy the Container
 2. modify the container
