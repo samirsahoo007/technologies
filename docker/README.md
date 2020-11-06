@@ -1,32 +1,39 @@
-# What is Docker?
+# How To Commit Changes To A Docker Image / Modifying an Existing Docker Image
 
-| Criteria  |  Docker |  Virtual Machines  |
-|---|---|---|
-|  Use of OS | All containers share the host OS  |  Each VM runs on its own OS |
-| Startup time  | Very fast  |  Slow |
-| Isolation  |Process-level isolation	   | Full isolation  |
-|  Security | Low  | High  |
+To install a custom package or modify an existing docker image we need to
 
+1. Deploy the Container
+2. modify the container
+3. exit out of the container
+4. commit the changes to the SAME container as a NEW docker image
+```
+sudo docker commit [CONTAINER_ID] [new_image_name]
+```
 
-We can define Docker as a containerization platform that combines all our applications in a package so that we have all the dependencies to run our applications in any environment. This means, our application will run seamlessly on any environment, and this makes it easy for having a product-ready application. What Docker does is wrap the software needed in a file system that has everything for running the code, providing the runtime and all the necessary libraries and system tools. Containerization technology like Docker will share the same operating system kernel with the machine, and due to this it is extremely fast. This means that we have to run Docker only at the beginning and after that, since our OS is already running, we will have a smooth and seamless process.
+## Example
+### 1.)
+```
+docker run -it yhat/scienceops-python:0.0.2 /bin/bash
+root@5c1ac3a4d2f2: e8f0671518a2 #
+```
+### 2.)
+```
+# sudo apt-get install vim
+# export AWS_SECRET_KEY=mysecretkey123
+# export AWS_ACCESS_KEY=fooKey
+```
+### 3.)
+`# exit`
 
-# How do you scale your Docker containers?
+### 4. )
+```
+docker commit e8f0671518a2 yhat/scienceops-python:0.0.3
+```
 
-Docker containers can be scaled to any level, starting from a few hundreds to even thousands or millions of containers. The only condition is that the containers need the memory and the OS all the time, and there should not be a constraint on these when the Docker is getting scaled.
-
-# Is it possible to use JSON instead of YAML for Docker Compose?
-
-We can use JSON instead of YAML for a Docker Compose file.
-
-docker-compose -f docker-compose.json up
-
-# What is the use of a Dockerfile?
-
-A Dockerfile is a set of specific instructions that we need to pass on to Docker so that the images can be built. We can think of the Dockerfile as a text document which has all the commands that are needed for creating a Docker image. We can create an automated build that lets us execute multiple command lines one after the other.
-
-# What is a Docker Swarm?
-
-We can think of a Docker Swarm as the way of orchestrating the Docker containers. We will be able to implement Dockers in a cluster. We can convert our Docker pools into a single Docker Swarm for easy management and monitoring. Also you can use kubernetes for orchestration.
+Test it.
+```
+$ docker run -it yhat/scienceops-python:0.0.3 echo $AWS_SECRET_KEY
+```
 
 # docker-compose:
 
@@ -98,4 +105,34 @@ ADD dir:cf6fe659e9d21535844
 
 This is because you cannot get what local files the maintainer used on his machine to include in this image.
 
+# Basics
 
+## What is Docker?
+
+| Criteria  |  Docker |  Virtual Machines  |
+|---|---|---|
+|  Use of OS | All containers share the host OS  |  Each VM runs on its own OS |
+| Startup time  | Very fast  |  Slow |
+| Isolation  |Process-level isolation	   | Full isolation  |
+|  Security | Low  | High  |
+
+
+We can define Docker as a containerization platform that combines all our applications in a package so that we have all the dependencies to run our applications in any environment. This means, our application will run seamlessly on any environment, and this makes it easy for having a product-ready application. What Docker does is wrap the software needed in a file system that has everything for running the code, providing the runtime and all the necessary libraries and system tools. Containerization technology like Docker will share the same operating system kernel with the machine, and due to this it is extremely fast. This means that we have to run Docker only at the beginning and after that, since our OS is already running, we will have a smooth and seamless process.
+
+## How do you scale your Docker containers?
+
+Docker containers can be scaled to any level, starting from a few hundreds to even thousands or millions of containers. The only condition is that the containers need the memory and the OS all the time, and there should not be a constraint on these when the Docker is getting scaled.
+
+## Is it possible to use JSON instead of YAML for Docker Compose?
+
+We can use JSON instead of YAML for a Docker Compose file.
+
+docker-compose -f docker-compose.json up
+
+## What is the use of a Dockerfile?
+
+A Dockerfile is a set of specific instructions that we need to pass on to Docker so that the images can be built. We can think of the Dockerfile as a text document which has all the commands that are needed for creating a Docker image. We can create an automated build that lets us execute multiple command lines one after the other.
+
+## What is a Docker Swarm?
+
+We can think of a Docker Swarm as the way of orchestrating the Docker containers. We will be able to implement Dockers in a cluster. We can convert our Docker pools into a single Docker Swarm for easy management and monitoring. Also you can use kubernetes for orchestration.
