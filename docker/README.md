@@ -1,10 +1,10 @@
 # What is Docker?
 
-|  Criteria | Docker  | Virtual Machines  |   |   |
+|  Criteria | Docker  | Virtual Machines  |
 |---|---|---|---|---|
-|   |   |   |   |   |
-|   |   |   |   |   |
-|   |   |   |   |   |
+| Use of OS  | All containers share the host OS  |  	Each VM runs on its own OS |
+|   |   |   |
+|   |   |   |
 
 	                                    	                          
 Use of OS	All containers share the host OS	Each VM runs on its own OS
