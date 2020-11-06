@@ -1,6 +1,12 @@
 # What is Docker?
 
-Criteria	                                    Docker	                          Virtual Machines
+|  Criteria | Docker  | Virtual Machines  |   |   |
+|---|---|---|---|---|
+|   |   |   |   |   |
+|   |   |   |   |   |
+|   |   |   |   |   |
+
+	                                    	                          
 Use of OS	All containers share the host OS	Each VM runs on its own OS
 Startup time	Very fast	Slow
 Isolation	Process-level isolation	Full isolation
