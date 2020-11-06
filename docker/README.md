@@ -11,21 +11,19 @@ sudo docker commit [CONTAINER_ID] [new_image_name]
 ```
 
 ## Example
-### 1.)
 ```
 docker run -it yhat/scienceops-python:0.0.2 /bin/bash
 root@5c1ac3a4d2f2: e8f0671518a2 #
 ```
-### 2.)
+
 ```
 # sudo apt-get install vim
 # export AWS_SECRET_KEY=mysecretkey123
 # export AWS_ACCESS_KEY=fooKey
 ```
-### 3.)
+
 `# exit`
 
-### 4. )
 ```
 docker commit e8f0671518a2 yhat/scienceops-python:0.0.3
 ```
