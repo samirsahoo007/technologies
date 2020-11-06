@@ -1,3 +1,12 @@
+# What is Docker?
+
+Criteria	                                    Docker	                          Virtual Machines
+Use of OS	All containers share the host OS	Each VM runs on its own OS
+Startup time	Very fast	Slow
+Isolation	Process-level isolation	Full isolation
+Security	Low	High
+We can define Docker as a containerization platform that combines all our applications in a package so that we have all the dependencies to run our applications in any environment. This means, our application will run seamlessly on any environment, and this makes it easy for having a product-ready application. What Docker does is wrap the software needed in a file system that has everything for running the code, providing the runtime and all the necessary libraries and system tools. Containerization technology like Docker will share the same operating system kernel with the machine, and due to this it is extremely fast. This means that we have to run Docker only at the beginning and after that, since our OS is already running, we will have a smooth and seamless process.
+
 # How do you scale your Docker containers?
 
 Docker containers can be scaled to any level, starting from a few hundreds to even thousands or millions of containers. The only condition is that the containers need the memory and the OS all the time, and there should not be a constraint on these when the Docker is getting scaled.
