@@ -58,6 +58,9 @@ docker run --rm -ti puckel/docker-airflow bash
 docker run --rm -ti puckel/docker-airflow ipython
 ```
 
+Ref: https://github.com/puckel/docker-airflow
+
+
 Airflow is, it’s an workflow engine of the similar likes of Oozie and Azkaban. It’s based on the concept of a DAG which you write in Python and execute on a cluster.
 
 
