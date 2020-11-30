@@ -82,7 +82,7 @@ The most important differences between OLTP and OLAP operations is what their pr
 * OLAP’s priority is query speed, and transactions tend to be batched and at regular intervals (ETL Jobs, which we’ll look at later)
 
 
-![alt text](https://github.com/samirsahoo007/bigdata/blob/master/technologies/airflow/images/OLTPvsOLAP.png)
+![alt text](https://github.com/samirsahoo007/technologies/tree/master/airflow/images/OLTPvsOLAP.png)
 
 Accordingly, OLTP related queries tend to be simpler, require little aggregation and few joins, while OLAP queries tend be larger, more complex, and require more aggregations and joins.
 In your e-commerce app, you might want to insert a new row into the orders table when a user makes a new order. These queries are pretty simple: they’ll probably boil down to something like INSERT INTO users VALUES x,y,z.
@@ -179,7 +179,7 @@ The Airflow host was installed on our spark development box and was part of our 
 
 Migration from Cron to Airflow came with its own challenges. Because Airflow was now owning the scheduling of tasks, we had to alter our apps to take inputs of a new format. Luckily, Airflow makes available the necessary meta information to the scheduling scripts via variables. We also stripped our applications of much of the tooling we had built into them, such as push alerting and signaling. Lastly, we ended up splitting up many of our applications into smaller tasks to follow the DAG paradigm.
 
-![alt text](https://github.com/samirsahoo007/bigdata/blob/master/technologies/airflow/images/airflow.png)
+![alt text](https://github.com/samirsahoo007/technologies/tree/master/airflow/images/airflow.png)
 
 Airflow UI: A developer can clearly discern from the UI which Dags are stable and which are not as robust and require hardening.
 
@@ -215,13 +215,13 @@ The issue pictured above is no way new and there actually have been numerous sol
 
 DAG is abbreviation from “Directed acyclic graph” and according to Wikipedia means “a finite directed graph with no directed cycles. That is, it consists of finitely many vertices and edges, with each edge directed from one vertex to another, such that there is no way to start at any vertex v and follow a consistently-directed sequence of edges that eventually loops back to v again.”.
 
-![alt text](https://github.com/samirsahoo007/bigdata/blob/master/technologies/airflow/images/dag.png)
+![alt text](https://github.com/samirsahoo007/technologies/tree/master/airflow/images/dag.png)
 
 Simple DAG. Each of the boxes represent independent DAG task which could be anything from bash command to SQL or Hive -query.
 
 Basically, DAG is a tree-like structure where you can define dependencies between various tasks and those tasks can branch out in a way where they will be executed regardless of the outcome of the other branch. To make things clear, this means that you can set dependencies between cron -jobs in an away where they could start or choose not start regardless of the outcome of other cron -jobs.
 
-![alt text](https://github.com/samirsahoo007/bigdata/blob/master/technologies/airflow/images/dag2.png)
+![alt text](https://github.com/samirsahoo007/technologies/tree/master/airflow/images/dag2.png)
 
 <b>Say goodbye to line drawing and say hello to automatically generated Python -code</b>
 
@@ -268,7 +268,7 @@ While ETLs — extract, transform, load — are a common data warehouse workflow
 
 As an example, this is our Salesforce ELT workflow:
 
-![alt text](https://github.com/samirsahoo007/bigdata/blob/master/technologies/airflow/images/salesforce.png)
+![alt text](https://github.com/samirsahoo007/technologies/tree/master/airflow/images/salesforce.png)
 
 It’s desirable for tasks to be idempotent, so that in the event of failure or other interruption they may be safely retried.
 
@@ -370,4 +370,4 @@ This has enabled new engineers to onboard and write/deploy new data pipelines ea
 Airflow has also grown to be used internally for various other workflows apart from data warehouse ELT workflows.
 
 
-![alt text](https://github.com/samirsahoo007/bigdata/blob/master/technologies/airflow/images/batch.png)
+![alt text](https://github.com/samirsahoo007/technologies/tree/master/airflow/images/batch.png)
