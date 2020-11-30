@@ -69,6 +69,7 @@ Airflow — it’s not just a word Data Scientists use when they fart. It’s a 
 Airflow is a WMS(workflow management systems) that defines tasks and and their dependencies as code, executes those tasks on a regular schedule, and distributes task execution across worker processes. Airflow offers an excellent UI that displays the states of currently active and past tasks, shows diagnostic information about task execution, and allows the user to manually manage the execution and state of tasks.
 We use Apache Airflow extensively to run Extract-Load-Transform (ELT) jobs for our data warehouse and perform enrichments to drive automation within the company.
 
+Airflow organizes a workflow as a Directed Acyclic Graph (DAG) that is written in Python, describing how the workflow is organized. A DAG run is instantiated by the Airflow scheduler depending on the DAG schedule. The individual steps in the workflow are executed as tasks via Operators, which run independently. Airflow has a rich set of Operators, among which we heavily leverage the BashOperator and the PostgresOperator. The scheduling process will ensure that tasks are run in an order implied by the DAG. The handy user interface provided by the Airflow webserver also helps visualize all existing DAGs and their historical runs. 
 
 ## Background: OLTP vs. OLAP, Analytics Needs, and Warehouses
 
@@ -250,3 +251,123 @@ When comparing with the list introduced at the beginning of this article, this i
 
 Ref: https://medium.com/datareply/airflow-lesser-known-tips-tricks-and-best-practises-cf4d4a90f8f
 
+
+# Data pipelines: Example ELT workflow
+
+While ETLs — extract, transform, load — are a common data warehouse workflow pattern, another typical pattern for is an ELT workflow. The essential difference between the two is that in an ELT workflow, the “load” step happens before the “transform” step. Typically, our ELT workflow is as follows:
+
+> Fetch data from an external API
+
+> Load the data into staging tables
+
+> Apply some cleanup/transformations and then Upsert to the production tables
+
+> Run some data quality checks on recently updated production data
+
+> Notify success/failure job status once the job group gets completed
+
+As an example, this is our Salesforce ELT workflow:
+
+![alt text](https://github.com/samirsahoo007/bigdata/blob/master/technologies/airflow/images/salesforce.png)
+
+It’s desirable for tasks to be idempotent, so that in the event of failure or other interruption they may be safely retried.
+
+For tasks which use the filesystem, we isolate them within docker-compose services so as not to pollute a shared resource: the Airflow worker’s filesystem. Running in a Docker container also enables us to easily reproduce any glaring issues locally.
+
+The ELT works by first checking an internal kill switch to see if the ELT should run. If it should, it proceeds to perform the fetch_salesforce task that fetches data from the Salesforce API, persisting the results to S3. On successful completion of that task, Airflow triggers execution of its downstream task, stage_salesforce, that reads the fetched data from S3 and stages it to tables in our Postgres database. Then the next downstream task, transform_salesforce, executes a database function that cleans and transforms the data in the staging tables to load into the production tables. Further downstream tasks set the ETL markers for subsequent DAG runs (set_last_sync_time) and also allow running SQL-defined data quality rules on the newly ingested data to report to the engineers in case of anomalies (run_rules_engine). In the end, we choose to notify the data services team of successful completion of the ETL via Slack.
+
+Each of the described tasks in the ELT workflow leverage configurable task attributes that we share among most of our DAGs like retries, on_failure_callback, and on_success_callback. These attributes allow tasks to be retried a given number of times, and take action in case of failure (e.g., notify via Slack or Pagerduty when a task fails even after all retries). In most cases this causes the corresponding DAG run to fail and the engineer can investigate by looking at the task logs. Another important DAG attribute we use is max_active_runs to limit the number of concurrent runs a DAG has. This is necessary to prevent contention for our ELT workflow since the DAG runs are modifying the same entities and we don't want multiple instances of a given DAG running at the same time.
+
+We also heavily leverage Airflow Hooks in our DAGs. Hooks are meant as an interface to interact with external systems, like S3, HIVE, SFTP, databases etc. The inbuilt functions do the heavy work of establishing the connection to the external systems, get files/data to local system and/or run queries.
+
+The metadata for each DAG/task run allows us to get simple metrics about DAG runs and task performance right out of the box, which is powerful and well-documented.
+Since we have a similar pattern for a lot of our ETL/ELT workflows, we templatize the workflow and instantiate a DAG per workflow for each of our internal data sources (like Salesforce, Marketo, etc)
+
+The template (simplified) looks as follows:
+
+```
+from datetime import timedelta
+from airflow import DAG
+
+from dw_airflow.airflow_utils import etl_helpers   # internal helper module
+
+
+def create_dag(dag_id, dag_schedule, dag_start_date, data_source, notify_always=True):
+  """
+  Create ELT DAG from template based on data source and env
+  Args:
+    dag_id: ELT DAG name
+    dag_schedule: (string) cron representation depicting dag schedule
+    dag_start_date: datetime object depicting DAG start date
+    data_source: internal data source label like SALESFORCE, MARKETO for ELT DAG identifier
+    notify_always: Boolean for slack notification preference on DAG success
+  """
+
+  DAG_DEFAULT_ARGS = {
+    'owner': 'dw',
+    'depends_on_past': False,
+    'retries': 1,
+    'max_active_runs': 1,
+    'provide_context': True,
+    'retry_delay': timedelta(minutes=2)
+  }
+
+  dag = DAG(dag_id,
+            default_args=DAG_DEFAULT_ARGS,
+            start_date=dag_start_date,
+            max_active_runs=1,
+            schedule_interval=dag_schedule)
+
+  # internal killswitch method returning a ShortCircuitOperator to shortcircuit ELT execution if necessary
+  should_etl_run = etl_helpers.dw_should_datasource_run_operator(data_source=data_source, dag=dag)
+
+  # returns a Postgres Operator setting the ETL marker after ELT run is complete
+  set_last_sync = etl_helpers.dw_set_last_sync_for_datasource_operator(data_source=data_source, dag=dag)
+
+  # returns BranchPythonOperator to confirm success of ETL dag run and send notifications as needed
+  register_etl_success = etl_helpers.register_etl_success_operator(data_source=data_source,
+                                                                   notify_always=notify_always,
+                                                                   dag=dag)
+  # returns SlackOperator that will post ETL success message
+  slack_notify = etl_helpers.post_etl_success_to_slack(dag=dag)
+
+  # returns DumyOperator that does a no-op
+  skip_slack_notify = etl_helpers.dw_dummy_etl_operator(task_id='skip_notify_slack', dag=dag)
+
+  # returns BashOperator that invokes docker-compose service to do the ELT fetch process for a given data source
+  fetch = etl_helpers.dw_elt_operator(data_source=data_source, etl_stage='FETCH', dag=dag)
+
+  # returns BashOperator that invokes docker-compose service to do the ELT Staging process for a given data source
+  stage = etl_helpers.dw_elt_operator(data_source=data_source, etl_stage='STAGE', dag=dag)
+
+  # returns BashOperator that invokes docker-compose service to do the ELT Transform process for a given data source
+  transform = etl_helpers.dw_elt_operator(data_source=data_source, etl_stage='TRANSFORM', dag=dag)
+
+  # returns BashOperator that invokes docker-compose service to execute data quality rules for a given data source
+  run_rules_engine = etl_helpers.dw_etl_rules_engine_operator(data_source=data_source, dag=dag)
+
+  # returns DummyOperator that does a no-op
+  finish_etl = etl_helpers.dw_finish_elt_operator(dag=dag)
+
+  # DAG sequencing
+  should_etl_run.set_downstream(fetch)
+  fetch.set_downstream(stage)
+  stage.set_downstream(transform)
+  transform.set_downstream(set_last_sync)
+  set_last_sync.set_downstream(run_rules_engine)
+  run_rules_engine.set_downstream(register_etl_success)
+  register_etl_success.set_downstream([slack_notify, skip_slack_notify])
+  slack_notify.set_downstream(finish_etl)
+  skip_slack_notify.set_downstream(finish_etl)
+
+  return dag
+```
+
+This has enabled new engineers to onboard and write/deploy new data pipelines easily.
+
+
+## Other workflows using Airflow at Optimizely
+Airflow has also grown to be used internally for various other workflows apart from data warehouse ELT workflows.
+
+
+![alt text](https://github.com/samirsahoo007/bigdata/blob/master/technologies/airflow/images/batch.png)
