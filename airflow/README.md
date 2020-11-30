@@ -67,6 +67,8 @@ Airflow is, it’s an workflow engine of the similar likes of Oozie and Azkaban.
 Airflow — it’s not just a word Data Scientists use when they fart. It’s a powerful open source tool originally created by Airbnb to design, schedule, and monitor ETL jobs. But what exactly does that mean, and why is the community so excited about it?
 
 Airflow is a WMS(workflow management systems) that defines tasks and and their dependencies as code, executes those tasks on a regular schedule, and distributes task execution across worker processes. Airflow offers an excellent UI that displays the states of currently active and past tasks, shows diagnostic information about task execution, and allows the user to manually manage the execution and state of tasks.
+We use Apache Airflow extensively to run Extract-Load-Transform (ELT) jobs for our data warehouse and perform enrichments to drive automation within the company.
+
 
 ## Background: OLTP vs. OLAP, Analytics Needs, and Warehouses
 
