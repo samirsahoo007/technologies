@@ -55,6 +55,10 @@ The main objective of Kubernetes is to hide the complexity of managing a fleet o
 
 Kubernetes follows a client-server architecture. It’s possible to have a multi-master setup (for high availability), but by default there is a single master server which acts as a controlling node and point of contact. The master server consists of various components including a kube-apiserver, an etcd storage, a kube-controller-manager, a cloud-controller-manager, a kube-scheduler, and a DNS server for Kubernetes services. Node components include kubelet and kube-proxy on top of Docker.
 
+![alt text](https://github.com/samirsahoo007/technologies/blob/master/LearningK8s/images/cluster_architecture.jpeg)
+
+OR
+
 ![alt text](https://github.com/samirsahoo007/technologies/blob/master/LearningK8s/images/kubertes.png)
 
 
