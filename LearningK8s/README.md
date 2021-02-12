@@ -546,6 +546,324 @@ kubernetes-minion-group-6z5i     Ready                         43s
 kubernetes-minion-group-de5q     Ready                         9m
 kubernetes-minion-group-yhdx     Ready                         9m
 `
+Monitoring is one of the key component for managing large clusters. For this, we have a number of tools.
+
+# Monitoring with Prometheus
+It is a monitoring and alerting system. It was built at SoundCloud and was open sourced in 2012. It handles the multi-dimensional data very well.
+
+Prometheus has multiple components to participate in monitoring −
+
+Prometheus − It is the core component that scraps and stores data.
+
+Prometheus node explore − Gets the host level matrices and exposes them to Prometheus.
+
+Ranch-eye − is an haproxy and exposes cAdvisor stats to Prometheus.
+
+Grafana − Visualization of data.
+
+InfuxDB − Time series database specifically used to store data from rancher.
+
+Prom-ranch-exporter − It is a simple node.js application, which helps in querying Rancher server for the status of stack of service.
+
+Monitoring with Prometheus 
+Sematext Docker Agent
+It is a modern Docker-aware metrics, events, and log collection agent. It runs as a tiny container on every Docker host and collects logs, metrics, and events for all cluster node and containers. It discovers all containers (one pod might contain multiple containers) including containers for Kubernetes core services, if the core services are deployed in Docker containers. After its deployment, all logs and metrics are immediately available out of the box.
+
+Deploying Agents to Nodes
+Kubernetes provides DeamonSets which ensures pods are added to the cluster.
+
+Configuring SemaText Docker Agent
+It is configured via environment variables.
+
+Get a free account at apps.sematext.com, if you don’t have one already.
+
+Create an SPM App of type “Docker” to obtain the SPM App Token. SPM App will hold your Kubernetes performance metrics and event.
+
+Create a Logsene App to obtain the Logsene App Token. Logsene App will hold your Kubernetes logs.
+
+Edit values of LOGSENE_TOKEN and SPM_TOKEN in the DaemonSet definition as shown below.
+
+Grab the latest sematext-agent-daemonset.yml (raw plain-text) template (also shown below).
+
+Store it somewhere on the disk.
+
+Replace the SPM_TOKEN and LOGSENE_TOKEN placeholders with your SPM and Logsene App tokens.
+
+Create DaemonSet Object
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+   name: sematext-agent
+spec:
+   template:
+      metadata:
+         labels:
+            app: sematext-agent
+      spec:
+         selector: {}
+         dnsPolicy: "ClusterFirst"
+         restartPolicy: "Always"
+         containers:
+         - name: sematext-agent
+            image: sematext/sematext-agent-docker:latest
+            imagePullPolicy: "Always"
+            env:
+            - name: SPM_TOKEN
+               value: "REPLACE THIS WITH YOUR SPM TOKEN"
+            - name: LOGSENE_TOKEN
+               value: "REPLACE THIS WITH YOUR LOGSENE TOKEN"
+            - name: KUBERNETES
+               value: "1"
+            volumeMounts:
+               - mountPath: /var/run/docker.sock
+                  name: docker-sock
+               - mountPath: /etc/localtime
+                  name: localtime
+            volumes:
+               - name: docker-sock
+                  hostPath:
+                     path: /var/run/docker.sock
+               - name: localtime
+                  hostPath:
+                     path: /etc/localtime
+Running the Sematext Agent Docker with kubectl
+$ kubectl create -f sematext-agent-daemonset.yml
+daemonset "sematext-agent-daemonset" created
+Kubernetes Log
+Kubernetes containers’ logs are not much different from Docker container logs. However, Kubernetes users need to view logs for the deployed pods. Hence, it is very useful to have Kubernetes-specific information available for log search, such as −
+
+Kubernetes namespace
+Kubernetes pod name
+Kubernetes container name
+Docker image name
+Kubernetes UID
+Using ELK Stack and LogSpout
+ELK stack includes Elasticsearch, Logstash, and Kibana. To collect and forward the logs to the logging platform, we will use LogSpout (though there are other options such as FluentD).
+
+The following code shows how to set up ELK cluster on Kubernetes and create service for ElasticSearch −
+
+apiVersion: v1
+kind: Service
+metadata:
+   name: elasticsearch
+   namespace: elk
+   labels:
+      component: elasticsearch
+spec:
+   type: LoadBalancer
+   selector:
+      component: elasticsearch
+   ports:
+   - name: http
+      port: 9200
+      protocol: TCP
+   - name: transport
+      port: 9300
+      protocol: TCP
+Creating Replication Controller
+apiVersion: v1
+kind: ReplicationController
+metadata:
+   name: es
+   namespace: elk
+   labels:
+      component: elasticsearch
+spec:
+   replicas: 1
+   template:
+      metadata:
+         labels:
+            component: elasticsearch
+spec:
+serviceAccount: elasticsearch
+containers:
+   - name: es
+      securityContext:
+      capabilities:
+      add:
+      - IPC_LOCK
+   image: quay.io/pires/docker-elasticsearch-kubernetes:1.7.1-4
+   env:
+   - name: KUBERNETES_CA_CERTIFICATE_FILE
+   value: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+   - name: NAMESPACE
+   valueFrom:
+      fieldRef:
+         fieldPath: metadata.namespace
+   - name: "CLUSTER_NAME"
+      value: "myesdb"
+   - name: "DISCOVERY_SERVICE"
+      value: "elasticsearch"
+   - name: NODE_MASTER
+      value: "true"
+   - name: NODE_DATA
+      value: "true"
+   - name: HTTP_ENABLE
+      value: "true"
+ports:
+- containerPort: 9200
+   name: http
+   protocol: TCP
+- containerPort: 9300
+volumeMounts:
+- mountPath: /data
+   name: storage
+volumes:
+   - name: storage
+      emptyDir: {}
+Kibana URL
+For Kibana, we provide the Elasticsearch URL as an environment variable.
+
+- name: KIBANA_ES_URL
+value: "http://elasticsearch.elk.svc.cluster.local:9200"
+- name: KUBERNETES_TRUST_CERT
+value: "true"
+Kibana UI will be reachable at container port 5601 and corresponding host/Node Port combination. When you begin, there won’t be any data in Kibana (which is expected as you have not pushed any data).
+
+* **Network Policy defines how the pods in the same namespace will communicate with each other and the network endpoint. It requires extensions/v1beta1/networkpolicies to be enabled in the runtime configuration in the API server. Its resources use labels to select the pods and define rules to allow traffic to a specific pod in addition to which is defined in the namespace.**
+* **Secrets can be defined as Kubernetes objects used to store sensitive data such as user name and passwords with encryption. The files can be either in txt or yaml format**.
+* **In Kubernetes, a volume can be thought of as a directory which is accessible to the containers in a pod. As soon as the life of a pod ended, the volume was also lost.**
+* **Deployments are upgraded and higher version of replication controller. They manage the deployment of replica sets which is also an upgraded version of the replication controller. They have the capability to update the replica set and are also capable of rolling back to the previous version.**
+```
+$ kubectl create –f Deployment.yaml --record				# Create Deployment
+$ kubectl get deployments						# Fetch the Deployment
+NAME           DESIRED     CURRENT     UP-TO-DATE     AVILABLE    AGE
+Deployment        3           3           3              3        20s
+
+$ kubectl rollout status deployment/Deployment				# Check the Status of Deployment
+$ kubectl set image deployment/Deployment tomcat=tomcat:6.0		# Updating the Deployment
+$ kubectl rollout undo deployment/Deployment –to-revision=2		# Rolling Back to Previous Deployment
+
+```
+* **Replica Set ensures how many replica of pod should be running. It can be considered as a replacement of replication controller. The key difference between the replica set and the replication controller is, the replication controller only supports equality-based selector whereas the replica set supports set-based selector.**
+* **Replication Controller is responsible for managing the pod lifecycle. It is responsible for making sure that the specified number of pod replicas(or atleast one) are running at any point of time. It has the capability to bring up or down the specified no of pod.
+
+It is a best practice to use the replication controller to manage the pod life cycle rather than creating a pod again and again.**
+```
+apiVersion: v1
+kind: ReplicationController --------------------------> 1
+metadata:
+   name: Tomcat-ReplicationController --------------------------> 2
+spec:
+   replicas: 3 ------------------------> 3
+   template:
+      metadata:
+         name: Tomcat-ReplicationController
+      labels:
+         app: App
+         component: neo4j
+      spec:
+         containers:
+         - name: Tomcat- -----------------------> 4
+         image: tomcat: 8.0
+         ports:
+            - containerPort: 7474 ------------------------> 5
+```
+* **A pod is a collection of single/multiple containers and its storage inside a node of a Kubernetes cluster.**
+
+Multi container pods are created using yaml.
+Create tomcat.yml with the following contenets
+```
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: Tomcat
+spec:
+  containers:
+    - name: Tomcat
+      image: Tomcat 8.0
+      ports:
+        - containerPort: 7500
+      imagePullPolicy: Always
+    - name: Database
+      image: mongoDB
+      ports:
+        - containerPort: 7501
+      imagePullPolicy: Always
+```
+In the above code, we have created one pod with two containers inside it, one for tomcat and the other for MongoDB.
+
+```
+$ kubectl create –f tomcat.yml
+```
+
+You can create a single pod with the following command
+$ kubectl run tomcat --image=tomcat:8.0			# kubectl run <name of pod> --image=<name of the image from registry>
+
+
+* **A service can be defined as a logical set of pods. It can be defined as an abstraction on the top of the pod which provides a single IP address and DNS name by which pods can be accessed. With Service, it is very easy to manage load balancing configuration. It helps pods to scale very easily.
+
+A service is a REST object in Kubernetes whose definition can be posted to Kubernetes apiServer on the Kubernetes master to create a new instance**.
+
+```
+apiVersion: v1
+kind: Endpoints
+metadata:
+   name: Tutorial_point_service
+subnets:
+   address:
+      "ip": "192.168.168.40" -------------------> (Selector)
+   ports:
+      - port: 8080
+```
+In the above code, we have created an endpoint which will route the traffic to the endpoint defined as “192.168.168.40:8080”.
+
+*Multi-Port Service Creation*
+```
+apiVersion: v1
+kind: Service
+metadata:
+   name: Tutorial_point_service
+spec:
+   selector:
+      application: “My Application” -------------------> (Selector)
+   ClusterIP: 10.3.0.12
+   ports:
+      -name: http
+      protocol: TCP
+      port: 80
+      targetPort: 31999
+   -name:https
+      Protocol: TCP
+      Port: 443
+      targetPort: 31998
+```
+##### Types of Services
+**ClusterIP** − This helps in restricting the service within the cluster. It exposes the service within the defined Kubernetes cluster.
+**NodePort** − It will expose the service on a static port on the deployed node. A ClusterIP service, to which NodePort service will route, is automatically created. The service can be accessed from outside the cluster using the NodeIP:nodePort.
+**Load Balancer** − It uses cloud providers’ load balancer. NodePort and ClusterIP services are created automatically to which the external load balancer will route.
+
+```
+spec:
+   ports:
+   - port: 8080
+      nodePort: 31999
+      name: NodeportService
+      clusterIP: 10.20.30.40
+```
+
+A full service yaml file with service type as Node Port. Try to create one yourself.
+```
+apiVersion: v1
+kind: Service
+metadata:
+   name: appname
+   labels:
+      k8s-app: appname
+spec:
+   type: NodePort
+   ports:
+   - port: 8080
+      nodePort: 31999
+      name: omninginx
+   selector:
+      k8s-app: appname
+      component: nginx
+      env: env_name
+```
+
+
 
 
 # Setting Kubectl
