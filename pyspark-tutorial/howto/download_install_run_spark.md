@@ -1,8 +1,7 @@
 Download, Install, and Run PySpark
-==================================
 
 0. For macbook users: Enable "Remote Login"
-==========================================
+
 ````
 System Preferences --> Sharing --> enable "Remote Login" service
 ````
@@ -16,12 +15,12 @@ Java(TM) SE Runtime Environment (build 1.8.0_72-b15)
 Java HotSpot(TM) 64-Bit Server VM (build 25.72-b15, mixed mode)
 ````
 
-2. Download 
-===========
-Download the latest binary Spark from the following URL:
-````
-http://www.apache.org/dyn/closer.lua/spark/spark-1.6.1/spark-2.4.3-bin-hadoop2.7.tgz
-````
+2. Download the latest binary Spark from https://downloads.apache.org/spark/ 
+    OR
+    just download the following URL.
+```
+https://www.apache.org/dyn/closer.lua/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz
+```
 
 3. Setup SPARK_HOME
 ===================
@@ -84,6 +83,43 @@ jps
 ````
 http://localhost:8080
 ````
+
+*Issues*:
+**What if you get the following error?**
+
+1. (venv363) Samirs-XYZ $ ./sbin/start-all.sh
+    WARNING: Attempting to start all Apache Hadoop daemons as samirsahoo in 10 seconds.
+    WARNING: This is not a recommended production deployment configuration.
+    WARNING: Use CTRL-C to abort.
+    Starting namenodes on [localhost]
+    localhost: sameer_sahoo@localhost: Permission denied (publickey,password,keyboard-interactive).
+    Starting datanodes
+    localhost: sameer_sahoo@localhost: Permission denied (publickey,password,keyboard-interactive).
+    Starting secondary namenodes [Samirs-XYZ]
+    Samirs-XYZ: sameer_sahoo@samirs-mbp: Permission denied (publickey,password,keyboard-interactive).
+    2021-05-16 21:20:29,168 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+    Starting resourcemanager
+    resourcemanager is running as process 81524.  Stop it first.
+    Starting nodemanagers
+    localhost: sameer_sahoo@localhost: Permission denied (publickey,password,keyboard-interactive).
+
+
+*Solution*: Here the username sameer_sahoo may not have passwordless access that you've set above. If the passwordless setup is correct, then check the user... e.g. in my case if you'd see, the username for which passwordless access was set is samirsahoo not sameer_sahoo
+
+```
+ $ users
+   samirsahoo
+```
+
+So from where this username "sameer_sahoo" is coming from??? Check ~/.ssh/config ...; the username in "User" Change User line from "User sameer_sahoo" to "User samirsahoo" and run ./start-all.sh again.
+
+*# Follow the steps below if you want to make your system passwordless*
+
+```
+$ ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+$ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+$ chmod 0600 ~/.ssh/authorized_keys
+```
 
 7. Define 2 Very Basic Python Programs
 ======================================
