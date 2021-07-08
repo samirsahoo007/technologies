@@ -263,6 +263,8 @@ JavaRDD<String> rdd = context.textFile(inputPath);
 Refer: https://datanoon.com/blog/semi_structured_data_spark/
 # Explore DataFrame Schema (Refer: https://medium.com/expedia-group-tech/working-with-json-in-apache-spark-1ecf553c2a8c)
 We use printSchema() to display the schema of the DataFrame.
+
+```
 rawDF.printSchema()
 Output
 root
@@ -279,13 +281,20 @@ root
 |    |    |-- id: string (nullable = true)
 |    |    |-- type: string (nullable = true)
 |-- type: string (nullable = true)
+```
+
 Looking at the above output, you can see that this is a nested DataFrame containing a struct, array, strings, etc. Feel free to compare the above schema with the JSON data to better understand the data before proceeding.
 For example, column batters is a struct of an array of a struct. Column topping is an array of a struct. Column id, name, ppu, and type are simple string, string, double, and string columns respectively.
-line separator
-Convert Nested “batters” to Structured DataFrame
+
+**line separator**
+**Convert Nested “batters” to Structured DataFrame**
+
 Now let's work with batters columns which are a nested column. First of all, let's rename the top-level “id” column because we have another “id” as a key of element struct under the batters.
 sampleDF = rawDF.withColumnRenamed("id", "key")
+
 Let’s try to explore the “batters” columns now. Extract batter element from the batters which is Struct of an Array and check the schema.
+
+```
 batDF = sampleDF.select("key", "batters.batter")
 batDF.printSchema()
 Output
@@ -295,7 +304,11 @@ root
 |    |-- element: struct (containsNull = true)
 |    |    |-- id: string (nullable = true)
 |    |    |-- type: string (nullable = true)
+```
+
 Let's check the content of the DataFrame “batDF”. You can find more details about show function here.
+
+```
 batDF.show(1, False)
 Output
 +----+------------------------------------------------------------+
@@ -315,7 +328,10 @@ Output
 |0001|   [1002, Chocolate]|
 |0001|   [1003, Blueberry]|
 +----+--------------------+
+```
+
 Let’s check the schema of the bat2DF.
+```
 bat2DF.printSchema()
 Output
 root
@@ -323,7 +339,11 @@ root
 |-- new_batter: struct (nullable = true)
 |    |-- id: string (nullable = true)
 |    |-- type: string (nullable = true)
+```
+
 Now we can extract the individual elements from the “new_batter” struct. We can use a dot (“.”) operator to extract the individual element or we can use “*” with dot (“.”) operator to select all the elements.
+
+```
 bat2DF.select("key", "new_batter.*").show()
 Output
 +----+----+------------+
@@ -333,8 +353,12 @@ Output
 |0001|1002|   Chocolate|
 |0001|1003|   Blueberry|
 +----+----+------------+
+```
+
 Now we have converted the JSON to structured DataFrame.
 Let’s put together everything we discussed so far.
+
+```
 finalBatDF = (sampleDF
         .select("key",  
 explode("batters.batter").alias("new_batter"))
@@ -350,8 +374,11 @@ Output
 |0001|  1002|   Chocolate|
 |0001|  1003|   Blueberry|
 +----+------+------------+
+```
+
 Convert Nested “toppings” to Structured DataFrame
 Let’s convert the “toppings” nested structure to a simple DataFrame. Here we use the techniques that we learned so far to extract elements from a Struct and an Array.
+```
 topDF = (sampleDF
         .select("key", explode("topping").alias("new_topping"))
         .select("key", "new_topping.*")
@@ -371,7 +398,7 @@ Output
 |0001|5003  |Chocolate               |
 |0001|5004  |Maple                   |
 +----+------+------------------------+
-
+```
 
 Questions/Comments
 ==================
