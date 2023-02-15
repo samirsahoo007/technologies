@@ -113,3 +113,12 @@ An intuitive example of an idempotent API is bank account transfers: if a user i
 
 ### 3.3 Workflow Engines
 Another way of coordinating nodes in a system is by using a workflow engine . A workflow engine is a centralized decision making system that contains a set of "workflows" of what work can be done, the state of data and work in the system, and the resources available to assign work to. Popular solutions are AWS Step Functions, Apache Airflow, and .NET State Machines.
+
+## 4. Example leader election questions
+
+Implement Leader Election with Kubernetes : https://kubernetes.io/blog/2016/01/simple-leader-election-with-kubernetes/
+Design a Distributed Message Queue : https://serhatgiydiren.github.io/system-design-interview-distributed-message-queue
+Implement Leader Election in Google Cloud : https://cloud.google.com/blog/topics/developers-practitioners/implementing-leader-election-google-cloud-storage
+
+
+
