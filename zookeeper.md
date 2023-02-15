@@ -51,7 +51,7 @@ The leader / follower model generally makes the best practices of partial deploy
 
 Now that we've gone over the benefits and downsides of leader election, and you know when it's appropriate to use, let's jump into the algorithm approaches for implementing it!
 
-### 2. Leader Election Algorithms
+## 2. Leader Election Algorithms
 A leader election algorithm guides a cluster to collectively agree on one node to act as leader with as few back and forth communications as possible.
 
 Generally, the algorithm works by assigning one of three states to each node: Leader, Follower, or Candidate. Additionally the leader will be required to regularly pass a "healthcheck" or “heartbeat” so follower nodes can tell if the leader has become unavailable or failed and a new one needs to be elected.
@@ -73,45 +73,43 @@ if the node has the highest id, it declares itself the winner and sends this mes
 if the node has a lower id, it messages all nodes with higher ids and if it doesn't get a response, it assumes all of them have failed or are unavailable, and declares itself the winner.
 The main downside of the bully algorithm is that if the highest-ranked node goes down frequently, it will re-claim leadership every time it comes back online, causing unnecessary reelections. Synchronization of messages can also be difficult to maintain, especially as the cluster gets larger and physically distributed. 
 
-2.2 Paxos
+### 2.2 Paxos
 Paxos is a general consensus protocol that can be used for asynchronous leader election. Quite a lot of research has been done about the Paxos family of algorithms, which means it's both robust and there's much more to say about it than we have space for in this article.
-
-You don’t need to know all the details of Paxos for designing systems, in fact for leader election generally it’s best to choose an existing implementation because of the complexity. It’s unlikely that your system will have a feature constraint that isn’t already covered by an existing open source library or service.
 
 Very briefly, Paxos uses state machine replication to model the distributed system, and then chooses a leader by having some nodes propose a leader, and some nodes accept proposals. When a quorum of (enough of) the accepting nodes choose the same proposed leader, that proposed leader becomes the actual leader.
 
-2.3 RAFT
+### 2.3 RAFT
 Raft is an alternative to Paxos that is favored because people tend to find it simpler to understand, and therefore easier to implement and use. Raft is an asynchronous algorithm.
 
 In Raft consensus, each node keeps track of the current "election term". When leader election starts each node increments its copy of the term number and listens for messages from other nodes. After a random interval, if the node doesn't hear anything, it will become a candidate leader and ask other nodes for votes.
 
 If the candidate ever reaches a majority of votes, it becomes a leader, and if it ever receives a message from another candidate with a higher term number, it concedes. The algorithm restarts if the election is split or times out without consensus. Restarts don't happen too often because the random timeouts help make it so nodes don't usually conflict.
 
-2.4 Apache ZooKeeper (ZAB)
+### 2.4 Apache ZooKeeper (ZAB)
 Apache Zookeeper is a centralized coordination service that is “itself distributed and highly reliable.” The ethos behind Apache ZooKeeper is that coordination in distributed systems is difficult, and it’s better to have a shared open source implementation with all the key elements so that your service doesn’t have to reimplement everything from scratch. This is especially helpful in large distributed systems.
 
 ZAB (ZooKeeper Atomic Broadcast) is the protocol used by Apache ZooKeeper to handle leader election, replication order guarantees, and node recovery. It is called this because the leader “broadcasts” state changes to followers to make sure writes are consistent and propagated to all nodes. ZAB is an asynchronous algorithm.
 
 ZAB is focused on making sure the history of the cluster is accurate through leadership transitions. The leader is chosen such that it has the most up to date history (it has seen the most recent transaction). When enough of the nodes agree that the new leader has the most up to date history, it syncs history with the cluster and finishes the election by recording itself as leader. 
 
-3. Alternatives to leader election
+## 3. Alternatives to leader election
 Alternatives to leader election are based on the premise that coordination is possible without a dedicated leader node, thus achieving the primary function of leader election with lower implementation complexity.
 
 Here’s a brief overview of three of the most notable alternatives:
 
-3.1 Locking
+### 3.1 Locking
 A locking model ensures that concurrent operations on a shared resource don't conflict by only allowing changes from one node at a time. With optimistic locking a node will read a resource and its version id, make changes, and then before updating make sure that the version id is the same. If the id is different this means the resource has been updated since the node first read it. Going forward with the intended changes based on the old id would lose the other changes, so  the node needs to try again.
 
 In pessimistic locking a node locks the resource, makes changes, and then unlocks the resource. If another node tries to initiate a change while the resource is locked, it will fail and try again later. Pessimistic locking is more rigorous, but can be hard to implement and bugs can cause deadlocks that stop a system from functioning.
 
 These locking patterns are named for use cases. Optimistic locking is useful when you can make the "optimistic" assumption that another node won't change the resource out from under the operation. And pessimistic locking is useful when you can make the "pessimistic" assumption that there will be contention for the resource.
 
-3.2 Idempotent APIs
+### 3.2 Idempotent APIs
 APIs can have the feature of idempotency to ensure consistent interactions with a shared resource. An API is idempotent when the same request sent multiple times will not produce any inconsistent results. When reading from a resource, this means the response will always be the same value. When writing, this means the update will only happen once.
 
 For example, idempotent writes can be implemented by requiring request ids so the system can tell if a request is being retried. Idempotency is also supported by other features we've talked about, like locking and database transactions.
 
 An intuitive example of an idempotent API is bank account transfers: if a user initiates an online bank transfer and their internet goes down halfway through processing, you want to make sure the user can initiate the transfer again and your system will correctly only transfer the amount once.
 
-3.3 Workflow Engines
+### 3.3 Workflow Engines
 Another way of coordinating nodes in a system is by using a workflow engine . A workflow engine is a centralized decision making system that contains a set of "workflows" of what work can be done, the state of data and work in the system, and the resources available to assign work to. Popular solutions are AWS Step Functions, Apache Airflow, and .NET State Machines.
