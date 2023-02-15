@@ -35,6 +35,14 @@ Hence, the process moves to the FOLLOWING state and begins to follow the leader 
 Moreover, the process moves to the LEADING state and becomes the leader, if the process is the leader after the election. 
 
 # How is Leader elected in Zookeeper?
+Before getting into the details of leader election, it's important to know what happens when a write occurs. Let's assume there are 3 servers, 1 one which is a leader and the remaining 2 followers. Every write goes through the leader and the leader generates a transaction id (zxid) and assigns it to this write request. The id represents the order in which the writes are applied to all replicas. A write is considered successful if the leader receives the ack from the majority (in this case 1 of the two followers need to ack). This is pretty much the flow for all the writes. The requirement of zxid is that it increases monotonically and is never re-used.
+
+Now let's see what happens when the leader fails, each follower tries to become the leader by broadcasting the last zxid they have seen. Others reply OK if the zxid they have seen is less than or equal and NO if they have a higher zxid. You assume you are the leader if you get OK from the majority and broadcast the same to the followers.
+
+This is a simplified version of the leader election. In a happy case, it looks simple and tempting to implement one. However, the challenge is to handle cases like network partitions, race conditions, ties, etc. Raft lecture talks about them in detail.
+
+I would also suggest viewing the Raft lecture by John Ousterhout. Even though ZAB and Raft are seen as two different protocols, they are pretty much the same. The explanation of Raft is way better.
+
 While creating znodes that represent “proposals” of clients, a simple way of doing leader election with ZooKeeper is to use the SEQUENCE|EPHEMERAL flags. Its basic concept is to have a znode, say “/election”, such that each znode creates a child znode “/election/n_” with both flags SEQUENCE|EPHEMERAL.
 
 A sequence number which is higher than anyone previously appended to a child of “/election”, that is automatically appended by Zookeeper, with the sequence flag. In other words, Leader is a process which created the znode with the smallest appended sequence number.
