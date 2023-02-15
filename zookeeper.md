@@ -23,6 +23,17 @@ Read requests sent by a ZooKeeper client are processed locally at the ZooKeeper 
 
 Order is very important to ZooKeeper; almost bordering on obsessive–compulsive disorder. All updates are totally ordered. ZooKeeper actually stamps each update with a number that reflects this order. We call this number the zxid (ZooKeeper Transaction Id). Each update will have a unique zxid. Reads (and watches) are ordered with respect to updates. Read responses will be stamped with the last zxid processed by the server that services the read.
 
+# What is Zookeeper Leader Election?
+A server that has been chosen by an ensemble of servers, is what we call a Leader. Also, that leader continues to have support from that ensemble. Basically, to order client requests that change the ZooKeeper state is the main purpose of Leader.
+
+Zookeeper State includes create, setData, and delete. Also, it transforms each request into a transaction. Furthermore, it proposes to the followers that the ensemble accepts and applies them in the order issued by the leader.
+
+However, it enters the ELECTION state, when a process starts. And, the process tries to elect a new leader or become a leader, in this state. 
+
+Hence, the process moves to the FOLLOWING state and begins to follow the leader when it finds an elected leader. So, we can say the processes in the FOLLOWING state are followers.
+
+Moreover, the process moves to the LEADING state and becomes the leader, if the process is the leader after the election. 
+
 # 1. Leader Election Basics
 ### 1.1 Definition
 Sometimes horizontally scaling a system is as simple as spinning up a cluster of nodes and letting each node respond to whatever subset of the incoming requests they receive. At other times, the task at hand requires more precise coordination between the nodes and it’s helpful to have a leader node directing what the follower nodes work on.
