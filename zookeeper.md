@@ -34,6 +34,34 @@ Hence, the process moves to the FOLLOWING state and begins to follow the leader 
 
 Moreover, the process moves to the LEADING state and becomes the leader, if the process is the leader after the election. 
 
+# How is Leader elected in Zookeeper?
+While creating znodes that represent “proposals” of clients, a simple way of doing leader election with ZooKeeper is to use the SEQUENCE|EPHEMERAL flags. Its basic concept is to have a znode, say “/election”, such that each znode creates a child znode “/election/n_” with both flags SEQUENCE|EPHEMERAL.
+
+A sequence number which is higher than anyone previously appended to a child of “/election”, that is automatically appended by Zookeeper, with the sequence flag. In other words, Leader is a process which created the znode with the smallest appended sequence number.
+
+Although make sure it is must watch for failures of the leader. Because if in the case the current leader fails, that helps a new client arises as the new leader.
+
+There is one other solution for that. It is that to have all application processes keeping an eye upon the current smallest Znode, and also keep checking that when the smallest Znode goes away if they are the new leader.  Although this results in a herd effect.
+
+That is all other processes receive a notification and execute getChildren on “/election” to obtain the current list of children of “/election”, upon of failure of the current leader. Also, it causes a spike in the number of operations that ZooKeeper servers have to process, if the number of clients is large. 
+
+The pseudo code for ZooKeeper Leader Election is:
+
+Let’s suppose ELECTION be a path of choice of the application. So, in order to volunteer to be a leader:
+
+with path "ELECTION/n_", Create Znode z  with both SEQUENCE and EPHEMERAL flags;
+Then let's suppose i be the sequence number of z and C be the children of "ELECTION";
+Also, where j is the largest sequence number such that j < i and n_j is a Znode in C, watch for changes on "ELECTION/n_j";
+Further, upon receiving a notification of Znode deletions:
+Let’s suppose C be the new set of children of ELECTION;
+Then execute leader procedure, if z is the smallest node in C;
+
+Else, where j is the largest sequence number such that j < i and n_j is a Znode in C, watch for changes on “ELECTION/n_j”;
+
+However, make sure that the Znode having no preceding znode on the list of children. Though it says it does not imply that the creator of this znode is aware that it is the current leader.
+
+And, to acknowledge that the leader has executed the leader procedure, applications may consider creating a separate Znode.
+
 # 1. Leader Election Basics
 ### 1.1 Definition
 Sometimes horizontally scaling a system is as simple as spinning up a cluster of nodes and letting each node respond to whatever subset of the incoming requests they receive. At other times, the task at hand requires more precise coordination between the nodes and it’s helpful to have a leader node directing what the follower nodes work on.
