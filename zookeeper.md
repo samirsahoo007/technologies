@@ -114,15 +114,4 @@ For example, idempotent writes can be implemented by requiring request ids so th
 An intuitive example of an idempotent API is bank account transfers: if a user initiates an online bank transfer and their internet goes down halfway through processing, you want to make sure the user can initiate the transfer again and your system will correctly only transfer the amount once.
 
 3.3 Workflow Engines
-Another way of coordinating nodes in a system is by using a workflow engine . A workflow engine is a centralized decision making system that contains a set of "workflows" of what work can be done, the state of data and work in the system, and the resources available to assign work to. Popular solutions are AWS Step Functions, Apache Airflow, and .NET State Machines
-
-4. Example leader election questions
-The questions asked in system design interviews tend to begin with a broad problem or goal, so it’s unlikely that you’ll get an interview question specifically about leader election.
-
-However, you may be asked to solve a problem where leader election will be an important part of the solution. As a result, what you really need to know is WHEN you should bring it up and how you should approach it.
-
-To help you with this, we’ve compiled the below list of example system design scenarios, where leader election is relevant. These could be a helpful illustration for how leader election fits into a broader system design.
-
-Implement Leader Election with Kubernetes (Read the answer)
-Design a Distributed Message Queue (Read the answer)
-Implement Leader Election in Google Cloud (Read the answer) 
+Another way of coordinating nodes in a system is by using a workflow engine . A workflow engine is a centralized decision making system that contains a set of "workflows" of what work can be done, the state of data and work in the system, and the resources available to assign work to. Popular solutions are AWS Step Functions, Apache Airflow, and .NET State Machines.
